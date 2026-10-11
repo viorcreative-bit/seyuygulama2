@@ -3,6 +3,7 @@ import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from '
 import AsciKarti from '../components/AsciKarti';
 import { useAuth } from '../auth/AuthContext';
 import { Asci, enSevilenAscilar, ornekAscilar } from '../data/ornekAscilar';
+import { bekleyenTalepSayisi } from '../lib/talepler';
 import { vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
@@ -11,14 +12,20 @@ type Props = {
   asciAc: (id: string) => void;
   talepEt: () => void;
   taleplerim: () => void;
+  gelenTalepler: () => void;
 };
 
-export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim }: Props) {
+export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler }: Props) {
   const ascilar = enSevilenAscilar(ornekAscilar);
   const { profil, cikisYap } = useAuth();
   const [yeniler, setYeniler] = useState<Asci[]>([]);
 
   const [listeDurumu, setListeDurumu] = useState('');
+  const [bekleyen, setBekleyen] = useState(0);
+
+  useEffect(() => {
+    if (profil?.rol === 'asci') bekleyenTalepSayisi().then(setBekleyen);
+  }, [profil?.rol]);
 
   useEffect(() => {
     yeniAscilar()
@@ -55,6 +62,18 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim }:
             <Text style={styles.profilButonYazi}>Taleplerim</Text>
           </Pressable>
         </>
+      ) : null}
+
+      {profil?.rol === 'asci' ? (
+        <Pressable
+          onPress={gelenTalepler}
+          style={({ pressed }) => [styles.buton, pressed && styles.butonBasili]}
+          accessibilityRole="button"
+        >
+          <Text style={styles.butonYazi}>
+            Gelen Talepler{bekleyen > 0 ? ` (${bekleyen})` : ''}
+          </Text>
+        </Pressable>
       ) : null}
 
       {profil?.rol === 'asci' ? (

@@ -7,6 +7,7 @@ import AnaSayfa from './src/screens/AnaSayfa';
 import AsciProfil from './src/screens/AsciProfil';
 import AsciProfilDuzenle from './src/screens/AsciProfilDuzenle';
 import AsciSec from './src/screens/AsciSec';
+import GelenTalepler from './src/screens/GelenTalepler';
 import Giris from './src/screens/Giris';
 import Kayit from './src/screens/Kayit';
 import TalepOlustur from './src/screens/TalepOlustur';
@@ -19,7 +20,8 @@ type Ekran =
   | { ad: 'asci'; id: string }
   | { ad: 'asciSec' }
   | { ad: 'talep'; asciId: string }
-  | { ad: 'taleplerim' };
+  | { ad: 'taleplerim' }
+  | { ad: 'gelenTalepler' };
 
 function Ekranlar() {
   const { yukleniyor, oturum, profil } = useAuth();
@@ -54,6 +56,8 @@ function Ekranlar() {
       return <TalepOlustur asciId={ekran.asciId} geri={ana} gonderildi={() => setEkran({ ad: 'taleplerim' })} />;
     case 'taleplerim':
       return <Taleplerim geri={ana} />;
+    case 'gelenTalepler':
+      return profil.rol === 'asci' ? <GelenTalepler geri={ana} /> : <AnaSayfa {...anaProps(setEkran)} />;
     default:
       return <AnaSayfa {...anaProps(setEkran)} />;
   }
@@ -65,6 +69,7 @@ function anaProps(setEkran: (e: Ekran) => void) {
     asciAc: (id: string) => setEkran({ ad: 'asci', id }),
     talepEt: () => setEkran({ ad: 'asciSec' }),
     taleplerim: () => setEkran({ ad: 'taleplerim' }),
+    gelenTalepler: () => setEkran({ ad: 'gelenTalepler' }),
   };
 }
 

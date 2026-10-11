@@ -95,3 +95,39 @@ export async function talebiIptalEt(id: string) {
   const { error } = await supabase.from('talepler').update({ durum: 'iptal' }).eq('id', id);
   if (error) throw error;
 }
+
+export type GelenTalep = {
+  id: string;
+  musteri_ad: string;
+  semt: string;
+  tarih: string;
+  kisi_sayisi: number;
+  mutfak_tercihleri: string[];
+  istenen_yemekler: string;
+  alerjiler: string;
+  notlar: string;
+  durum: Durum;
+  adres: string | null;
+};
+
+export async function gelenTalepler(): Promise<GelenTalep[]> {
+  const { data, error } = await supabase
+    .from('asci_talepleri')
+    .select('*')
+    .order('tarih', { ascending: true });
+  if (error) throw error;
+  return (data as GelenTalep[]) ?? [];
+}
+
+export async function bekleyenTalepSayisi(): Promise<number> {
+  const { count } = await supabase
+    .from('asci_talepleri')
+    .select('id', { count: 'exact', head: true })
+    .eq('durum', 'bekliyor');
+  return count ?? 0;
+}
+
+export async function durumDegistir(id: string, durum: 'kabul' | 'red' | 'tamamlandi') {
+  const { error } = await supabase.from('talepler').update({ durum }).eq('id', id);
+  if (error) throw error;
+}
