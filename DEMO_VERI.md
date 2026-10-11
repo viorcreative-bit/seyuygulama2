@@ -31,3 +31,4 @@ Uygulamanın altında 3 demo reklam bandı dönmeye başlar ("DEMO REKLAM" yazı
 
 ## Not
 Demo veride kurumsal talep yoktur; kurumsal akışı denemek için bir müşteri hesabıyla talep aç, bir aşçı hesabında Profili Düzenle'den "Kurumsal hizmet" anahtarını aç ve teklif ver.
+Demo aşçıların yemekleri ve malzemeleri de eklenir (`schema_16.sql` çalıştırılmışsa).

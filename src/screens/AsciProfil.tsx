@@ -11,6 +11,7 @@ import { Yildizlar } from '../components/Yildizlar';
 import YorumKarti from '../components/YorumKarti';
 import { supabase } from '../lib/supabase';
 import { tl, Vitrin } from '../lib/vitrin';
+import { Yemek, asciYemekleri, malzemeListesi } from '../lib/yemekler';
 import { Yorum, asciYorumlari } from '../lib/yorumlar';
 import { colors, fontSize, radius, spacing } from '../theme';
 
@@ -35,15 +36,18 @@ export default function AsciProfil({ asciId, geri, talepEt }: Props) {
   const [asci, setAsci] = useState<Vitrin | null>(null);
   const [galeri, setGaleri] = useState<string[]>([]);
   const [yorumlar, setYorumlar] = useState<Yorum[]>([]);
+  const [yemekler, setYemekler] = useState<Yemek[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const [a, f, y] = await Promise.all([
+      const [a, f, y, ym] = await Promise.all([
         supabase.from('asci_vitrini').select('*').eq('id', asciId).maybeSingle(),
         supabase.from('asci_fotograflari').select('adres').eq('asci_id', asciId).order('sira'),
         asciYorumlari(asciId).catch(() => [] as Yorum[]),
+        asciYemekleri(asciId).catch(() => [] as Yemek[]),
       ]);
+      setYemekler(ym);
       setYorumlar(y);
       setAsci((a.data as Vitrin | null) ?? null);
       setGaleri((f.data ?? []).map((x: { adres: string }) => x.adres));
@@ -153,6 +157,21 @@ export default function AsciProfil({ asciId, geri, talepEt }: Props) {
             </>
           ) : null}
 
+          {yemekler.length > 0 ? (
+            <>
+              <Text style={styles.bolum}>Yapacağı yemekler</Text>
+              <View style={{ gap: spacing.s }}>
+                {yemekler.map((y) => (
+                  <View key={y.id} style={styles.yemek}>
+                    <Text style={styles.yemekAd}>{y.ad}</Text>
+                    <Text style={styles.yemekEtiket}>Kullanılacak malzemeler</Text>
+                    <Etiketler liste={malzemeListesi(y.malzemeler)} />
+                  </View>
+                ))}
+              </View>
+            </>
+          ) : null}
+
           {galeri.length > 0 ? (
             <>
               <Text style={styles.bolum}>Yemeklerinden</Text>
@@ -213,6 +232,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  yemek: { backgroundColor: colors.yuzey, borderRadius: radius.m, borderWidth: 1, borderColor: colors.cizgi, padding: spacing.m, gap: 6 },
+  yemekAd: { color: colors.metin, fontWeight: '800', fontSize: fontSize.normal + 1 },
+  yemekEtiket: { color: colors.metinSoluk, fontSize: 12, fontWeight: '700' },
   panel: { paddingHorizontal: spacing.l, marginTop: -spacing.l },
   ad: { fontSize: 32, fontWeight: '800', color: colors.metin },
   uzmanlik: { fontSize: fontSize.normal, color: colors.metinSoluk, marginTop: 2 },

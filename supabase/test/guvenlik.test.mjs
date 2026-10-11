@@ -1,6 +1,6 @@
 import { kur, semalar } from './kur.mjs';
 const db = await kur();
-await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','demo_veri.sql']);
+await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','schema_16.sql','demo_veri.sql']);
 const U = (n) => `dddddddd-0000-4000-8000-${n}`;
 const ASCI = U('000000000001'), ASCI2 = U('000000000002'), MUS = U('001000000001'), MUS2 = U('001000000002');
 const YENI = 'eeeeeeee-0000-4000-8000-000000000001', ADM = 'eeeeeeee-0000-4000-8000-000000000009';
@@ -260,4 +260,24 @@ await olarak(MUS3, async () => {
 kontrol('başkasının favorisi silinemez', (await db.query(`select 1 from favoriler where musteri_id='${MUS}'`)).rows.length === 1);
 await olarak(ASCI2, async () => { r = await dene(`insert into favoriler (musteri_id, asci_id) values ('${ASCI2}','${ASCI}')`); kontrol('aşçı favori ekleyemez', !r.ok); });
 await olarak(MUS, async () => { r = await dene(`delete from favoriler where asci_id='${ASCI}'`); kontrol('müşteri favoriyi kaldırır', r.ok && (await db.query(`select 1 from favoriler`)).rows.length === 0); });
+
+// --- Aşçı yemekleri ve malzemeleri
+await olarak(ASCI, async () => {
+  r = await dene(`insert into asci_yemekleri (asci_id, ad, malzemeler) values ('${ASCI}','Test yemeği','domates, biber')`); kontrol('aşçı kendi yemeğini ekler', r.ok, r.hata ?? '');
+  r = await dene(`insert into asci_yemekleri (asci_id, ad, malzemeler) values ('${ASCI2}','Başkası','x')`); kontrol('başkası adına yemek eklenemez', !r.ok);
+  r = await dene(`update asci_yemekleri set malzemeler='domates, biber, zzzmalzeme' where asci_id='${ASCI}' and ad='Test yemeği'`); kontrol('aşçı yemeğini düzenler', r.ok && (await db.query(`select 1 from asci_yemekleri where malzemeler like '%zzzmalzeme%'`)).rows.length === 1);
+  r = await dene(`insert into asci_yemekleri (asci_id, ad) values ('${ASCI}','a')`); kontrol('çok kısa yemek adı reddedilir', !r.ok);
+});
+await olarak(MUS, async () => kontrol('müşteri onaylı aşçının yemeklerini görür', (await db.query(`select 1 from asci_yemekleri where ad='Test yemeği'`)).rows.length === 1));
+await olarak(ASCI2, async () => {
+  r = await dene(`update asci_yemekleri set ad='Hack' where asci_id='${ASCI}'`);
+  kontrol('başka aşçı yemeği değiştiremez', (await db.query(`select 1 from asci_yemekleri where ad='Hack'`)).rows.length === 0);
+  r = await dene(`delete from asci_yemekleri where asci_id='${ASCI}'`);
+});
+kontrol('başka aşçı yemeği silemez', (await db.query(`select 1 from asci_yemekleri where ad='Test yemeği'`)).rows.length === 1);
+await db.exec(`insert into asci_yemekleri (asci_id, ad) values ('${YENI}','Gizli yemek')`);
+await olarak(MUS, async () => kontrol('onaysız aşçının yemeği GÖRÜNMEZ', (await db.query(`select 1 from asci_yemekleri where ad='Gizli yemek'`)).rows.length === 0));
+await olarak(YENI, async () => kontrol('onaysız aşçı kendi yemeğini görür', (await db.query(`select 1 from asci_yemekleri where ad='Gizli yemek'`)).rows.length === 1));
+await olarak(ASCI, async () => { r = await dene(`delete from asci_yemekleri where ad='Test yemeği'`); kontrol('aşçı yemeğini siler', r.ok && (await db.query(`select 1 from asci_yemekleri where ad='Test yemeği'`)).rows.length === 0); });
+await db.exec(`delete from asci_yemekleri where ad='Gizli yemek'`);
 console.log(`\nSONUÇ: ${gecen} geçti, ${kalan} kaldı`);

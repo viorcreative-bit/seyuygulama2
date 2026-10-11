@@ -71,6 +71,7 @@ let reklamlar = [];
 let kurumsal = [];
 let reklamFormuAcik = false;
 let reklamDuzenlenen = null; // düzenlenen reklamın id'si
+let yemekler = {}; // aşçı id -> [{ad, malzemeler}]
 let galeriler = {}; // aşçı id -> yemek fotoğrafı adresleri
 let filtre = { asci: 'bekleyen', uye: 'hepsi', sikayet: 'acik', arama: '' };
 
@@ -124,14 +125,17 @@ $('cikis').addEventListener('click', async () => {
 // ---------- Veri ----------
 async function yukle() {
   $('liste').replaceChildren(el('p', { class: 'bos' }, 'Yükleniyor...'));
-  const [a, s, u, g, rk, ku] = await Promise.all([
+  const [a, s, u, g, rk, ku, ym] = await Promise.all([
     supabase.from('yonetici_ascilar').select('*'),
     supabase.from('yonetici_sikayetleri').select('*'),
     supabase.from('yonetici_uyeler').select('*'),
     supabase.from('asci_fotograflari').select('asci_id, adres').order('sira'),
     supabase.from('reklamlar').select('*').order('olusturma_tarihi', { ascending: false }),
     supabase.from('yonetici_kurumsal').select('*').order('olusturma_tarihi', { ascending: false }),
+    supabase.from('asci_yemekleri').select('asci_id, ad, malzemeler').order('sira'),
   ]);
+  yemekler = {};
+  for (const y of ym.error ? [] : ym.data ?? []) (yemekler[y.asci_id] ||= []).push(y); // schema_16.sql yoksa boş kalır
   kurumsal = ku.error ? [] : ku.data ?? []; // schema_14.sql çalıştırılmadıysa sekme boş kalır
   reklamlar = rk.error ? [] : rk.data ?? []; // schema_13.sql çalıştırılmadıysa sekme boş kalır
   if (a.error || s.error || u.error) {
@@ -286,6 +290,9 @@ function asciKarti(a) {
     satir('Talep / yorum', `${a.talep_sayisi} talep, ${a.yorum_sayisi} yorum`),
     a.reddedildi_mi && a.red_nedeni ? satir('Red nedeni', a.red_nedeni) : null,
     a.tanitim ? el('p', {}, a.tanitim) : el('p', { class: 'soluk' }, 'Tanıtım yazısı yok.'),
+    (yemekler[a.id] ?? []).length
+      ? el('div', {}, el('p', {}, el('b', {}, 'Yemekler ve malzemeler:')), ...yemekler[a.id].map((y) => el('p', { class: 'soluk' }, `• ${y.ad}: ${y.malzemeler}`)))
+      : null,
     galeri(galeriler[a.id]),
     el('div', { class: 'eylemler' },
       a.onayli_mi

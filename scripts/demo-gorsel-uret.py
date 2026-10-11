@@ -252,6 +252,22 @@ def dizi(liste):
 def uid(onek, i):
     return f"dddddddd-0000-4000-8000-{onek}{i:09d}"
 
+YEMEK_BILGI = {
+    'pilav': ('Tereyağlı şehriyeli pilav', 'pirinç, tereyağı, şehriye, tavuk suyu, tuz'),
+    'kofte': ('Izgara köfte', 'dana kıyma, soğan, galeta unu, maydanoz, kimyon, karabiber, tuz'),
+    'corba': ('Mercimek çorbası', 'kırmızı mercimek, soğan, havuç, patates, tereyağı, limon, pul biber'),
+    'baklava': ('Fıstıklı baklava', 'yufka, antep fıstığı, tereyağı, şeker, su, limon'),
+    'sarma': ('Zeytinyağlı yaprak sarma', 'asma yaprağı, pirinç, soğan, zeytinyağı, nane, dereotu, limon'),
+    'manti': ('El açması mantı', 'un, yumurta, dana kıyma, soğan, yoğurt, sarımsak, tereyağı, pul biber'),
+    'salata': ('Mevsim salatası', 'marul, domates, salatalık, roka, zeytinyağı, nar ekşisi, limon'),
+    'balik': ('Fırında levrek', 'levrek, zeytinyağı, limon, dereotu, domates, biber, tuz'),
+    'sis': ('Tavuk şiş', 'tavuk göğsü, yoğurt, zeytinyağı, kekik, sarımsak, biber salçası'),
+    'menemen': ('Soğanlı menemen', 'yumurta, domates, yeşil biber, soğan, tereyağı, tuz, pul biber'),
+    'borek': ('Ispanaklı su böreği', 'yufka, ıspanak, beyaz peynir, yumurta, süt, tereyağı'),
+    'sutlac': ('Fırın sütlaç', 'süt, pirinç, şeker, nişasta, vanilya'),
+    'fasulye': ('Kuru fasulye', 'kuru fasulye, soğan, salça, tereyağı, pul biber, tuz'),
+}
+
 def sql_uret():
     rnd = random.Random(2026)
     sat = []
@@ -287,6 +303,13 @@ def sql_uret():
         for k in (1, 2, 3):
             satir.append(f"({sq(uid('000', i))}::uuid, {sq(SUPABASE_TABAN + f'asci{i:02d}-{k}.jpg')}, {k - 1})")
     a("insert into public.asci_fotograflari (asci_id, adres, sira) values\n" + ",\n".join(satir) + ";\n")
+    satir = []
+    for i, x in enumerate(ASCILAR, 1):
+        for k, anahtar in enumerate(x[6]):
+            ad, mal = YEMEK_BILGI[anahtar]
+            satir.append(f"({sq(uid('000', i))}::uuid, {sq(ad)}, {sq(mal)}, {k})")
+    a("-- Aşçı yemekleri ve malzemeleri (schema_16.sql çalıştırılmışsa eklenir)")
+    a("do $$ begin if to_regclass('public.asci_yemekleri') is not null then insert into public.asci_yemekleri (asci_id, ad, malzemeler, sira) values\n" + ",\n".join(satir) + "; end if; end $$;\n")
     # talepler + yorumlar
     talepler, yorumlar = [], []
     for i, x in enumerate(ASCILAR, 1):

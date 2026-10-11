@@ -7,6 +7,7 @@ import Dugme from '../components/Dugme';
 import Ekran from '../components/Ekran';
 import Girdi from '../components/Girdi';
 import Secimler from '../components/Secimler';
+import YemekDuzenleyici from '../components/YemekDuzenleyici';
 import { GUNLER, UZMANLIKLAR } from '../data/secenekler';
 import { fotografSecVeYukle } from '../lib/fotograf';
 import { supabase } from '../lib/supabase';
@@ -222,6 +223,10 @@ export default function AsciProfilDuzenle({ geri }: { geri: () => void }) {
               <Girdi value={kapasite} onChangeText={setKapasite} placeholder="Örn: 200 (boş bırakırsan sınırsız)" keyboardType="number-pad" maxLength={4} />
             </>
           ) : null}
+
+          <Text style={styles.etiket}>Yapacağım yemekler ve malzemeleri</Text>
+          <Text style={styles.ipucu}>Müşteriler profilinde hangi yemekleri yaptığını ve hangi malzemeleri kullanacağını görür. Her yemek ayrıca kaydedilir.</Text>
+          <YemekDuzenleyici asciId={uid} profilHazirla={profilKaydet} />
 
           <Text style={styles.etiket}>Yemek fotoğraflarım</Text>
           <View style={styles.galeri}>
