@@ -13,9 +13,10 @@ type Props = {
   talepEt: () => void;
   taleplerim: () => void;
   gelenTalepler: () => void;
+  sifreDegistir: () => void;
 };
 
-export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler }: Props) {
+export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler, sifreDegistir }: Props) {
   const ascilar = enSevilenAscilar(ornekAscilar);
   const { profil, cikisYap } = useAuth();
   const [yeniler, setYeniler] = useState<Asci[]>([]);
@@ -40,9 +41,14 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
     <ScrollView style={styles.kap} contentContainerStyle={{ paddingBottom: spacing.xl }}>
       <View style={styles.ustSatir}>
         <Text style={styles.merhaba}>Merhaba, {profil?.ad}</Text>
-        <Pressable onPress={cikisYap} accessibilityRole="button">
-          <Text style={styles.cikis}>Çıkış</Text>
-        </Pressable>
+        <View style={styles.ustLinkler}>
+          <Pressable onPress={sifreDegistir} accessibilityRole="button">
+            <Text style={styles.cikis}>Şifre</Text>
+          </Pressable>
+          <Pressable onPress={cikisYap} accessibilityRole="button">
+            <Text style={styles.cikis}>Çıkış</Text>
+          </Pressable>
+        </View>
       </View>
       <View style={styles.ust}>
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
@@ -123,6 +129,7 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
 const styles = StyleSheet.create({
   kap: { flex: 1, backgroundColor: colors.krem },
   ustSatir: { paddingTop: 56, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.l },
+  ustLinkler: { flexDirection: 'row', gap: spacing.l },
   merhaba: { fontSize: fontSize.normal, color: colors.metin, fontWeight: '600' },
   cikis: { fontSize: fontSize.normal, color: colors.kirmizi, fontWeight: '700' },
   ust: { alignItems: 'center', paddingHorizontal: spacing.l },

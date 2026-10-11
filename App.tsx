@@ -8,8 +8,10 @@ import AsciProfil from './src/screens/AsciProfil';
 import AsciProfilDuzenle from './src/screens/AsciProfilDuzenle';
 import AsciSec from './src/screens/AsciSec';
 import GelenTalepler from './src/screens/GelenTalepler';
-import Giris from './src/screens/Giris';
+import GirisAkisi from './src/screens/GirisAkisi';
 import Kayit from './src/screens/Kayit';
+import SifreBelirle from './src/screens/SifreBelirle';
+import SifreDegistir from './src/screens/SifreDegistir';
 import TalepOlustur from './src/screens/TalepOlustur';
 import Taleplerim from './src/screens/Taleplerim';
 import { colors, fontSize, spacing } from './src/theme';
@@ -21,10 +23,11 @@ type Ekran =
   | { ad: 'asciSec' }
   | { ad: 'talep'; asciId: string }
   | { ad: 'taleplerim' }
-  | { ad: 'gelenTalepler' };
+  | { ad: 'gelenTalepler' }
+  | { ad: 'sifreDegistir' };
 
 function Ekranlar() {
-  const { yukleniyor, oturum, profil } = useAuth();
+  const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor } = useAuth();
   const [ekran, setEkran] = useState<Ekran>({ ad: 'ana' });
   const ana = () => setEkran({ ad: 'ana' });
 
@@ -35,8 +38,10 @@ function Ekranlar() {
       </View>
     );
   }
-  if (!oturum) return <Giris />;
+  if (!oturum) return <GirisAkisi />;
   if (!profil) return <Kayit />;
+  // Şifresi olmayan (eski) hesaplar ve "şifremi unuttum" ile girenler yeni şifre belirlemeden ilerleyemez.
+  if (!sifreVar || sifreSifirlaniyor) return <SifreBelirle />;
 
   const musteri = profil.rol === 'musteri';
   switch (ekran.ad) {
@@ -56,6 +61,8 @@ function Ekranlar() {
       return <TalepOlustur asciId={ekran.asciId} geri={ana} gonderildi={() => setEkran({ ad: 'taleplerim' })} />;
     case 'taleplerim':
       return <Taleplerim geri={ana} />;
+    case 'sifreDegistir':
+      return <SifreDegistir geri={ana} />;
     case 'gelenTalepler':
       return profil.rol === 'asci' ? <GelenTalepler geri={ana} /> : <AnaSayfa {...anaProps(setEkran)} />;
     default:
@@ -70,6 +77,7 @@ function anaProps(setEkran: (e: Ekran) => void) {
     talepEt: () => setEkran({ ad: 'asciSec' }),
     taleplerim: () => setEkran({ ad: 'taleplerim' }),
     gelenTalepler: () => setEkran({ ad: 'gelenTalepler' }),
+    sifreDegistir: () => setEkran({ ad: 'sifreDegistir' }),
   };
 }
 

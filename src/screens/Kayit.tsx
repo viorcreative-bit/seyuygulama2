@@ -4,7 +4,9 @@ import { Rol, useAuth } from '../auth/AuthContext';
 import Dugme from '../components/Dugme';
 import { supabase } from '../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../theme';
-import { girdiStili } from './Giris';
+import { girdiStili } from '../components/girdi';
+import SifreGirdisi from '../components/SifreGirdisi';
+import { sifreKontrol } from '../lib/sifre';
 
 const roller: { rol: Rol; baslik: string; alt: string }[] = [
   { rol: 'musteri', baslik: 'Müşteriyim', alt: 'Evime aşçı çağırmak istiyorum' },
@@ -16,11 +18,15 @@ export default function Kayit() {
   const { oturum, profilYenile } = useAuth();
   const [ad, setAd] = useState('');
   const [rol, setRol] = useState<Rol | null>(null);
+  const [sifre, setSifre] = useState('');
+  const [tekrar, setTekrar] = useState('');
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState('');
 
   const kaydet = async () => {
     if (!oturum || !rol) return;
+    const sifreHatasi = sifreKontrol(sifre, tekrar);
+    if (sifreHatasi) return setHata(sifreHatasi);
     setYukleniyor(true);
     setHata('');
     const { error } = await supabase.from('profiles').insert({
@@ -34,6 +40,8 @@ export default function Kayit() {
       setHata('Kayıt tamamlanamadı. Lütfen tekrar dene.');
       return;
     }
+    // Şifre kaydedilemezse profil yine de oluşmuştur; bir sonraki ekran şifre belirlemeyi zorunlu tutar.
+    await supabase.auth.updateUser({ password: sifre, data: { sifre_var: true } });
     await profilYenile();
     setYukleniyor(false);
   };
@@ -55,8 +63,11 @@ export default function Kayit() {
             </Pressable>
           );
         })}
+        <SifreGirdisi deger={sifre} degisti={setSifre} placeholder="Şifre belirle" otomatik="new-password" />
+        <SifreGirdisi deger={tekrar} degisti={setTekrar} placeholder="Şifre (tekrar)" otomatik="new-password" />
+        <Text style={styles.ipucu}>Şifre en az 8 karakter, en az bir harf ve bir rakam içermeli.</Text>
         {hata ? <Text style={styles.hata}>{hata}</Text> : null}
-        <Dugme yazi="Devam Et" onPress={kaydet} yukleniyor={yukleniyor} pasif={ad.trim().length < 2 || !rol} />
+        <Dugme yazi="Kaydı Tamamla" onPress={kaydet} yukleniyor={yukleniyor} pasif={ad.trim().length < 2 || !rol || !sifre || !tekrar} />
       </View>
     </KeyboardAvoidingView>
   );
@@ -72,5 +83,6 @@ const styles = StyleSheet.create({
   rolSecili: { backgroundColor: colors.kirmizi, borderColor: colors.kirmizi },
   rolBaslik: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.metin },
   rolAlt: { fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.8, marginTop: 2 },
+  ipucu: { fontSize: 13, color: colors.metin, opacity: 0.6 },
   hata: { color: colors.kirmizi, fontSize: fontSize.kucuk, fontWeight: '600' },
 });

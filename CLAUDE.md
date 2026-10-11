@@ -76,8 +76,11 @@ Aşçı kendisi oluşturur ve düzenler:
 Talep durumları: **Bekliyor → Kabul edildi / Reddedildi → Tamamlandı / İptal edildi.**
 
 ### 5. Giriş ve kayıt
-- Telefon numarası ile giriş (SMS kodu).
-- Kayıtta kullanıcı "Müşteriyim" veya "Aşçıyım" seçer.
+- Açılış ekranında üç seçenek: **Müşteri Girişi**, **Aşçı Girişi**, **Kaydol**.
+- Giriş: telefon numarası + şifre. Seçilen giriş türü hesabın rolüyle uyuşmalıdır.
+- Kaydol: telefon numarası + SMS kodu, sonra ad, rol ("Müşteriyim" / "Aşçıyım") ve şifre.
+- Şifresi olmayan (eski) hesaplar ve şifresini unutanlar: giriş ekranındaki "İlk kez mi giriyorsun veya şifreni mi unuttun?" bağlantısıyla SMS kodu girer, ardından yeni şifre belirlemesi zorunludur.
+- Şifre: en az 8 karakter, en az bir harf ve bir rakam. Kullanıcı ana sayfadaki "Şifre" bağlantısından, mevcut şifresini doğrulayarak değiştirir.
 
 ## Veritabanı tabloları (taslak)
 

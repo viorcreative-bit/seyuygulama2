@@ -1,9 +1,9 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 import { colors, fontSize, radius } from '../theme';
 
-type Props = { yazi: string; onPress: () => void; yukleniyor?: boolean; pasif?: boolean; ikincil?: boolean };
+type Props = { yazi: string; onPress: () => void; yukleniyor?: boolean; pasif?: boolean; ikincil?: boolean; cerceveli?: boolean };
 
-export default function Dugme({ yazi, onPress, yukleniyor, pasif, ikincil }: Props) {
+export default function Dugme({ yazi, onPress, yukleniyor, pasif, ikincil, cerceveli }: Props) {
   const kapali = pasif || yukleniyor;
   return (
     <Pressable
@@ -13,14 +13,15 @@ export default function Dugme({ yazi, onPress, yukleniyor, pasif, ikincil }: Pro
       style={({ pressed }) => [
         styles.buton,
         ikincil && styles.ikincil,
+        cerceveli && styles.cerceveli,
         kapali && { opacity: 0.5 },
         pressed && { opacity: 0.8 },
       ]}
     >
       {yukleniyor ? (
-        <ActivityIndicator color={ikincil ? colors.kirmizi : colors.sari} />
+        <ActivityIndicator color={ikincil || cerceveli ? colors.kirmizi : colors.sari} />
       ) : (
-        <Text style={[styles.yazi, ikincil && { color: colors.kirmizi }]}>{yazi}</Text>
+        <Text style={[styles.yazi, (ikincil || cerceveli) && { color: colors.kirmizi }]}>{yazi}</Text>
       )}
     </Pressable>
   );
@@ -34,5 +35,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ikincil: { backgroundColor: 'transparent' },
+  cerceveli: { backgroundColor: 'transparent', borderWidth: 2, borderColor: colors.kirmizi },
   yazi: { color: colors.sari, fontSize: fontSize.normal + 2, fontWeight: '800' },
 });
