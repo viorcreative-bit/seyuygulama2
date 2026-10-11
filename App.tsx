@@ -16,7 +16,6 @@ import SifreBelirle from './src/screens/SifreBelirle';
 import SifreDegistir from './src/screens/SifreDegistir';
 import YorumYaz from './src/screens/YorumYaz';
 import SikayetYaz from './src/screens/SikayetYaz';
-import YoneticiPaneli from './src/screens/YoneticiPaneli';
 import TalepOlustur from './src/screens/TalepOlustur';
 import Taleplerim from './src/screens/Taleplerim';
 import { colors, fontSize, spacing } from './src/theme';
@@ -31,12 +30,11 @@ type Ekran =
   | { ad: 'gelenTalepler' }
   | { ad: 'sifreDegistir' }
   | { ad: 'asciYorumlari' }
-  | { ad: 'yonetici' }
   | { ad: 'sikayet'; talepId: string; ozet: string; geriye: 'taleplerim' | 'gelenTalepler' }
   | { ad: 'yorumYaz'; talepId: string; asciId: string; asciAdi: string };
 
 function Ekranlar() {
-  const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor, yonetici } = useAuth();
+  const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor } = useAuth();
   const [ekran, setEkran] = useState<Ekran>({ ad: 'ana' });
   const ana = () => setEkran({ ad: 'ana' });
 
@@ -105,8 +103,6 @@ function Ekranlar() {
       );
     case 'sikayet':
       return <SikayetYaz talepId={ekran.talepId} ozet={ekran.ozet} geri={() => setEkran({ ad: ekran.geriye })} />;
-    case 'yonetici':
-      return yonetici ? <YoneticiPaneli geri={ana} /> : <AnaSayfa {...anaProps(setEkran)} />;
     default:
       return <AnaSayfa {...anaProps(setEkran)} />;
   }
@@ -121,7 +117,6 @@ function anaProps(setEkran: (e: Ekran) => void) {
     gelenTalepler: () => setEkran({ ad: 'gelenTalepler' }),
     sifreDegistir: () => setEkran({ ad: 'sifreDegistir' }),
     yorumlarim: () => setEkran({ ad: 'asciYorumlari' }),
-    yoneticiPaneli: () => setEkran({ ad: 'yonetici' }),
   };
 }
 

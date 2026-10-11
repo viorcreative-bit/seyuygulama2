@@ -3,7 +3,6 @@ import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from '
 import AsciKarti from '../components/AsciKarti';
 import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../lib/supabase';
-import { onayBekleyenAsciSayisi } from '../lib/yonetim';
 import { bekleyenTalepSayisi } from '../lib/talepler';
 import { Asci, EN_AZ_YORUM, enSevilenAscilar, vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
@@ -16,17 +15,15 @@ type Props = {
   gelenTalepler: () => void;
   sifreDegistir: () => void;
   yorumlarim: () => void;
-  yoneticiPaneli: () => void;
 };
 
-export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler, sifreDegistir, yorumlarim, yoneticiPaneli }: Props) {
-  const { profil, cikisYap, yonetici, oturum } = useAuth();
+export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler, sifreDegistir, yorumlarim }: Props) {
+  const { profil, cikisYap, oturum } = useAuth();
   const [yeniler, setYeniler] = useState<Asci[]>([]);
   const [sevilenler, setSevilenler] = useState<Asci[]>([]);
 
   const [listeDurumu, setListeDurumu] = useState('');
   const [bekleyen, setBekleyen] = useState(0);
-  const [onayBekleyenAsci, setOnayBekleyenAsci] = useState(0);
   const [asciOnayli, setAsciOnayli] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -40,10 +37,6 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
         .then(({ data }) => setAsciOnayli(data ? data.onayli_mi : null));
     }
   }, [profil?.rol, oturum?.user.id]);
-
-  useEffect(() => {
-    if (yonetici) onayBekleyenAsciSayisi().then(setOnayBekleyenAsci);
-  }, [yonetici]);
 
   useEffect(() => {
     Promise.all([yeniAscilar(), enSevilenAscilar()])
@@ -72,18 +65,6 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
         <Text style={styles.slogan}>Ev yemeği, şef elinden.</Text>
       </View>
-
-      {yonetici ? (
-        <Pressable
-          onPress={yoneticiPaneli}
-          style={({ pressed }) => [styles.buton, { marginBottom: spacing.m }, pressed && styles.butonBasili]}
-          accessibilityRole="button"
-        >
-          <Text style={styles.butonYazi}>
-            Yönetici Paneli{onayBekleyenAsci > 0 ? ` (${onayBekleyenAsci})` : ''}
-          </Text>
-        </Pressable>
-      ) : null}
 
       {profil?.rol === 'asci' && asciOnayli === false ? (
         <View style={styles.uyari}>

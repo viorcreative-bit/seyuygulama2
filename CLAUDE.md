@@ -38,7 +38,7 @@ Proje sahibi yazılımcı değildir. Bu yüzden:
 
 1. **Müşteri:** Aşçı arar, profilleri inceler, talep oluşturur, hizmetten sonra yorum ve yıldız verir.
 2. **Aşçı:** Kendi profilini oluşturur ve düzenler, gelen talepleri kabul veya reddeder, aldığı yorumları görür.
-3. **Yönetici (ileride):** Aşçıları onaylar, şikayetleri inceler.
+3. **Yönetici:** Aşçıları onaylar, şikayetleri inceler. Yalnızca web panelinden (`yonetim-web/`, bkz. `YONETIM_WEB.md`); mobil uygulamada yönetici ekranı yoktur.
 
 ## Özellikler (ilk sürüm)
 

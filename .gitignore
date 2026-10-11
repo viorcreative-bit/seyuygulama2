@@ -42,3 +42,6 @@ yarn-error.*
 
 .env
 .env.*
+
+# Yönetim paneli ayar dosyası (.env dosyasından otomatik üretilir)
+yonetim-web/config.js

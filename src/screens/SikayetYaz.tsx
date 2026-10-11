@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import Dugme from '../components/Dugme';
-import { sikayetGonder } from '../lib/yonetim';
+import { sikayetGonder } from '../lib/sikayet';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 type Props = { talepId: string; ozet: string; geri: () => void };
