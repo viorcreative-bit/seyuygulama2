@@ -18,6 +18,7 @@ Giriş: yönetici yaptığın hesabın telefon numarası ve şifresi. (Yönetici
 - **Aşçılar:** Onayla, Reddet (sebep yazılır, aşçıya gösterilir), Onayı Kaldır, Profili Sil.
 - **Üyeler:** Tüm müşteri ve aşçılar. Askıya Al / Aktif Et (askıdaki kişi giriş yapamaz) ve Hesabı Sil.
 - **Reklamlar:** Uygulamanın alt kısmında dönen reklam bandı. "Yeni reklam ekle" ile görsel (1200×300 piksel, en fazla 1 MB), reklam adı, reklamveren, dokununca açılacak https bağlantısı ve yayın tarihleri girilir. Her reklamın gösterim, tıklama ve tıklanma oranı görünür; "Kapat/Aç" ile yayından kaldırılır, "Sil" ile silinir. Reklamlar "Reklam" etiketiyle gösterilir. (Gerekli veritabanı: `schema_13.sql`.)
+- **Kurumsal:** Şirketlerin açtığı toplu yemek taleplerini salt okunur listeler (şirket, semt, tarih, kişi sayısı, gelen teklif sayısı, seçilen aşçı). Şirket iletişim bilgileri burada gösterilmez. (Gerekli veritabanı: `schema_14.sql`.)
 - **Şikayetler:** Durumu "İnceleniyor" veya "Çözüldü" yapma ve not yazma.
 
 Silme işlemleri geri alınamaz; panel önce uyarır ve "SİL" yazmanı ister. Yönetici hesapları askıya alınamaz ve silinemez.

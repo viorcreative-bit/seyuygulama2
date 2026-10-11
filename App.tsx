@@ -1,10 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import ReklamBandi from './src/components/ReklamBandi';
 import HataSinirlayici from './src/components/HataSinirlayici';
 import AltMenu, { Sekme } from './src/components/AltMenu';
+import TalepSekmeleri, { Gorunum } from './src/components/TalepSekmeleri';
+import { yeniFirsatSayisi } from './src/lib/kurumsal';
 import { supabaseHazir } from './src/lib/supabase';
 import { tarihSaatYaz } from './src/lib/talepler';
 import AnaSayfa from './src/screens/AnaSayfa';
@@ -16,6 +18,11 @@ import GelenTalepler from './src/screens/GelenTalepler';
 import GirisAkisi from './src/screens/GirisAkisi';
 import Hesabim from './src/screens/Hesabim';
 import Kayit from './src/screens/Kayit';
+import KurumsalFirsatDetay from './src/screens/KurumsalFirsatDetay';
+import KurumsalFirsatlar from './src/screens/KurumsalFirsatlar';
+import KurumsalTalepDetay from './src/screens/KurumsalTalepDetay';
+import KurumsalTalepOlustur from './src/screens/KurumsalTalepOlustur';
+import KurumsalTaleplerim from './src/screens/KurumsalTaleplerim';
 import SifreBelirle from './src/screens/SifreBelirle';
 import SifreDegistir from './src/screens/SifreDegistir';
 import SikayetYaz from './src/screens/SikayetYaz';
@@ -35,6 +42,9 @@ type Ekran =
   | { ad: 'asciSec' }
   | { ad: 'talep'; asciId: string }
   | { ad: 'sifreDegistir' }
+  | { ad: 'kurumsalTalep' }
+  | { ad: 'kurumsalDetay'; id: string }
+  | { ad: 'kurumsalFirsat'; id: string }
   | { ad: 'hesapSil' }
   | { ad: 'yasal'; anahtar: YasalAnahtar }
   | { ad: 'yorumYaz'; talepId: string; asciId: string; asciAdi: string }
@@ -45,6 +55,9 @@ const SEKMELER: Sekme[] = ['ana', 'taleplerim', 'gelenTalepler', 'asciYorumlari'
 function Ekranlar() {
   const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor } = useAuth();
   const [ekran, setEkran] = useState<Ekran>({ ad: 'ana' });
+  const [talepGorunumu, setTalepGorunumu] = useState<Gorunum>('bireysel');
+  const asciKimligi = oturum?.user.id ?? '';
+  const rozetGetir = useCallback(() => yeniFirsatSayisi(asciKimligi), [asciKimligi]);
   const git = (ad: Sekme) => () => setEkran({ ad });
   const ana = git('ana');
 
@@ -71,19 +84,52 @@ function Ekranlar() {
     switch (ekran.ad) {
       case 'taleplerim':
         icerik = musteri ? (
-          <Taleplerim
-            yorumYap={(t, asciAdi) => setEkran({ ad: 'yorumYaz', talepId: t.id, asciId: t.asci_id, asciAdi })}
-            sikayetEt={(t, asciAdi) =>
-              setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${asciAdi} · ${tarihSaatYaz(t.tarih)}`, geriye: 'taleplerim' })
+          <TalepSekmeleri
+            baslik="Taleplerim"
+            gorunum={talepGorunumu}
+            degistir={setTalepGorunumu}
+            bireysel={
+              <Taleplerim
+                yorumYap={(t, asciAdi) => setEkran({ ad: 'yorumYaz', talepId: t.id, asciId: t.asci_id, asciAdi })}
+                sikayetEt={(t, asciAdi) =>
+                  setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${asciAdi} · ${tarihSaatYaz(t.tarih)}`, geriye: 'taleplerim' })
+                }
+              />
+            }
+            kurumsal={
+              <KurumsalTaleplerim
+                ac={(id) => {
+                  setTalepGorunumu('kurumsal');
+                  setEkran({ ad: 'kurumsalDetay', id });
+                }}
+                olustur={() => setEkran({ ad: 'kurumsalTalep' })}
+              />
             }
           />
         ) : null;
         break;
       case 'gelenTalepler':
         icerik = asci ? (
-          <GelenTalepler
-            sikayetEt={(t) =>
-              setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${t.musteri_ad} · ${tarihSaatYaz(t.tarih)}`, geriye: 'gelenTalepler' })
+          <TalepSekmeleri
+            baslik="Talepler"
+            gorunum={talepGorunumu}
+            degistir={setTalepGorunumu}
+            rozetGetir={rozetGetir}
+            bireysel={
+              <GelenTalepler
+                sikayetEt={(t) =>
+                  setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${t.musteri_ad} · ${tarihSaatYaz(t.tarih)}`, geriye: 'gelenTalepler' })
+                }
+              />
+            }
+            kurumsal={
+              <KurumsalFirsatlar
+                ac={(id) => {
+                  setTalepGorunumu('kurumsal');
+                  setEkran({ ad: 'kurumsalFirsat', id });
+                }}
+                profilAc={() => setEkran({ ad: 'profilDuzenle' })}
+              />
             }
           />
         ) : null;
@@ -102,10 +148,10 @@ function Ekranlar() {
         );
         break;
       default:
-        icerik = <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'asciSec' })} />;
+        icerik = <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'asciSec' })} kurumsalTalepEt={() => setEkran({ ad: 'kurumsalTalep' })} />;
     }
     // Rolüne uymayan bir sekmeye düşülürse ana sayfaya dön.
-    if (!icerik) return <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'asciSec' })} />;
+    if (!icerik) return <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'asciSec' })} kurumsalTalepEt={() => setEkran({ ad: 'kurumsalTalep' })} />;
     return (
       <View style={styles.kap}>
         <View style={{ flex: 1 }}>{icerik}</View>
@@ -123,6 +169,20 @@ function Ekranlar() {
       return <SifreDegistir geri={git('hesap')} />;
     case 'hesapSil':
       return <HesabiSil geri={git('hesap')} />;
+    case 'kurumsalTalep':
+      return (
+        <KurumsalTalepOlustur
+          geri={git('taleplerim')}
+          gonderildi={() => {
+            setTalepGorunumu('kurumsal');
+            setEkran({ ad: 'taleplerim' });
+          }}
+        />
+      );
+    case 'kurumsalDetay':
+      return <KurumsalTalepDetay talepId={ekran.id} geri={git('taleplerim')} asciAc={(id) => setEkran({ ad: 'asci', id })} />;
+    case 'kurumsalFirsat':
+      return <KurumsalFirsatDetay talepId={ekran.id} geri={git('gelenTalepler')} />;
     case 'yasal':
       return <YasalMetin anahtar={ekran.anahtar} geri={git('hesap')} />;
     case 'asci':

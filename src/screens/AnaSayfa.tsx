@@ -12,12 +12,12 @@ import { EN_AZ_YORUM, Vitrin, enSevilenAscilar, vitrindenKarta, yeniAscilar } fr
 import { colors, fontSize, radius, spacing } from '../theme';
 import { sebep } from '../lib/hata';
 
-type Props = { asciAc: (id: string) => void; talepEt: () => void };
+type Props = { asciAc: (id: string) => void; talepEt: () => void; kurumsalTalepEt: () => void };
 
 const KENAR = spacing.l;
 const bosluk = (s: string) => s.trim().toLocaleLowerCase('tr-TR');
 
-export default function AnaSayfa({ asciAc, talepEt }: Props) {
+export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
   const { profil, oturum } = useAuth();
   const { width } = useWindowDimensions();
   const ikiliGenislik = (width - KENAR * 2 - spacing.m) / 2;
@@ -118,6 +118,21 @@ export default function AnaSayfa({ asciAc, talepEt }: Props) {
           </Pressable>
         ) : null}
 
+        {profil?.rol === 'musteri' ? (
+          <Pressable
+            onPress={kurumsalTalepEt}
+            style={({ pressed }) => [styles.kurumsal, pressed && { opacity: 0.85 }]}
+            accessibilityRole="button"
+          >
+            <Ionicons name="business" size={24} color={colors.sari} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.kurumsalBaslik}>Şirketler için toplu yemek</Text>
+              <Text style={styles.kurumsalAlt}>Ofisiniz için aşçılardan teklif alın</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={22} color={colors.sari} />
+          </Pressable>
+        ) : null}
+
         <FlatList
           horizontal
           data={[null, ...UZMANLIKLAR]}
@@ -211,6 +226,20 @@ const styles = StyleSheet.create({
   },
   talepBaslik: { fontSize: fontSize.normal + 4, fontWeight: '800', color: colors.koyuMetin },
   talepAlt: { fontSize: 13, color: colors.koyuMetin, opacity: 0.8, marginTop: 2 },
+  kurumsal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.m,
+    marginHorizontal: KENAR,
+    marginTop: spacing.s + 4,
+    backgroundColor: colors.yuzey,
+    borderRadius: radius.l,
+    borderWidth: 1.5,
+    borderColor: colors.sari,
+    padding: spacing.m,
+  },
+  kurumsalBaslik: { fontSize: fontSize.normal + 1, fontWeight: '800', color: colors.metin },
+  kurumsalAlt: { fontSize: 13, color: colors.metinSoluk, marginTop: 1 },
   kategoriler: { paddingHorizontal: KENAR, gap: spacing.s, paddingVertical: spacing.m },
   kategori: {
     paddingVertical: 9,

@@ -25,6 +25,8 @@ export type Vitrin = {
   musait_gunler: string[];
   ortalama_puan: number | null;
   yorum_sayisi: number;
+  kurumsal_mi: boolean;
+  kurumsal_kapasite: number | null;
 };
 
 export const tl = (n: number) => `${n.toLocaleString('tr-TR')} TL`;

@@ -95,6 +95,15 @@ export default function AsciProfil({ asciId, geri, talepEt }: Props) {
             ) : null}
           </View>
 
+          {asci.kurumsal_mi ? (
+            <View style={styles.kurumsalSerit}>
+              <Ionicons name="business" size={18} color={colors.sari} />
+              <Text style={styles.kurumsalYazi}>
+                Kurumsal hizmet verir{asci.kurumsal_kapasite ? ` · en fazla ${asci.kurumsal_kapasite} kişilik` : ''}
+              </Text>
+            </View>
+          ) : null}
+
           {asci.baslangic_fiyati != null ? (
             <View style={styles.fiyatKutu}>
               <Text style={styles.fiyatEtiket}>Bir haftalık hizmet için başlangıç</Text>
@@ -207,6 +216,8 @@ const styles = StyleSheet.create({
     maxWidth: '70%',
   },
   ozetYazi: { color: colors.metin, fontWeight: '700', fontSize: fontSize.kucuk },
+  kurumsalSerit: { flexDirection: 'row', alignItems: 'center', gap: spacing.s, marginTop: spacing.m },
+  kurumsalYazi: { color: colors.sari, fontWeight: '700', fontSize: fontSize.kucuk + 1 },
   fiyatKutu: { marginTop: spacing.l, backgroundColor: colors.sari, borderRadius: radius.m, padding: spacing.m, alignItems: 'center' },
   fiyatEtiket: { color: colors.koyuMetin, fontSize: fontSize.kucuk, opacity: 0.8 },
   fiyat: { color: colors.koyuMetin, fontSize: fontSize.buyuk + 4, fontWeight: '800', marginTop: 2 },

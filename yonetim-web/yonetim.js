@@ -68,6 +68,7 @@ let ascilar = [];
 let sikayetler = [];
 let uyeler = [];
 let reklamlar = [];
+let kurumsal = [];
 let reklamFormuAcik = false;
 let galeriler = {}; // aşçı id -> yemek fotoğrafı adresleri
 let filtre = { asci: 'bekleyen', uye: 'hepsi', sikayet: 'acik', arama: '' };
@@ -122,13 +123,15 @@ $('cikis').addEventListener('click', async () => {
 // ---------- Veri ----------
 async function yukle() {
   $('liste').replaceChildren(el('p', { class: 'bos' }, 'Yükleniyor...'));
-  const [a, s, u, g, rk] = await Promise.all([
+  const [a, s, u, g, rk, ku] = await Promise.all([
     supabase.from('yonetici_ascilar').select('*'),
     supabase.from('yonetici_sikayetleri').select('*'),
     supabase.from('yonetici_uyeler').select('*'),
     supabase.from('asci_fotograflari').select('asci_id, adres').order('sira'),
     supabase.from('reklamlar').select('*').order('olusturma_tarihi', { ascending: false }),
+    supabase.from('yonetici_kurumsal').select('*').order('olusturma_tarihi', { ascending: false }),
   ]);
+  kurumsal = ku.error ? [] : ku.data ?? []; // schema_14.sql çalıştırılmadıysa sekme boş kalır
   reklamlar = rk.error ? [] : rk.data ?? []; // schema_13.sql çalıştırılmadıysa sekme boş kalır
   if (a.error || s.error || u.error) {
     $('liste').replaceChildren(el('p', { class: 'hata bos' }, 'Veriler yüklenemedi. Oturumun kapanmış olabilir, sayfayı yenileyip tekrar gir.'));
@@ -234,6 +237,7 @@ function ozetCiz() {
   $('sekmeAscilar').textContent = `Aşçılar${bekleyen ? ` (${bekleyen})` : ''}`;
   $('sekmeUyeler').textContent = `Üyeler (${uyeler.length})`;
   $('sekmeReklamlar').textContent = `Reklamlar (${reklamlar.length})`;
+  $('sekmeKurumsal').textContent = `Kurumsal (${kurumsal.length})`;
   $('sekmeSikayetler').textContent = `Şikayetler${acik ? ` (${acik})` : ''}`;
 }
 
@@ -355,6 +359,25 @@ function reklamKarti(r) {
       el('button', { class: 'tehlike kucuk', onclick: () => reklamSil(r) }, 'Sil')));
 }
 
+const KURUMSAL_DURUM = { acik: 'Teklifler toplanıyor', secildi: 'Aşçı seçildi', tamamlandi: 'Tamamlandı', iptal: 'İptal edildi' };
+const KURUMSAL_TEKRAR = { tek_sefer: 'Tek sefer', haftalik: 'Haftada bir', gunluk: 'Her gün' };
+const KURUMSAL_OGUN = { ogle: 'Öğle yemeği', aksam: 'Akşam yemeği', kahvalti: 'Kahvaltı', ikram: 'İkram / kokteyl' };
+
+function kurumsalKarti(t) {
+  const satir = (e, d) => (d ? el('p', {}, el('b', {}, `${e}: `), d) : null);
+  const sinif = t.durum === 'acik' ? 'bekliyor' : t.durum === 'iptal' ? 'red' : 'onayli';
+  return el('div', { class: 'kart' },
+    el('div', { class: 'ust' }, el('h3', {}, t.sirket_adi), el('span', { class: `rozet ${sinif}` }, KURUMSAL_DURUM[t.durum] ?? t.durum)),
+    satir('Yetkili hesap', t.musteri_ad),
+    satir('Semt', t.semt),
+    satir('Başlangıç', tarihSaat(t.baslangic_tarihi)),
+    satir('Tekrar', `${KURUMSAL_TEKRAR[t.tekrar] ?? t.tekrar}${t.tekrar === 'tek_sefer' ? '' : ` · ${t.tekrar_sayisi} kez`} · ${KURUMSAL_OGUN[t.ogun] ?? t.ogun}`),
+    satir('Kişi sayısı', String(t.kisi_sayisi)),
+    satir('Gelen teklif', String(t.teklif_sayisi)),
+    satir('Seçilen aşçı', t.secilen_asci),
+    satir('Oluşturma', tarihSaat(t.olusturma_tarihi)));
+}
+
 function reklamFormu() {
   const yerel = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   const baslik = el('input', { placeholder: 'Reklam adı (yalnızca sende görünür)', maxLength: 80 });
@@ -438,6 +461,8 @@ function listeCiz() {
       .filter(eslesir)
       .sort((x, y) => Number(x.onayli_mi) - Number(y.onayli_mi) || y.guncelleme_tarihi.localeCompare(x.guncelleme_tarihi));
     liste.replaceChildren(...(gorunen.length ? gorunen.map(asciKarti) : bos('Gösterilecek aşçı yok.')));
+  } else if (sekme === 'kurumsal') {
+    liste.replaceChildren(...(kurumsal.length ? kurumsal.map(kurumsalKarti) : bos('Henüz kurumsal talep yok.')));
   } else if (sekme === 'reklamlar') {
     liste.replaceChildren(...[reklamFormuAcik ? reklamFormu() : null, ...(reklamlar.length ? reklamlar.map(reklamKarti) : bos('Henüz reklam yok. "Yeni reklam ekle" ile başlayabilirsin.'))].filter(Boolean));
   } else if (sekme === 'uyeler') {
@@ -466,12 +491,14 @@ function sekmeSec(yeni) {
   $('sekmeAscilar').classList.toggle('acik', yeni === 'ascilar');
   $('sekmeUyeler').classList.toggle('acik', yeni === 'uyeler');
   $('sekmeReklamlar').classList.toggle('acik', yeni === 'reklamlar');
+  $('sekmeKurumsal').classList.toggle('acik', yeni === 'kurumsal');
   $('sekmeSikayetler').classList.toggle('acik', yeni === 'sikayetler');
   ciz();
 }
 $('sekmeAscilar').addEventListener('click', () => sekmeSec('ascilar'));
 $('sekmeUyeler').addEventListener('click', () => sekmeSec('uyeler'));
 $('sekmeReklamlar').addEventListener('click', () => sekmeSec('reklamlar'));
+$('sekmeKurumsal').addEventListener('click', () => sekmeSec('kurumsal'));
 $('sekmeSikayetler').addEventListener('click', () => sekmeSec('sikayetler'));
 $('yenile').addEventListener('click', yukle);
 

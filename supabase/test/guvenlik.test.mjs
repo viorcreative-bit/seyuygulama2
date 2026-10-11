@@ -1,6 +1,6 @@
 import { kur, semalar } from './kur.mjs';
 const db = await kur();
-await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','demo_veri.sql']);
+await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','demo_veri.sql']);
 const U = (n) => `dddddddd-0000-4000-8000-${n}`;
 const ASCI = U('000000000001'), ASCI2 = U('000000000002'), MUS = U('001000000001'), MUS2 = U('001000000002');
 const YENI = 'eeeeeeee-0000-4000-8000-000000000001', ADM = 'eeeeeeee-0000-4000-8000-000000000009';
@@ -107,6 +107,7 @@ await olarak(ADM, async () => { r = await dene(`select hesabi_sil()`); kontrol('
 
 // --- Reklamlar
 await db.exec(`
+  delete from reklamlar;
   insert into reklamlar (baslik, gorsel_adres, hedef_adres, aktif) values ('Yayında','https://x.test/a.png','https://x.test',true);
   insert into reklamlar (baslik, gorsel_adres, aktif) values ('Kapalı','https://x.test/b.png',false);
   insert into reklamlar (baslik, gorsel_adres, baslangic, bitis) values ('Süresi dolmuş','https://x.test/c.png', now()-interval '10 days', now()-interval '1 day');
@@ -132,4 +133,89 @@ await olarak(ADM, async () => {
   r = await dene(`insert into reklamlar (baslik, gorsel_adres, baslangic, bitis) values ('Ters','https://x.test/n.png', now(), now()-interval '1 day')`); kontrol('bitiş başlangıçtan önce olamaz', !r.ok);
   r = await dene(`delete from reklamlar where baslik='Yeni'`); kontrol('yönetici reklam siler', r.ok);
 });
+
+// --- Kurumsal toplu yemek ve teklifler
+const ASCI3 = U('000000000003'), MUS3 = U('001000000003');
+await db.exec(`update asci_profilleri set kurumsal_mi=true, kurumsal_kapasite=500 where profil_id='${ASCI}';
+  update asci_profilleri set kurumsal_mi=true, kurumsal_kapasite=50 where profil_id='${ASCI2}';
+  update asci_profilleri set kurumsal_mi=false where profil_id='${ASCI3}';`);
+const gun = (n) => `now() + interval '${n} days'`;
+const kurumsalTalep = (kisi = 100, baslangic = gun(10)) =>
+  `select kurumsal_talep_olustur('Acme A.Ş.','Ayşe Yetkili','05551112233','Maslak','Büyükdere Cd. No 1 Kat 4', ${baslangic}, 'gunluk', 5, 'ogle', ${kisi}, 250, array['Türk mutfağı'], 'Vegan 5 kişi', 'Not')`;
+await olarak(MUS, async () => {
+  r = await dene(kurumsalTalep(100, gun(1))); kontrol('başlangıç 3 günden yakınsa kurumsal talep AÇILAMAZ', !r.ok, r.hata?.slice(0, 50));
+  r = await dene(kurumsalTalep(5)); kontrol('10 kişiden az olamaz', !r.ok);
+  r = await dene(kurumsalTalep(100)); kontrol('müşteri kurumsal talep açar', r.ok, r.hata ?? '');
+  r = await dene(`insert into kurumsal_talepler (musteri_id, sirket_adi, semt, baslangic_tarihi, tekrar, ogun, kisi_sayisi, son_teklif_tarihi) values ('${MUS}','X Ltd','Kadıköy',${gun(9)},'tek_sefer','ogle',50,${gun(8)})`);
+  kontrol('tabloya doğrudan yazılamaz (yalnızca fonksiyonla)', !r.ok, r.hata?.slice(0, 45));
+});
+await olarak(ASCI, async () => { r = await dene(kurumsalTalep(100)); kontrol('aşçı hesabıyla kurumsal talep açılamaz', !r.ok, r.hata?.slice(0, 50)); });
+const kid = (await db.query(`select id from kurumsal_talepler where sirket_adi='Acme A.Ş.'`)).rows[0]?.id;
+kontrol('teklif toplama süresi başlangıçtan 1 gün önce bitiyor', (await db.query(`select (baslangic_tarihi - son_teklif_tarihi) = interval '1 day' ok from kurumsal_talepler where id='${kid}'`)).rows[0].ok);
+kontrol('tekrar sayısı kaydedildi (5 gün)', (await db.query(`select tekrar_sayisi n from kurumsal_talepler where id='${kid}'`)).rows[0].n === 5);
+
+// Kim görür?
+await olarak(ASCI, async () => kontrol('uygun kurumsal aşçı açık talebi görür', (await db.query(`select 1 from kurumsal_talepler where id='${kid}'`)).rows.length === 1));
+await olarak(ASCI2, async () => kontrol('kapasitesi yetmeyen aşçı (50<100) talebi GÖRMEZ', (await db.query(`select 1 from kurumsal_talepler where id='${kid}'`)).rows.length === 0));
+await olarak(ASCI3, async () => kontrol('kurumsal olmayan aşçı talebi GÖRMEZ', (await db.query(`select 1 from kurumsal_talepler where id='${kid}'`)).rows.length === 0));
+await olarak(MUS3, async () => kontrol('başka müşteri talebi GÖRMEZ', (await db.query(`select 1 from kurumsal_talepler where id='${kid}'`)).rows.length === 0));
+
+// Teklif
+await olarak(ASCI3, async () => { r = await dene(`select kurumsal_teklif_ver('${kid}'::uuid, 150, 'merhaba')`); kontrol('uygun olmayan aşçı teklif VEREMEZ', !r.ok, r.hata?.slice(0, 50)); });
+await olarak(ASCI2, async () => { r = await dene(`select kurumsal_teklif_ver('${kid}'::uuid, 150, 'merhaba')`); kontrol('kapasitesi yetmeyen aşçı teklif VEREMEZ', !r.ok); });
+await olarak(ASCI, async () => {
+  r = await dene(`select kurumsal_teklif_ver('${kid}'::uuid, 180, 'İlk teklif')`); kontrol('uygun aşçı teklif verir', r.ok, r.hata ?? '');
+  r = await dene(`select kurumsal_teklif_ver('${kid}'::uuid, 165, 'Güncel teklif')`); kontrol('aynı aşçı teklifini günceller', r.ok);
+  kontrol('tek teklif kaldı ve fiyat güncel', (await db.query(`select count(*)::int n, max(kisi_basi_fiyat) f from kurumsal_teklifler where talep_id='${kid}'`)).rows[0].f === 165);
+  r = await dene(`update kurumsal_teklifler set kisi_basi_fiyat=1`); kontrol('teklif tablosu doğrudan değiştirilemez', !r.ok);
+  r = await dene(`select adres from kurumsal_iletisim`); kontrol('seçilmeden aşçı adres/telefon GÖRMEZ', r.ok && r.rows.length === 0);
+});
+await olarak(MUS3, async () => kontrol('başkasının tekliflerini GÖRMEZ', (await db.query(`select 1 from kurumsal_teklif_listesi`)).rows.length === 0));
+await olarak(MUS, async () => {
+  const l = (await db.query(`select asci_ad, kisi_basi_fiyat from kurumsal_teklif_listesi where talep_id='${kid}'`)).rows;
+  kontrol('şirket teklifleri aşçı adıyla görür', l.length === 1 && l[0].asci_ad === 'Ayşe Demir', JSON.stringify(l));
+  kontrol('şirket kendi iletişim bilgisini görür', (await db.query(`select 1 from kurumsal_iletisim where talep_id='${kid}'`)).rows.length === 1);
+});
+// ikinci teklif (ASCI2 kapasitesini artır) ve seçim
+await db.exec(`update asci_profilleri set kurumsal_kapasite=300 where profil_id='${ASCI2}'`);
+await olarak(ASCI2, async () => { r = await dene(`select kurumsal_teklif_ver('${kid}'::uuid, 140, 'Daha uygun')`); kontrol('ikinci aşçı da teklif verir', r.ok, r.hata ?? ''); });
+const t1 = (await db.query(`select id from kurumsal_teklifler where asci_id='${ASCI}' and talep_id='${kid}'`)).rows[0].id;
+const t2 = (await db.query(`select id from kurumsal_teklifler where asci_id='${ASCI2}' and talep_id='${kid}'`)).rows[0].id;
+await olarak(MUS3, async () => { r = await dene(`select kurumsal_teklif_sec('${t1}'::uuid)`); kontrol('başka müşteri teklif SEÇEMEZ', !r.ok, r.hata?.slice(0, 45)); });
+await olarak(ASCI, async () => { r = await dene(`select kurumsal_teklif_sec('${t1}'::uuid)`); kontrol('aşçı kendi teklifini SEÇEMEZ', !r.ok); });
+await olarak(MUS, async () => { r = await dene(`select kurumsal_teklif_sec('${t2}'::uuid)`); kontrol('şirket teklifi seçer', r.ok, r.hata ?? ''); });
+kontrol('seçilen kabul, diğeri red, talep "secildi"', (await db.query(`select (select durum from kurumsal_teklifler where id='${t2}') a, (select durum from kurumsal_teklifler where id='${t1}') b, (select durum from kurumsal_talepler where id='${kid}') c`)).rows[0].a === 'kabul'
+  && (await db.query(`select durum from kurumsal_teklifler where id='${t1}'`)).rows[0].durum === 'red');
+await olarak(ASCI2, async () => kontrol('seçilen aşçı adres ve yetkili bilgisini görür', (await db.query(`select adres, yetkili_ad from kurumsal_iletisim where talep_id='${kid}'`)).rows.length === 1));
+await olarak(ASCI, async () => {
+  kontrol('seçilmeyen aşçı adresi GÖRMEZ', (await db.query(`select 1 from kurumsal_iletisim where talep_id='${kid}'`)).rows.length === 0);
+  r = await dene(`select kurumsal_teklif_ver('${kid}'::uuid, 100, 'geç')`); kontrol('seçim sonrası yeni teklif verilemez', !r.ok, r.hata?.slice(0, 45));
+});
+await olarak(MUS, async () => { r = await dene(`select kurumsal_teklif_sec('${t1}'::uuid)`); kontrol('ikinci kez seçim yapılamaz', !r.ok); });
+
+// Hesap silme engeli
+await olarak(MUS, async () => kontrol('açık/seçilmiş kurumsal talebi olan şirket hesabı silinemez', (await db.query(`select hesap_silme_engeli() e`)).rows[0].e === 'Devam eden talebin var'));
+await olarak(ASCI2, async () => kontrol('kabul edilmiş kurumsal teklifi olan aşçı hesabı silinemez', (await db.query(`select hesap_silme_engeli() e`)).rows[0].e === 'Devam eden talebin var'));
+
+// Tamamlama
+await olarak(ASCI2, async () => { r = await dene(`select kurumsal_talep_tamamla('${kid}'::uuid)`); kontrol('son hizmet gününden önce tamamlanamaz', !r.ok, r.hata?.slice(0, 50)); });
+await db.exec(`update kurumsal_talepler set baslangic_tarihi = now() - interval '10 days' where id='${kid}'`);
+await olarak(ASCI, async () => { r = await dene(`select kurumsal_talep_tamamla('${kid}'::uuid)`); kontrol('seçilmeyen aşçı tamamlayamaz', !r.ok); });
+await olarak(MUS, async () => { r = await dene(`select kurumsal_talep_tamamla('${kid}'::uuid)`); kontrol('şirket kendi talebini tamamlayamaz (aşçı yapar)', !r.ok); });
+await olarak(ASCI2, async () => { r = await dene(`select kurumsal_talep_tamamla('${kid}'::uuid)`); kontrol('seçilen aşçı son günden sonra tamamlar', r.ok, r.hata ?? ''); });
+
+// İptal ve geri çekme
+await olarak(MUS3, async () => { r = await dene(kurumsalTalep(60)); });
+const kid2 = (await db.query(`select id from kurumsal_talepler where musteri_id='${MUS3}'`)).rows[0]?.id;
+await olarak(ASCI, async () => { r = await dene(`select kurumsal_teklif_ver('${kid2}'::uuid, 120, 'x')`); });
+const t3 = (await db.query(`select id from kurumsal_teklifler where talep_id='${kid2}'`)).rows[0]?.id;
+await olarak(ASCI, async () => { r = await dene(`select kurumsal_teklif_geri_cek('${t3}'::uuid)`); kontrol('aşçı bekleyen teklifini geri çeker', r.ok, r.hata ?? ''); r = await dene(`select kurumsal_teklif_ver('${kid2}'::uuid, 120, 'x')`); });
+await olarak(MUS, async () => { r = await dene(`select kurumsal_talep_iptal('${kid2}'::uuid)`); kontrol('başkasının kurumsal talebini iptal EDEMEZ', !r.ok); });
+await olarak(MUS3, async () => { r = await dene(`select kurumsal_talep_iptal('${kid2}'::uuid)`); kontrol('şirket kendi talebini iptal eder', r.ok, r.hata ?? ''); });
+kontrol('iptalde bekleyen teklifler reddedilir', (await db.query(`select durum from kurumsal_teklifler where talep_id='${kid2}'`)).rows.every((x) => x.durum === 'red'));
+await olarak(MUS3, async () => kontrol('iptal sonrası hesap silinebilir (engel yok)', (await db.query(`select hesap_silme_engeli() e`)).rows[0].e === null));
+
+// Yönetici izleme
+await olarak(ADM, async () => kontrol('yönetici kurumsal izleme listesini görür', (await db.query(`select 1 from yonetici_kurumsal`)).rows.length === 2));
+await olarak(MUS, async () => kontrol('müşteri izleme listesini GÖRMEZ', (await db.query(`select 1 from yonetici_kurumsal`)).rows.length === 0));
 console.log(`\nSONUÇ: ${gecen} geçti, ${kalan} kaldı`);

@@ -4,7 +4,6 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native
 import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
 import DurumRozeti from '../components/DurumRozeti';
-import Ekran from '../components/Ekran';
 import { Yildizlar } from '../components/Yildizlar';
 import { supabase } from '../lib/supabase';
 import { Talep, talebiIptalEt, taleplerim, tarihSaatYaz } from '../lib/talepler';
@@ -69,7 +68,7 @@ export default function Taleplerim({ yorumYap, sikayetEt }: Props) {
     ]);
 
   return (
-    <Ekran baslik="Taleplerim">
+    <>
       <FlatList
         data={liste ?? []}
         keyExtractor={(t) => t.id}
@@ -124,7 +123,7 @@ export default function Taleplerim({ yorumYap, sikayetEt }: Props) {
           );
         }}
       />
-    </Ekran>
+    </>
   );
 }
 

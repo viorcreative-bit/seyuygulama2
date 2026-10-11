@@ -4,7 +4,6 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native
 import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
 import DurumRozeti from '../components/DurumRozeti';
-import Ekran from '../components/Ekran';
 import { Durum, GelenTalep, durumDegistir, gelenTalepler, tarihSaatYaz } from '../lib/talepler';
 import { colors, fontSize, radius, spacing } from '../theme';
 
@@ -68,7 +67,7 @@ export default function GelenTalepler({ sikayetEt }: Props) {
     );
 
   return (
-    <Ekran baslik="Gelen Talepler">
+    <>
       <FlatList
         data={liste ?? []}
         keyExtractor={(t) => t.id}
@@ -129,7 +128,7 @@ export default function GelenTalepler({ sikayetEt }: Props) {
           );
         }}
       />
-    </Ekran>
+    </>
   );
 }
 

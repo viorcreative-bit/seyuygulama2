@@ -28,6 +28,8 @@ export default function AsciProfilDuzenle({ geri }: { geri: () => void }) {
   const [semtler, setSemtler] = useState('');
   const [fiyat, setFiyat] = useState('');
   const [gunler, setGunler] = useState<string[]>([]);
+  const [kurumsal, setKurumsal] = useState(false);
+  const [kapasite, setKapasite] = useState('');
   const [galeri, setGaleri] = useState<Foto[]>([]);
   const [fotoYukleniyor, setFotoYukleniyor] = useState(false);
 
@@ -45,6 +47,8 @@ export default function AsciProfilDuzenle({ geri }: { geri: () => void }) {
         setSemtler((a.data.semtler ?? []).join(', '));
         setFiyat(a.data.baslangic_fiyati != null ? String(a.data.baslangic_fiyati) : '');
         setGunler(a.data.musait_gunler ?? []);
+        setKurumsal(a.data.kurumsal_mi ?? false);
+        setKapasite(a.data.kurumsal_kapasite != null ? String(a.data.kurumsal_kapasite) : '');
       }
       setGaleri((f.data as Foto[]) ?? []);
       setYukleniyor(false);
@@ -121,6 +125,8 @@ export default function AsciProfilDuzenle({ geri }: { geri: () => void }) {
         semtler: semtListesi,
         baslangic_fiyati: fiyatSayi,
         musait_gunler: gunler,
+        kurumsal_mi: kurumsal,
+        kurumsal_kapasite: kurumsal && kapasite.trim() ? parseInt(kapasite.replace(/\D/g, ''), 10) : null,
         guncelleme_tarihi: new Date().toISOString(),
       }),
       supabase.from('profiles').update({ ad: ad.trim() }).eq('id', uid),
@@ -131,6 +137,11 @@ export default function AsciProfilDuzenle({ geri }: { geri: () => void }) {
   const kaydet = async () => {
     if (ad.trim().length < 2) {
       setHata('Lütfen adını soyadını yaz.');
+      return;
+    }
+    const kap = kapasite.trim() ? parseInt(kapasite.replace(/\D/g, ''), 10) : null;
+    if (kurumsal && kap !== null && (!kap || kap < 10 || kap > 5000)) {
+      setHata('Kurumsal kapasite 10 ile 5000 kişi arasında olmalı.');
       return;
     }
     setHata('');
@@ -195,6 +206,23 @@ export default function AsciProfilDuzenle({ geri }: { geri: () => void }) {
           <Text style={styles.etiket}>Müsait olduğun günler</Text>
           <Secimler secenekler={GUNLER} secili={gunler} degisti={setGunler} />
 
+          <Text style={styles.etiket}>Kurumsal hizmet</Text>
+          <Pressable onPress={() => setKurumsal((k) => !k)} style={styles.anahtarSatir} accessibilityRole="switch" accessibilityState={{ checked: kurumsal }}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.anahtarYazi}>Şirketlere toplu yemek yapıyorum</Text>
+              <Text style={styles.ipucu}>Açarsan şirketlerin kurumsal taleplerini görür ve fiyat teklifi verebilirsin.</Text>
+            </View>
+            <View style={[styles.anahtar, kurumsal && styles.anahtarAcik]}>
+              <View style={[styles.anahtarTop, kurumsal && { alignSelf: 'flex-end' }]} />
+            </View>
+          </Pressable>
+          {kurumsal ? (
+            <>
+              <Text style={styles.etiket}>Tek seferde en fazla kaç kişilik yapabilirsin?</Text>
+              <Girdi value={kapasite} onChangeText={setKapasite} placeholder="Örn: 200 (boş bırakırsan sınırsız)" keyboardType="number-pad" maxLength={4} />
+            </>
+          ) : null}
+
           <Text style={styles.etiket}>Yemek fotoğraflarım</Text>
           <View style={styles.galeri}>
             {galeri.map((f) => (
@@ -229,5 +257,10 @@ const styles = StyleSheet.create({
   galeri: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.s },
   galeriFoto: { width: 100, height: 100, borderRadius: radius.s },
   ekle: { backgroundColor: colors.yuzey, borderWidth: 2, borderStyle: 'dashed', borderColor: colors.sari, alignItems: 'center', justifyContent: 'center' },
+  anahtarSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.m, backgroundColor: colors.yuzey, borderRadius: radius.m, borderWidth: 1, borderColor: colors.cizgi, padding: spacing.m },
+  anahtarYazi: { color: colors.metin, fontWeight: '700', fontSize: fontSize.normal },
+  anahtar: { width: 52, height: 30, borderRadius: radius.tam, backgroundColor: colors.cizgi, padding: 3, justifyContent: 'center' },
+  anahtarAcik: { backgroundColor: colors.sari },
+  anahtarTop: { width: 24, height: 24, borderRadius: radius.tam, backgroundColor: colors.metin },
   hata: { color: colors.kirmiziAcik, fontWeight: '600', marginTop: spacing.m },
 });

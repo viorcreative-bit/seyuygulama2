@@ -5,11 +5,8 @@ export class AktifTalepVar extends Error {}
 // Kullanıcı kendi hesabını ve verilerini siler.
 // Sıra önemli: önce kontrol, sonra dosyalar (hesap silinince yetki gider), sonra hesap.
 export async function hesabiSil(kullaniciId: string) {
-  const { count } = await supabase
-    .from('talepler')
-    .select('id', { count: 'exact', head: true })
-    .in('durum', ['bekliyor', 'kabul']);
-  if ((count ?? 0) > 0) throw new AktifTalepVar();
+  const { data: engel } = await supabase.rpc('hesap_silme_engeli');
+  if (engel) throw new AktifTalepVar();
 
   const depo = supabase.storage.from('fotograflar');
   const { data: dosyalar } = await depo.list(kullaniciId, { limit: 1000 });

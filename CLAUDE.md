@@ -83,6 +83,10 @@ Talep durumları: **Bekliyor → Kabul edildi / Reddedildi → Tamamlandı / İp
 - Şifresi olmayan (eski) hesaplar ve şifresini unutanlar: giriş ekranındaki "İlk kez mi giriyorsun veya şifreni mi unuttun?" bağlantısıyla SMS kodu girer, ardından yeni şifre belirlemesi zorunludur.
 - Şifre: en az 8 karakter, en az bir harf ve bir rakam. Kullanıcı ana sayfadaki "Şifre" bağlantısından, mevcut şifresini doğrulayarak değiştirir.
 
+### 6. Reklam bandı ve kurumsal (toplu yemek)
+- Uygulamanın altında (menünün üstünde) yönetici panelinden yönetilen dönen reklam bandı: `src/components/ReklamBandi.tsx`, tablo `reklamlar` (`schema_13.sql`).
+- Kurumsal talep: şirket talep açar (kişi 10–5000, tekrar, öğün, bütçe), kurumsal hizmet veren aşçılar kişi başı fiyat teklifi verir, şirket bir teklifi seçer; şirket iletişim bilgisi yalnızca seçilen aşçıya görünür. Tablolar `kurumsal_talepler`, `kurumsal_teklifler`, `kurumsal_iletisim` (`schema_14.sql`); ekranlar `Kurumsal*.tsx`; müşteri/aşçı "Talepler" sekmesinde Bireysel | Kurumsal ayrımı.
+
 ## Veritabanı tabloları (taslak)
 
 - `profiles`: id, rol (musteri / asci), ad, telefon, fotoğraf, oluşturulma tarihi

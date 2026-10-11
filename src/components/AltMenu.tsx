@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Rol } from '../auth/AuthContext';
+import { Rol, useAuth } from '../auth/AuthContext';
+import { yeniFirsatSayisi } from '../lib/kurumsal';
 import { bekleyenTalepSayisi } from '../lib/talepler';
 import { colors, fontSize, radius, spacing } from '../theme';
 
@@ -27,11 +28,13 @@ type Props = { rol: Rol; aktif: Sekme; sec: (s: Sekme) => void };
 // Ekranın altındaki ana gezinme çubuğu.
 export default function AltMenu({ rol, aktif, sec }: Props) {
   const ogeler = rol === 'asci' ? ASCI : MUSTERI;
+  const { oturum } = useAuth();
   const [bekleyen, setBekleyen] = useState(0);
 
   useEffect(() => {
-    if (rol === 'asci') bekleyenTalepSayisi().then(setBekleyen);
-  }, [rol, aktif]);
+    if (rol !== 'asci' || !oturum) return;
+    Promise.all([bekleyenTalepSayisi(), yeniFirsatSayisi(oturum.user.id)]).then(([a, b]) => setBekleyen(a + b));
+  }, [rol, aktif, oturum]);
 
   return (
     <View style={styles.dis}>

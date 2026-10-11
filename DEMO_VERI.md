@@ -28,3 +28,6 @@ Uygulamanın altında 3 demo reklam bandı dönmeye başlar ("DEMO REKLAM" yazı
 ## Yayından önce mutlaka sil
 1. `supabase/demo_veri_sil.sql` dosyasını SQL Editor'de çalıştır. Yalnızca demo kayıtları siler, gerçek kullanıcılara dokunmaz.
 2. Storage > fotograflar > `demo` klasörünü sil.
+
+## Not
+Demo veride kurumsal talep yoktur; kurumsal akışı denemek için bir müşteri hesabıyla talep aç, bir aşçı hesabında Profili Düzenle'den "Kurumsal hizmet" anahtarını aç ve teklif ver.
