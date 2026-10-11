@@ -14,9 +14,10 @@ type Props = {
   taleplerim: () => void;
   gelenTalepler: () => void;
   sifreDegistir: () => void;
+  yorumlarim: () => void;
 };
 
-export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler, sifreDegistir }: Props) {
+export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler, sifreDegistir, yorumlarim }: Props) {
   const ascilar = enSevilenAscilar(ornekAscilar);
   const { profil, cikisYap } = useAuth();
   const [yeniler, setYeniler] = useState<Asci[]>([]);
@@ -89,6 +90,11 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
           accessibilityRole="button"
         >
           <Text style={styles.profilButonYazi}>Aşçı Profilimi Düzenle</Text>
+        </Pressable>
+      ) : null}
+      {profil?.rol === 'asci' ? (
+        <Pressable onPress={yorumlarim} style={styles.profilButon} accessibilityRole="button">
+          <Text style={styles.profilButonYazi}>Yorumlarım</Text>
         </Pressable>
       ) : null}
 

@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Dugme from '../components/Dugme';
+import { Yildizlar } from '../components/Yildizlar';
+import YorumKarti from '../components/YorumKarti';
 import { supabase } from '../lib/supabase';
+import { Yorum, asciYorumlari } from '../lib/yorumlar';
 import { tl, Vitrin } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
@@ -23,14 +26,17 @@ type Props = { asciId: string; geri: () => void; talepEt?: () => void };
 export default function AsciProfil({ asciId, geri, talepEt }: Props) {
   const [asci, setAsci] = useState<Vitrin | null>(null);
   const [galeri, setGaleri] = useState<string[]>([]);
+  const [yorumlar, setYorumlar] = useState<Yorum[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const [a, f] = await Promise.all([
+      const [a, f, y] = await Promise.all([
         supabase.from('asci_vitrini').select('*').eq('id', asciId).maybeSingle(),
         supabase.from('asci_fotograflari').select('adres').eq('asci_id', asciId).order('sira'),
+        asciYorumlari(asciId).catch(() => [] as Yorum[]),
       ]);
+      setYorumlar(y);
       setAsci((a.data as Vitrin | null) ?? null);
       setGaleri((f.data ?? []).map((x: { adres: string }) => x.adres));
       setYukleniyor(false);
@@ -80,7 +86,16 @@ export default function AsciProfil({ asciId, geri, talepEt }: Props) {
           {asci.uzmanliklar.length > 0 ? (
             <Text style={styles.uzmanlik}>{asci.uzmanliklar.slice(0, 3).join(' · ')}</Text>
           ) : null}
-          <Text style={styles.puan}>Yeni aşçı · henüz yorum yok</Text>
+          {asci.ortalama_puan != null && asci.yorum_sayisi > 0 ? (
+            <View style={styles.puanSatir}>
+              <Yildizlar puan={Number(asci.ortalama_puan)} />
+              <Text style={styles.puanYazi}>
+                {Number(asci.ortalama_puan).toLocaleString('tr-TR', { minimumFractionDigits: 1 })} · {asci.yorum_sayisi} yorum
+              </Text>
+            </View>
+          ) : (
+            <Text style={styles.puan}>Yeni aşçı · henüz yorum yok</Text>
+          )}
         </View>
 
         {asci.baslangic_fiyati != null ? (
@@ -133,7 +148,15 @@ export default function AsciProfil({ asciId, geri, talepEt }: Props) {
         ) : null}
 
         <Text style={styles.bolum}>Yorumlar</Text>
-        <Text style={styles.metin}>Henüz yorum yok. İlk hizmetten sonra yorumlar burada görünecek.</Text>
+        {yorumlar.length === 0 ? (
+          <Text style={styles.metin}>Henüz yorum yok. İlk hizmetten sonra yorumlar burada görünecek.</Text>
+        ) : (
+          <View style={{ gap: spacing.s }}>
+            {yorumlar.map((y) => (
+              <YorumKarti key={y.id} yorum={y} />
+            ))}
+          </View>
+        )}
 
         {talepEt ? (
           <View style={{ marginTop: spacing.xl }}>
@@ -157,6 +180,8 @@ const styles = StyleSheet.create({
   fotoBosYazi: { color: colors.sari, fontSize: 44, fontWeight: '700' },
   ad: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.metin, marginTop: spacing.m },
   uzmanlik: { fontSize: fontSize.normal, color: colors.metin, opacity: 0.7, marginTop: 4, textAlign: 'center' },
+  puanSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.s, marginTop: spacing.s },
+  puanYazi: { fontSize: fontSize.normal, fontWeight: '700', color: colors.metin },
   puan: { marginTop: spacing.s, fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.6 },
   fiyatKutu: {
     marginTop: spacing.l,

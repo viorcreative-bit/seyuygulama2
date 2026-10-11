@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import Dugme from '../components/Dugme';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Yildizlar } from '../components/Yildizlar';
 import { supabase } from '../lib/supabase';
+import { yorumYazilanTalepler } from '../lib/yorumlar';
 import { DURUM_ADI, Durum, Talep, talebiIptalEt, taleplerim, tarihSaatYaz } from '../lib/talepler';
 import { colors, fontSize, radius, spacing } from '../theme';
 
@@ -12,10 +15,13 @@ const rozet: Record<Durum, { zemin: string; yazi: string }> = {
   iptal: { zemin: colors.beyaz, yazi: colors.metin },
 };
 
-export default function Taleplerim({ geri }: { geri: () => void }) {
+type Props = { geri: () => void; yorumYap: (t: Talep, asciAdi: string) => void };
+
+export default function Taleplerim({ geri, yorumYap }: Props) {
   const [liste, setListe] = useState<Talep[] | null>(null);
   const [adlar, setAdlar] = useState<Record<string, string>>({});
   const [hata, setHata] = useState('');
+  const [yorumlar, setYorumlar] = useState<Record<string, number>>({});
 
   const yukle = useCallback(async () => {
     try {
@@ -25,6 +31,7 @@ export default function Taleplerim({ geri }: { geri: () => void }) {
         const { data } = await supabase.from('asci_vitrini').select('id, ad').in('id', idler);
         setAdlar(Object.fromEntries((data ?? []).map((a: { id: string; ad: string }) => [a.id, a.ad])));
       }
+      setYorumlar(await yorumYazilanTalepler(l.filter((t) => t.durum === 'tamamlandi').map((t) => t.id)));
       setListe(l);
       setHata('');
     } catch {
@@ -78,6 +85,18 @@ export default function Taleplerim({ geri }: { geri: () => void }) {
             </View>
             <Text style={styles.bilgi}>{tarihSaatYaz(item.tarih)} · {item.kisi_sayisi} kişi</Text>
             <Text style={styles.bilgi}>{item.semt}</Text>
+            {item.durum === 'tamamlandi' ? (
+              yorumlar[item.id] ? (
+                <View style={styles.yorumSatir}>
+                  <Text style={styles.bilgi}>Yorumun:</Text>
+                  <Yildizlar puan={yorumlar[item.id]} boyut={16} />
+                </View>
+              ) : (
+                <View style={{ marginTop: spacing.s }}>
+                  <Dugme yazi="Yorum Yap" onPress={() => yorumYap(item, adlar[item.asci_id] ?? 'Aşçı')} />
+                </View>
+              )
+            ) : null}
             {item.durum === 'bekliyor' || item.durum === 'kabul' ? (
               <Pressable onPress={() => iptal(item)} accessibilityRole="button">
                 <Text style={styles.iptal}>Talebi iptal et</Text>
@@ -102,5 +121,6 @@ const styles = StyleSheet.create({
   rozet: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: radius.tam, borderWidth: 1, borderColor: colors.cizgi },
   rozetYazi: { fontSize: 13, fontWeight: '700' },
   bilgi: { fontSize: fontSize.kucuk + 1, color: colors.metin, opacity: 0.8 },
+  yorumSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.s, marginTop: 4 },
   iptal: { marginTop: spacing.s, color: colors.kirmizi, fontWeight: '700', fontSize: fontSize.kucuk + 1 },
 });

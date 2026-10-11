@@ -6,12 +6,14 @@ import { supabaseHazir } from './src/lib/supabase';
 import AnaSayfa from './src/screens/AnaSayfa';
 import AsciProfil from './src/screens/AsciProfil';
 import AsciProfilDuzenle from './src/screens/AsciProfilDuzenle';
+import AsciYorumlari from './src/screens/AsciYorumlari';
 import AsciSec from './src/screens/AsciSec';
 import GelenTalepler from './src/screens/GelenTalepler';
 import GirisAkisi from './src/screens/GirisAkisi';
 import Kayit from './src/screens/Kayit';
 import SifreBelirle from './src/screens/SifreBelirle';
 import SifreDegistir from './src/screens/SifreDegistir';
+import YorumYaz from './src/screens/YorumYaz';
 import TalepOlustur from './src/screens/TalepOlustur';
 import Taleplerim from './src/screens/Taleplerim';
 import { colors, fontSize, spacing } from './src/theme';
@@ -24,7 +26,9 @@ type Ekran =
   | { ad: 'talep'; asciId: string }
   | { ad: 'taleplerim' }
   | { ad: 'gelenTalepler' }
-  | { ad: 'sifreDegistir' };
+  | { ad: 'sifreDegistir' }
+  | { ad: 'asciYorumlari' }
+  | { ad: 'yorumYaz'; talepId: string; asciId: string; asciAdi: string };
 
 function Ekranlar() {
   const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor } = useAuth();
@@ -60,7 +64,24 @@ function Ekranlar() {
     case 'talep':
       return <TalepOlustur asciId={ekran.asciId} geri={ana} gonderildi={() => setEkran({ ad: 'taleplerim' })} />;
     case 'taleplerim':
-      return <Taleplerim geri={ana} />;
+      return (
+        <Taleplerim
+          geri={ana}
+          yorumYap={(t, asciAdi) => setEkran({ ad: 'yorumYaz', talepId: t.id, asciId: t.asci_id, asciAdi })}
+        />
+      );
+    case 'yorumYaz':
+      return (
+        <YorumYaz
+          talepId={ekran.talepId}
+          asciId={ekran.asciId}
+          asciAdi={ekran.asciAdi}
+          geri={() => setEkran({ ad: 'taleplerim' })}
+          tamam={() => setEkran({ ad: 'taleplerim' })}
+        />
+      );
+    case 'asciYorumlari':
+      return profil.rol === 'asci' ? <AsciYorumlari geri={ana} /> : <AnaSayfa {...anaProps(setEkran)} />;
     case 'sifreDegistir':
       return <SifreDegistir geri={ana} />;
     case 'gelenTalepler':
@@ -78,6 +99,7 @@ function anaProps(setEkran: (e: Ekran) => void) {
     taleplerim: () => setEkran({ ad: 'taleplerim' }),
     gelenTalepler: () => setEkran({ ad: 'gelenTalepler' }),
     sifreDegistir: () => setEkran({ ad: 'sifreDegistir' }),
+    yorumlarim: () => setEkran({ ad: 'asciYorumlari' }),
   };
 }
 

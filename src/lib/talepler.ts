@@ -47,6 +47,11 @@ export function tarihSaatCoz(tarih: string, saat: string): Date | null {
   return d;
 }
 
+// ISO tarihi "gg.aa.yyyy" (Türkiye saati) biçiminde yazar.
+export function tarihYaz(iso: string): string {
+  return tarihSaatYaz(iso).slice(0, 10);
+}
+
 const iki = (n: number) => String(n).padStart(2, '0');
 
 // ISO tarihi "gg.aa.yyyy ss:dd" (Türkiye saati) biçiminde yazar.

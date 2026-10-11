@@ -10,6 +10,8 @@ export type Vitrin = {
   semtler: string[];
   baslangic_fiyati: number | null;
   musait_gunler: string[];
+  ortalama_puan: number | null;
+  yorum_sayisi: number;
 };
 
 export const tl = (n: number) => `${n.toLocaleString('tr-TR')} TL`;
@@ -19,8 +21,8 @@ export function vitrindenKarta(v: Vitrin): Asci {
     id: v.id,
     ad: v.ad,
     uzmanlik: v.uzmanliklar.slice(0, 2).join(', ') || 'Aşçı',
-    puan: null, // Yorumlar 8. aşamada gelecek
-    yorumSayisi: 0,
+    puan: v.ortalama_puan != null ? Number(v.ortalama_puan) : null,
+    yorumSayisi: v.yorum_sayisi ?? 0,
     foto: v.fotograf,
   };
 }
