@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   baslik: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.kirmizi, textAlign: 'center', marginTop: spacing.s },
   aciklama: { fontSize: fontSize.normal, color: colors.metin, textAlign: 'center', marginBottom: spacing.l },
   form: { gap: spacing.m },
-  rolKart: { backgroundColor: colors.beyaz, borderRadius: radius.m, borderWidth: 2, borderColor: '#E5D9BF', padding: spacing.m },
+  rolKart: { backgroundColor: colors.beyaz, borderRadius: radius.m, borderWidth: 2, borderColor: colors.cizgi, padding: spacing.m },
   rolSecili: { backgroundColor: colors.kirmizi, borderColor: colors.kirmizi },
   rolBaslik: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.metin },
   rolAlt: { fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.8, marginTop: 2 },

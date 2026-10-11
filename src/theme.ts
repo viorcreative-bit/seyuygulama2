@@ -4,6 +4,8 @@ export const colors = {
   krem: '#FFF8E7',
   metin: '#2B1A12',
   beyaz: '#FFFFFF',
+  cizgi: '#E5D9BF',
+  altin: '#B8860B',
 } as const;
 
 export const spacing = { xs: 4, s: 8, m: 16, l: 24, xl: 32 } as const;

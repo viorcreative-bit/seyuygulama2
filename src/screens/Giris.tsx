@@ -90,7 +90,7 @@ export const girdiStili = {
   backgroundColor: colors.beyaz,
   borderRadius: radius.m,
   borderWidth: 1,
-  borderColor: '#E5D9BF',
+  borderColor: colors.cizgi,
   paddingHorizontal: spacing.m,
   paddingVertical: 14,
   fontSize: fontSize.baslik,

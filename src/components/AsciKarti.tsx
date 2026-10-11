@@ -58,6 +58,6 @@ const styles = StyleSheet.create({
   fotoYazi: { color: colors.sari, fontSize: fontSize.buyuk, fontWeight: '700' },
   ad: { fontSize: fontSize.normal, fontWeight: '700', color: colors.metin },
   uzmanlik: { fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.7, marginTop: 2 },
-  puan: { marginTop: spacing.s, fontSize: fontSize.normal, fontWeight: '700', color: '#B8860B' },
+  puan: { marginTop: spacing.s, fontSize: fontSize.normal, fontWeight: '700', color: colors.altin },
   yorum: { fontSize: 12, fontWeight: '400', color: colors.metin, opacity: 0.7 },
 });

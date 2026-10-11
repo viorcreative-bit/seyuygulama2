@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Dugme from '../components/Dugme';
 import { supabase } from '../lib/supabase';
 import { tl, Vitrin } from '../lib/vitrin';
@@ -18,7 +18,9 @@ function Etiketler({ liste }: { liste: string[] }) {
 }
 
 // Müşterinin gördüğü aşçı profil sayfası.
-export default function AsciProfil({ asciId, geri }: { asciId: string; geri: () => void }) {
+type Props = { asciId: string; geri: () => void; talepEt?: () => void };
+
+export default function AsciProfil({ asciId, geri, talepEt }: Props) {
   const [asci, setAsci] = useState<Vitrin | null>(null);
   const [galeri, setGaleri] = useState<string[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
@@ -133,12 +135,11 @@ export default function AsciProfil({ asciId, geri }: { asciId: string; geri: () 
         <Text style={styles.bolum}>Yorumlar</Text>
         <Text style={styles.metin}>Henüz yorum yok. İlk hizmetten sonra yorumlar burada görünecek.</Text>
 
-        <View style={{ marginTop: spacing.xl }}>
-          <Dugme
-            yazi="Bu Aşçıdan Talep Et"
-            onPress={() => Alert.alert('Çok yakında', 'Talep etme ekranı 6. aşamada eklenecek.')}
-          />
-        </View>
+        {talepEt ? (
+          <View style={{ marginTop: spacing.xl }}>
+            <Dugme yazi="Bu Aşçıdan Talep Et" onPress={talepEt} />
+          </View>
+        ) : null}
       </ScrollView>
     </View>
   );
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
   bolum: { fontSize: fontSize.baslik, fontWeight: '700', color: colors.kirmizi, marginTop: spacing.l, marginBottom: spacing.s },
   metin: { fontSize: fontSize.normal, color: colors.metin, lineHeight: 24 },
   etiketler: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.s },
-  etiket: { backgroundColor: colors.beyaz, borderWidth: 1, borderColor: '#E5D9BF', borderRadius: radius.tam, paddingVertical: 6, paddingHorizontal: 14 },
+  etiket: { backgroundColor: colors.beyaz, borderWidth: 1, borderColor: colors.cizgi, borderRadius: radius.tam, paddingVertical: 6, paddingHorizontal: 14 },
   etiketYazi: { fontSize: fontSize.kucuk, color: colors.metin, fontWeight: '600' },
   galeriFoto: { width: 150, height: 150, borderRadius: radius.m },
 });

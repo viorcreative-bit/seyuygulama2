@@ -16,7 +16,7 @@ const girdi = {
   backgroundColor: colors.beyaz,
   borderRadius: radius.m,
   borderWidth: 1,
-  borderColor: '#E5D9BF',
+  borderColor: colors.cizgi,
   paddingHorizontal: spacing.m,
   paddingVertical: 12,
   fontSize: fontSize.normal,

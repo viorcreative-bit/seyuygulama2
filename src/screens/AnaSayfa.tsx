@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Alert, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import AsciKarti from '../components/AsciKarti';
 import { useAuth } from '../auth/AuthContext';
 import { Asci, enSevilenAscilar, ornekAscilar } from '../data/ornekAscilar';
 import { vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
-type Props = { profilDuzenle: () => void; asciAc: (id: string) => void };
+type Props = {
+  profilDuzenle: () => void;
+  asciAc: (id: string) => void;
+  talepEt: () => void;
+  taleplerim: () => void;
+};
 
-export default function AnaSayfa({ profilDuzenle, asciAc }: Props) {
+export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim }: Props) {
   const ascilar = enSevilenAscilar(ornekAscilar);
   const { profil, cikisYap } = useAuth();
   const [yeniler, setYeniler] = useState<Asci[]>([]);
@@ -24,9 +29,6 @@ export default function AnaSayfa({ profilDuzenle, asciAc }: Props) {
       .catch((e: { message?: string }) => setListeDurumu(`Aşçı listesi yüklenemedi. (Sebep: ${e.message ?? 'bilinmiyor'})`));
   }, []);
 
-  const talepEt = () =>
-    Alert.alert('Çok yakında', 'Aşçı talep etme ekranı 6. aşamada eklenecek.');
-
   return (
     <ScrollView style={styles.kap} contentContainerStyle={{ paddingBottom: spacing.xl }}>
       <View style={styles.ustSatir}>
@@ -40,13 +42,20 @@ export default function AnaSayfa({ profilDuzenle, asciAc }: Props) {
         <Text style={styles.slogan}>Ev yemeği, şef elinden.</Text>
       </View>
 
-      <Pressable
-        onPress={talepEt}
-        style={({ pressed }) => [styles.buton, pressed && styles.butonBasili]}
-        accessibilityRole="button"
-      >
-        <Text style={styles.butonYazi}>Hemen Aşçı Talep Et</Text>
-      </Pressable>
+      {profil?.rol === 'musteri' ? (
+        <>
+          <Pressable
+            onPress={talepEt}
+            style={({ pressed }) => [styles.buton, pressed && styles.butonBasili]}
+            accessibilityRole="button"
+          >
+            <Text style={styles.butonYazi}>Hemen Aşçı Talep Et</Text>
+          </Pressable>
+          <Pressable onPress={taleplerim} style={styles.profilButon} accessibilityRole="button">
+            <Text style={styles.profilButonYazi}>Taleplerim</Text>
+          </Pressable>
+        </>
+      ) : null}
 
       {profil?.rol === 'asci' ? (
         <Pressable

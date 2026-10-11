@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.tam,
     backgroundColor: colors.beyaz,
     borderWidth: 1,
-    borderColor: '#E5D9BF',
+    borderColor: colors.cizgi,
   },
   acik: { backgroundColor: colors.kirmizi, borderColor: colors.kirmizi },
   yazi: { fontSize: fontSize.kucuk, fontWeight: '600', color: colors.metin },
