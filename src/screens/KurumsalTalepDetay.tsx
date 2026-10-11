@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Bos from '../components/Bos';
+import ProfilResmi from '../components/ProfilResmi';
 import Dugme from '../components/Dugme';
 import Ekran from '../components/Ekran';
 import Rozet from '../components/Rozet';
@@ -143,13 +144,7 @@ export default function KurumsalTalepDetay({ talepId, geri, asciAc }: Props) {
             return (
               <View key={te.id} style={[styles.teklif, te.durum === 'kabul' && styles.teklifKabul]}>
                 <View style={styles.teklifUst}>
-                  {te.asci_foto ? (
-                    <Image source={{ uri: te.asci_foto }} style={styles.foto} />
-                  ) : (
-                    <View style={[styles.foto, styles.fotoBos]}>
-                      <Text style={styles.fotoYazi}>{te.asci_ad[0]}</Text>
-                    </View>
-                  )}
+<ProfilResmi uri={te.asci_foto} kimlik={te.asci_id} style={styles.foto} />
                   <View style={{ flex: 1, gap: 2 }}>
                     <Text style={styles.asciAd}>{te.asci_ad}</Text>
                     {te.ortalama_puan != null && te.yorum_sayisi > 0 ? (
@@ -213,8 +208,6 @@ const styles = StyleSheet.create({
   teklifKabul: { borderColor: colors.sari, borderWidth: 2 },
   teklifUst: { flexDirection: 'row', alignItems: 'center', gap: spacing.m },
   foto: { width: 52, height: 52, borderRadius: radius.tam },
-  fotoBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
-  fotoYazi: { color: colors.sari, fontSize: fontSize.baslik, fontWeight: '800' },
   asciAd: { fontSize: fontSize.normal + 2, fontWeight: '800', color: colors.metin },
   puan: { fontSize: 13, color: colors.metinSoluk },
   fiyatSatir: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },

@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import AsciKarti from '../components/AsciKarti';
+import ProfilResmi from '../components/ProfilResmi';
 import Bos from '../components/Bos';
 import Ekran from '../components/Ekran';
 import { UZMANLIKLAR } from '../data/secenekler';
@@ -60,13 +61,7 @@ export default function AsciSec({ sec, geri }: { sec: (id: string) => void; geri
           ListEmptyComponent={<Bos mesaj="Bu kategoride henüz aşçı yok." />}
           renderItem={({ item }) => (
             <Pressable onPress={() => sec(item.id)} style={({ pressed }) => [styles.satir, pressed && { opacity: 0.85 }]} accessibilityRole="button">
-              {item.foto ? (
-                <Image source={{ uri: item.foto }} style={styles.foto} />
-              ) : (
-                <View style={[styles.foto, styles.fotoBos]}>
-                  <Text style={styles.fotoYazi}>{item.ad[0]?.toLocaleUpperCase('tr-TR')}</Text>
-                </View>
-              )}
+              <ProfilResmi uri={item.foto} kimlik={item.id} style={styles.foto} />
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={styles.ad}>{item.ad}</Text>
                 <Text style={styles.uzmanlik}>{item.uzmanlik}</Text>
@@ -181,8 +176,6 @@ const styles = StyleSheet.create({
     padding: spacing.m,
   },
   foto: { width: 60, height: 60, borderRadius: radius.tam },
-  fotoBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
-  fotoYazi: { color: colors.sari, fontSize: fontSize.baslik, fontWeight: '800' },
   ad: { fontSize: fontSize.normal + 2, fontWeight: '800', color: colors.metin },
   uzmanlik: { fontSize: fontSize.kucuk, color: colors.metinSoluk },
   puan: { flexDirection: 'row', alignItems: 'center', gap: 4 },

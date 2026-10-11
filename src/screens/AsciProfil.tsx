@@ -5,6 +5,7 @@ import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from '
 import { useAuth } from '../auth/AuthContext';
 import { useFavoriler } from '../auth/FavoriContext';
 import Bos from '../components/Bos';
+import ProfilResmi from '../components/ProfilResmi';
 import Dugme from '../components/Dugme';
 import Ekran from '../components/Ekran';
 import { Yildizlar } from '../components/Yildizlar';
@@ -64,20 +65,13 @@ export default function AsciProfil({ asciId, geri, talepEt }: Props) {
   }
 
   const kapak = asci.fotograf ?? galeri[0] ?? null;
-  const bas = asci.ad.split(' ').map((p) => p[0]).slice(0, 2).join('').toLocaleUpperCase('tr-TR');
   const puanVar = asci.ortalama_puan != null && asci.yorum_sayisi > 0;
 
   return (
     <View style={styles.kap}>
       <ScrollView contentContainerStyle={{ paddingBottom: talepEt ? 110 : spacing.xl }} showsVerticalScrollIndicator={false}>
         <View style={styles.kapak}>
-          {kapak ? (
-            <Image source={{ uri: kapak }} style={styles.kapakFoto} />
-          ) : (
-            <View style={[styles.kapakFoto, styles.kapakBos]}>
-              <Text style={styles.kapakYazi}>{bas}</Text>
-            </View>
-          )}
+          <ProfilResmi uri={kapak} kimlik={asci.id} style={styles.kapakFoto} />
           <LinearGradient colors={['transparent', colors.zemin]} style={styles.kapakGolge} />
           <Pressable onPress={geri} style={styles.geri} accessibilityRole="button" accessibilityLabel="Geri">
             <Ionicons name="chevron-back" size={22} color={colors.metin} />

@@ -11,3 +11,10 @@ export const AVATARLAR: Avatar[] = [
   { anahtar: 'erkek2', ad: 'Erkek 2', kaynak: require('../../assets/avatars/erkek2.png') },
   { anahtar: 'erkek3', ad: 'Erkek 3', kaynak: require('../../assets/avatars/erkek3.png') },
 ];
+
+// Fotoğrafı olmayan (veya yüklenemeyen) profiller için kişiye göre sabit bir varsayılan avatar.
+export function varsayilanAvatar(kimlik: string): ImageSourcePropType {
+  let toplam = 0;
+  for (let i = 0; i < kimlik.length; i++) toplam += kimlik.charCodeAt(i);
+  return AVATARLAR[toplam % AVATARLAR.length].kaynak;
+}

@@ -237,6 +237,16 @@ ASCILAR = [
     ('Cem Özkan', ['Türk mutfağı', 'Ege'], ['Beşiktaş', 'Levent', 'Etiler'], 6200, ['Pazartesi', 'Çarşamba', 'Cumartesi'], 'Otel mutfaklarında on yıl çalıştım; şimdi evlerde çalışıyorum. Sunumuma ve temizliğe çok dikkat ederim.', ['balik', 'sarma', 'salata', 'pilav'], 3),
     ('Nilay Karaca', ['Tatlı ve pasta', 'Çocuk yemekleri'], ['Maltepe', 'Kartal', 'Pendik'], 4400, ['Cumartesi', 'Pazar'], 'Tatlı yapmaya bayılırım; baklava, sütlaç ve börekle misafir sofralarını da renklendiririm.', ['baklava', 'sutlac', 'borek', 'manti'], 2),
 ]
+# Demo aşçıların (kurgusal kişiler) avatarı: K = kadın, E = erkek avatar; kendi içinde sırayla dağıtılır.
+def _avatarlar(cinsiyetler):
+    sayac = {'K': 0, 'E': 0}
+    sonuc = []
+    for c in cinsiyetler:
+        sayac[c] += 1
+        sonuc.append(('kadin' if c == 'K' else 'erkek') + str((sayac[c] - 1) % 3 + 1))
+    return sonuc
+AVATAR_ANAHTAR = _avatarlar('KEKEKKEKEKEKEKEKEKEK')
+
 MUSTERILER = ['Ali Veli', 'Selin Kaya', 'Can Öztürk', 'Deniz Arı', 'Burcu Sönmez', 'Emre Tuna', 'Pınar Gür', 'Volkan Ece']
 YORUM5 = ['Harika yemekler, çok temiz ve düzenli çalıştı. Kesinlikle tavsiye ederim.', 'Bütün hafta eve gelince sıcak yemek bulmak müthiş bir rahatlıktı.', 'Lezzet ve sunum mükemmeldi, misafirlerimiz bayıldı.', 'Çok güler yüzlü, işini bilen biri. Tekrar çağıracağım.', 'Alerji konusunda çok dikkatliydi, içim rahattı.', 'Mutfağı derli toplu bıraktı, yemekler ev yapımı tadındaydı.', 'Çocuklarım bile tabaklarını bitirdi, teşekkürler.', 'Zamanında geldi, planladığı gibi hazırladı, her şey çok güzeldi.', 'Menü çeşitliliği süperdi, her gün farklı bir lezzet.', 'Fiyatına göre inanılmaz kaliteli bir hizmet.']
 YORUM4 = ['Yemekler güzeldi, sadece biraz geç geldi.', 'Genel olarak çok memnun kaldık, tuzu biraz azdı.', 'Lezzetliydi, porsiyonlar bol. Tekrar çalışırım.', 'Temiz ve düzenli, yemekler güzeldi.', 'İyi bir deneyimdi, menüyü biraz daha çeşitlendirebilir.', 'Güvenilir ve işinin ehli.']
@@ -289,7 +299,7 @@ def sql_uret():
     # profiller
     satir = []
     for i, x in enumerate(ASCILAR, 1):
-        foto = SUPABASE_TABAN + f"asci{i:02d}-0.jpg"
+        foto = SUPABASE_TABAN.replace('/demo/', '/avatar/') + AVATAR_ANAHTAR[i - 1] + '.png'
         satir.append(f"({sq(uid('000', i))}::uuid, 'asci', {sq(x[0])}, {sq('+9000000' + f'{i:04d}')}, {sq(foto)}, {sq(SURUM)})")
     for i, ad in enumerate(MUSTERILER, 1):
         satir.append(f"({sq(uid('001', i))}::uuid, 'musteri', {sq(ad)}, {sq('+9000001' + f'{i:04d}')}, null, {sq(SURUM)})")

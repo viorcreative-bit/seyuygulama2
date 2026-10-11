@@ -1,16 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import ProfilResmi from './ProfilResmi';
 import { Asci, tl } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
-
-function basHarfler(ad: string) {
-  return ad
-    .split(' ')
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toLocaleUpperCase('tr-TR');
-}
 
 type Props = {
   asci: Asci;
@@ -32,13 +24,7 @@ export default function AsciKarti({ asci, onPress, genislik, favori, favoriDegis
       accessibilityRole="button"
     >
       <View style={{ height: genislik * 0.85 }}>
-        {asci.foto ? (
-          <Image source={{ uri: asci.foto }} style={styles.foto} />
-        ) : (
-          <View style={[styles.foto, styles.fotoBos]}>
-            <Text style={styles.fotoYazi}>{basHarfler(asci.ad)}</Text>
-          </View>
-        )}
+        <ProfilResmi uri={asci.foto} kimlik={asci.id} style={styles.foto} />
         {favoriDegistir ? (
           <Pressable
             onPress={favoriDegistir}
@@ -72,8 +58,6 @@ export default function AsciKarti({ asci, onPress, genislik, favori, favoriDegis
 const styles = StyleSheet.create({
   kart: { borderRadius: radius.m, overflow: 'hidden', backgroundColor: colors.sari },
   foto: { width: '100%', height: '100%' },
-  fotoBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
-  fotoYazi: { color: colors.sari, fontSize: 44, fontWeight: '800' },
   puanRozeti: {
     position: 'absolute',
     top: spacing.s,

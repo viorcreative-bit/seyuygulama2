@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import Ekran from '../components/Ekran';
+import ProfilResmi from '../components/ProfilResmi';
 import { supabase } from '../lib/supabase';
 import { telefonuGoster } from '../lib/telefon';
 import { YASAL_ADLARI, YasalAnahtar } from '../yasal';
@@ -51,19 +52,12 @@ export default function Hesabim({ profilDuzenle, sifreDegistir, yasal, hesabiSil
     ]);
 
   const telefon = oturum?.user.phone ? telefonuGoster(`+${oturum.user.phone.replace(/^\+/, '')}`) : '';
-  const bas = (profil?.ad ?? '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toLocaleUpperCase('tr-TR');
 
   return (
     <Ekran baslik="Hesabım">
       <ScrollView contentContainerStyle={styles.icerik}>
         <View style={styles.kimlik}>
-          {foto ? (
-            <Image source={{ uri: foto }} style={styles.foto} />
-          ) : (
-            <View style={[styles.foto, styles.fotoBos]}>
-              <Text style={styles.fotoYazi}>{bas}</Text>
-            </View>
-          )}
+          <ProfilResmi uri={foto} kimlik={oturum?.user.id ?? ''} style={styles.foto} />
           <Text style={styles.ad}>{profil?.ad}</Text>
           {telefon ? <Text style={styles.telefon}>{telefon}</Text> : null}
           <View style={styles.rol}>
@@ -96,8 +90,6 @@ const styles = StyleSheet.create({
   icerik: { padding: spacing.l, gap: spacing.l, paddingBottom: spacing.xl },
   kimlik: { alignItems: 'center', gap: 4 },
   foto: { width: 110, height: 110, borderRadius: radius.tam, marginBottom: spacing.s },
-  fotoBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
-  fotoYazi: { color: colors.sari, fontSize: 40, fontWeight: '800' },
   ad: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.metin },
   telefon: { fontSize: fontSize.normal, color: colors.metinSoluk },
   rol: { marginTop: spacing.s, backgroundColor: colors.sari, borderRadius: radius.tam, paddingVertical: 4, paddingHorizontal: 16 },
