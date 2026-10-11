@@ -6,6 +6,7 @@ import Dugme from '../components/Dugme';
 import DurumRozeti from '../components/DurumRozeti';
 import { Yildizlar } from '../components/Yildizlar';
 import { supabase } from '../lib/supabase';
+import { tl } from '../lib/vitrin';
 import { Talep, talebiIptalEt, taleplerim, tarihSaatYaz } from '../lib/talepler';
 import { yorumYazilanTalepler } from '../lib/yorumlar';
 import { colors, fontSize, radius, spacing } from '../theme';
@@ -93,6 +94,7 @@ export default function Taleplerim({ yorumYap, sikayetEt }: Props) {
               <Bilgi simge="calendar-outline" yazi={tarihSaatYaz(item.tarih)} />
               <Bilgi simge="people-outline" yazi={`${item.kisi_sayisi} kişilik`} />
               <Bilgi simge="location-outline" yazi={item.semt} />
+              {item.teklif_fiyati ? <Bilgi simge="pricetag-outline" yazi={`Anlaşılan fiyat: ${tl(item.teklif_fiyati)}`} /> : null}
 
               {item.durum === 'tamamlandi' ? (
                 yorumlar[item.id] ? (

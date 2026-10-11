@@ -1,5 +1,5 @@
 {
-  "surum": "2026-10-11.4",
+  "surum": "2026-10-11.5",
   "taslak": true,
   "bilgiler": {
     "sirketUnvani": "[ŞİRKET ÜNVANI]",
@@ -31,7 +31,7 @@
         },
         {
           "baslik": "5. Verilerin aktarılması",
-          "metin": "• Açık adresiniz yalnızca talebinizi kabul eden aşçıyla paylaşılır; talep kabul edilmeden aşçı açık adresi göremez.\n• Aşçının profil bilgileri (ad, fotoğraf, tanıtım vb.) yönetici onayından sonra tüm kullanıcılara görünür. Yorumlarda adınız kısaltılarak (örn. \"Ayşe K.\") gösterilir.\n• Altyapı hizmeti (veri tabanı, kimlik doğrulama, dosya depolama) ve SMS doğrulama hizmeti için hizmet sağlayıcılarımızla veri paylaşılır. Bu sağlayıcıların sunucuları yurt dışında bulunabilir; yurt dışına aktarım KVKK m.9 hükümlerine uygun olarak yapılır.\n• Yasal bir talep olması hâlinde yetkili kamu kurum ve kuruluşlarıyla paylaşım yapılabilir."
+          "metin": "• Açık adresiniz yalnızca talebinizi kabul eden veya teklifini seçtiğiniz aşçıyla paylaşılır; talep kabul edilmeden ya da teklif seçilmeden aşçı açık adresi göremez.\n• Aşçının profil bilgileri (ad, fotoğraf, tanıtım vb.) yönetici onayından sonra tüm kullanıcılara görünür. Yorumlarda adınız kısaltılarak (örn. \"Ayşe K.\") gösterilir.\n• Altyapı hizmeti (veri tabanı, kimlik doğrulama, dosya depolama) ve SMS doğrulama hizmeti için hizmet sağlayıcılarımızla veri paylaşılır. Bu sağlayıcıların sunucuları yurt dışında bulunabilir; yurt dışına aktarım KVKK m.9 hükümlerine uygun olarak yapılır.\n• Yasal bir talep olması hâlinde yetkili kamu kurum ve kuruluşlarıyla paylaşım yapılabilir."
         },
         {
           "baslik": "6. Saklama süresi",
@@ -119,7 +119,7 @@
         },
         {
           "baslik": "6. Talepler ve iptal",
-          "metin": "Talepler aşçının kabulüyle kesinleşir. Müşteri bekleyen veya kabul edilmiş talebini uygulamadan iptal edebilir. Aşçı kabul ettiği hizmeti özürsüz şekilde yerine getirmezse şikayet konusu olabilir. Ücret ve ödeme müşteri ile aşçı arasında belirlenir; uygulama şu an ödeme aracılığı yapmamaktadır. Kurumsal (toplu yemek) taleplerinde şirket talebi açar, kurumsal hizmet veren aşçılar kişi başı fiyat teklifi verir ve şirket bir teklifi seçer; şirketin yetkili adı, telefonu ve adresi yalnızca seçilen aşçıyla paylaşılır. Verilen teklif, seçilmeden önce aşçı tarafından geri çekilebilir."
+          "metin": "Talepler aşçının kabulüyle kesinleşir. Müşteri bekleyen veya kabul edilmiş talebini uygulamadan iptal edebilir. Aşçı kabul ettiği hizmeti özürsüz şekilde yerine getirmezse şikayet konusu olabilir. Ücret ve ödeme müşteri ile aşçı arasında belirlenir; uygulama şu an ödeme aracılığı yapmamaktadır. Müşteri \"Talep Oluştur\" ile istediği yemekleri, günü ve saati yazarak açık talep yayınlayabilir; onaylı aşçılar toplam fiyat teklifi verir, müşteri bir teklifi seçince talep o aşçıyla kesinleşir ve müşterinin adı ile açık adresi yalnızca seçilen aşçıyla paylaşılır. Kurumsal (toplu yemek) taleplerinde şirket talebi açar, kurumsal hizmet veren aşçılar kişi başı fiyat teklifi verir ve şirket bir teklifi seçer; şirketin yetkili adı, telefonu ve adresi yalnızca seçilen aşçıyla paylaşılır. Verilen teklif, seçilmeden önce aşçı tarafından geri çekilebilir."
         },
         {
           "baslik": "7. Yorumlar",

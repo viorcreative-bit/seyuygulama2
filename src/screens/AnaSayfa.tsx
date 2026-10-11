@@ -116,8 +116,8 @@ export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
           >
             <Ionicons name="restaurant" size={26} color={colors.koyuMetin} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.talepBaslik}>Hemen Aşçı Talep Et</Text>
-              <Text style={styles.talepAlt}>Aşçı evinize gelsin, yemekler orada pişsin</Text>
+              <Text style={styles.talepBaslik}>Talep Oluştur</Text>
+              <Text style={styles.talepAlt}>İstediğin yemekleri yaz, aşçılar teklif versin</Text>
             </View>
             <Ionicons name="arrow-forward-circle" size={32} color={colors.koyuMetin} />
           </Pressable>

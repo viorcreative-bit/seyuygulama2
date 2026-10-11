@@ -45,7 +45,7 @@ Proje sahibi yazılımcı değildir. Bu yüzden:
 
 ### 1. Ana sayfa
 - Üstte logo ve slogan.
-- Ortada büyük, dikkat çeken **"Hemen Aşçı Talep Et"** butonu (kırmızı zemin, sarı yazı).
+- Ortada büyük, dikkat çeken **"Talep Oluştur"** butonu: açık talep akışını başlatır (aşağıda 8. bölüm). Belirli bir aşçıdan talep etmek için aşçı profilindeki talep düğmesi veya talep formundaki "Belirli bir aşçıdan talep et" bağlantısı kullanılır.
 - Altında **"En Sevilen Aşçılar"** bölümü: en yüksek puanlı aşçılar kartlar halinde.
   - Sıralama: ortalama yıldız puanına göre. Tek bir 5 yıldızla zirveye çıkılmasın diye, listeye girmek için en az 3 yorum gerekir.
   - Her kartta: fotoğraf, isim, uzmanlık (örn. "Ege mutfağı"), ortalama yıldız, yorum sayısı.
@@ -92,6 +92,11 @@ Talep durumları: **Bekliyor → Kabul edildi / Reddedildi → Tamamlandı / İp
 - Favoriler: müşteri aşçı kartındaki/profildeki kalple favoriler (`favoriler` tablosu, `src/auth/FavoriContext.tsx`); ana sayfada "Favorilerim" filtresi.
 - Aşçı profilinde yapacağı yemekler ve kullanacağı malzemeler (`asci_yemekleri`, `schema_16.sql`, `YemekDuzenleyici.tsx`); müşteri aşçı profilinde görür, yönetici panelinde onay kartında görünür.
 - Yönetici web paneli de koyu temadadır.
+
+### 8. Açık talep ve aşçı teklifleri
+- Müşteri ana sayfada "Talep Oluştur" der; istediği yemekleri, gün ve saati, kişi sayısını, semt ve adresi yazar (`AcikTalepOlustur.tsx`). Talep tüm onaylı aşçılara gider (Talepler > Teklif Ver); aşçılar toplam fiyat teklifi verir; müşteri bir teklifi seçer.
+- Seçilince normal bir talep (`talepler`, durum `kabul`, `teklif_fiyati` dolu) oluşur; böylece tamamlama, yorum, şikayet ve adres görünürlüğü mevcut akışla devam eder. Aşçı, teklif aşamasında müşterinin adını ve adresini görmez.
+- Tablolar `acik_talepler`, `acik_talep_adresleri`, `acik_teklifler` (`schema_17.sql`); en fazla 5 açık talep; ekranlar `Acik*.tsx`; müşteri sekmeleri Doğrudan | Açık Talepler | Kurumsal, aşçı sekmeleri Bana Gelen | Teklif Ver | Kurumsal.
 
 ## Veritabanı tabloları (taslak)
 

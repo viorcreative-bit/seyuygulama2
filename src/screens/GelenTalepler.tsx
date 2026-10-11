@@ -5,6 +5,7 @@ import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
 import DurumRozeti from '../components/DurumRozeti';
 import { Durum, GelenTalep, durumDegistir, gelenTalepler, tarihSaatYaz } from '../lib/talepler';
+import { tl } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 const SIRA: Record<Durum, number> = { bekliyor: 0, kabul: 1, tamamlandi: 2, red: 3, iptal: 4 };
@@ -94,6 +95,7 @@ export default function GelenTalepler({ sikayetEt }: Props) {
                 <Text style={styles.tarih}>{tarihSaatYaz(t.tarih)} · {t.kisi_sayisi} kişilik</Text>
               </View>
               <Satir etiket="Semt" deger={t.semt} />
+              {t.teklif_fiyati ? <Satir etiket="Anlaşılan fiyat" deger={tl(t.teklif_fiyati)} vurgu /> : null}
               {t.adres ? <Satir etiket="Açık adres" deger={t.adres} vurgu /> : null}
               <Satir etiket="Mutfak" deger={t.mutfak_tercihleri.join(', ')} />
               <Satir etiket="İstenen yemekler" deger={t.istenen_yemekler} />

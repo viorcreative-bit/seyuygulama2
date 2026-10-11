@@ -1,6 +1,6 @@
 import { kur, semalar } from './kur.mjs';
 const db = await kur();
-await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','schema_16.sql','demo_veri.sql']);
+await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','schema_16.sql','schema_17.sql','demo_veri.sql']);
 const U = (n) => `dddddddd-0000-4000-8000-${n}`;
 const ASCI = U('000000000001'), ASCI2 = U('000000000002'), MUS = U('001000000001'), MUS2 = U('001000000002');
 const YENI = 'eeeeeeee-0000-4000-8000-000000000001', ADM = 'eeeeeeee-0000-4000-8000-000000000009';
@@ -280,4 +280,68 @@ await olarak(MUS, async () => kontrol('onaysız aşçının yemeği GÖRÜNMEZ',
 await olarak(YENI, async () => kontrol('onaysız aşçı kendi yemeğini görür', (await db.query(`select 1 from asci_yemekleri where ad='Gizli yemek'`)).rows.length === 1));
 await olarak(ASCI, async () => { r = await dene(`delete from asci_yemekleri where ad='Test yemeği'`); kontrol('aşçı yemeğini siler', r.ok && (await db.query(`select 1 from asci_yemekleri where ad='Test yemeği'`)).rows.length === 0); });
 await db.exec(`delete from asci_yemekleri where ad='Gizli yemek'`);
+
+// --- Açık talep ve teklifler
+const acikTalep = (gun = 3) => `select acik_talep_olustur('Kadıköy','Moda Cd. No 9 Daire 4', now() + interval '${gun} days', 4, array['Ege'], 'Mercimek çorbası, fırında tavuk', 'fıstık', 'not')`;
+let aid;
+await olarak(MUS3, async () => {
+  r = await dene(acikTalep()); kontrol('müşteri açık talep oluşturur', r.ok, r.hata ?? '');
+  aid = (await db.query(`select id from acik_talepler where musteri_id='${MUS3}' order by olusturma_tarihi desc limit 1`)).rows[0]?.id;
+  r = await dene(`select acik_talep_olustur('Kadıköy','Moda Cd. No 9', now() + interval '30 minutes', 4, '{}', 'çorba', '', '')`); kontrol('çok yakın zamana talep açılamaz', !r.ok, r.hata?.slice(0, 40));
+  r = await dene(`select acik_talep_olustur('Kadıköy','Moda Cd. No 9', now() + interval '3 days', 4, '{}', 'x', '', '')`); kontrol('çok kısa yemek yazısı reddedilir', !r.ok);
+  r = await dene(`insert into acik_talepler (musteri_id, semt, tarih, kisi_sayisi, istenen_yemekler) values ('${MUS3}','x', now() + interval '3 days', 2, 'abc')`); kontrol('acik_talepler tablosuna doğrudan yazılamaz', !r.ok);
+});
+await olarak(ASCI, async () => { r = await dene(acikTalep()); kontrol('aşçı hesabı açık talep AÇAMAZ', !r.ok); });
+await olarak(ASCI, async () => {
+  kontrol('onaylı aşçı açık talebi görür', (await db.query(`select 1 from acik_talepler where id='${aid}'`)).rows.length === 1);
+  kontrol('aşçı talebin adresini GÖRMEZ', (await db.query(`select 1 from acik_talep_adresleri`)).rows.length === 0);
+});
+await olarak(YENI, async () => kontrol('onaysız aşçı açık talebi GÖRMEZ', (await db.query(`select 1 from acik_talepler where id='${aid}'`)).rows.length === 0));
+await olarak(YENI, async () => { r = await dene(`select acik_teklif_ver('${aid}'::uuid, 900, 'x')`); kontrol('onaysız aşçı teklif veremez', !r.ok); });
+await olarak(MUS, async () => {
+  kontrol('başka müşteri açık talebi GÖRMEZ', (await db.query(`select 1 from acik_talepler where id='${aid}'`)).rows.length === 0);
+  r = await dene(`select acik_teklif_ver('${aid}'::uuid, 900, 'x')`); kontrol('müşteri teklif veremez', !r.ok);
+});
+await db.exec(`delete from http_kayit`).catch(() => {});
+await olarak(ASCI, async () => { r = await dene(`select acik_teklif_ver('${aid}'::uuid, 1500, 'Menü önerim hazır')`); kontrol('aşçı teklif verir', r.ok, r.hata ?? ''); });
+await olarak(ASCI2, async () => { r = await dene(`select acik_teklif_ver('${aid}'::uuid, 1200, 'Daha uygun')`); kontrol('ikinci aşçı teklif verir', r.ok, r.hata ?? ''); });
+await olarak(ASCI, async () => {
+  r = await dene(`select acik_teklif_ver('${aid}'::uuid, 1400, 'güncel')`); kontrol('aşçı teklifini günceller', r.ok && (await db.query(`select 1 from acik_teklifler where asci_id='${ASCI}' and fiyat=1400`)).rows.length === 1);
+  kontrol('aşçı yalnızca kendi teklifini görür', (await db.query(`select 1 from acik_teklif_listesi`)).rows.length === 1);
+  r = await dene(`update acik_teklifler set fiyat=1 where asci_id='${ASCI}'`); kontrol('teklif tablosuna doğrudan yazılamaz', !r.ok);
+});
+await olarak(MUS3, async () => kontrol('müşteri tüm teklifleri görür', (await db.query(`select 1 from acik_teklif_listesi where talep_id='${aid}'`)).rows.length === 2));
+await olarak(MUS, async () => kontrol('başka müşteri teklifleri GÖRMEZ', (await db.query(`select 1 from acik_teklif_listesi`)).rows.length === 0));
+const at1 = (await db.query(`select id from acik_teklifler where asci_id='${ASCI}' and talep_id='${aid}'`)).rows[0].id;
+const at2 = (await db.query(`select id from acik_teklifler where asci_id='${ASCI2}' and talep_id='${aid}'`)).rows[0].id;
+await olarak(MUS, async () => { r = await dene(`select acik_teklif_sec('${at1}'::uuid)`); kontrol('başka müşteri teklif SEÇEMEZ', !r.ok); });
+await olarak(ASCI, async () => { r = await dene(`select acik_teklif_sec('${at1}'::uuid)`); kontrol('aşçı kendi teklifini SEÇEMEZ', !r.ok); });
+await olarak(MUS3, async () => { r = await dene(`select acik_teklif_sec('${at2}'::uuid)`); kontrol('müşteri teklifi seçer', r.ok, r.hata ?? ''); });
+kontrol('seçilen kabul, diğeri red, talep "secildi"', (await db.query(`select durum from acik_teklifler where id='${at2}'`)).rows[0].durum === 'kabul'
+  && (await db.query(`select durum from acik_teklifler where id='${at1}'`)).rows[0].durum === 'red'
+  && (await db.query(`select durum from acik_talepler where id='${aid}'`)).rows[0].durum === 'secildi');
+const yt = (await db.query(`select talep_id from acik_talepler where id='${aid}'`)).rows[0].talep_id;
+kontrol('seçimden normal talep oluşur (kabul, fiyat, doğru aşçı)', !!yt && (await db.query(`select 1 from talepler where id='${yt}' and asci_id='${ASCI2}' and musteri_id='${MUS3}' and durum='kabul' and teklif_fiyati=1200`)).rows.length === 1);
+await olarak(ASCI2, async () => {
+  const a = (await db.query(`select adres, teklif_fiyati from asci_talepleri where id='${yt}'`)).rows[0];
+  kontrol('seçilen aşçı açık adresi ve fiyatı görür', a?.adres === 'Moda Cd. No 9 Daire 4' && a?.teklif_fiyati === 1200, JSON.stringify(a));
+});
+await olarak(ASCI, async () => kontrol('seçilmeyen aşçı normal talebi/adresi GÖRMEZ', (await db.query(`select 1 from asci_talepleri where id='${yt}'`)).rows.length === 0));
+await olarak(MUS3, async () => { r = await dene(`select acik_teklif_sec('${at1}'::uuid)`); kontrol('ikinci kez seçim yapılamaz', !r.ok); });
+await olarak(ASCI, async () => { r = await dene(`select acik_teklif_ver('${aid}'::uuid, 100, 'geç')`); kontrol('seçim sonrası yeni teklif verilemez', !r.ok); });
+await olarak(ASCI2, async () => { r = await dene(`update talepler set durum='tamamlandi' where id='${yt}'`); kontrol('hizmet tarihinden önce tamamlanamaz (mevcut kural)', !r.ok); });
+await olarak(MUS3, async () => { r = await dene(`update talepler set durum='iptal' where id='${yt}'`); kontrol('müşteri seçilen talebi iptal edebilir', r.ok, r.hata ?? ''); });
+// iptal ve geri çekme
+await olarak(MUS3, async () => { r = await dene(acikTalep(4)); });
+const aid2 = (await db.query(`select id from acik_talepler where musteri_id='${MUS3}' and durum='acik'`)).rows[0]?.id;
+await olarak(ASCI, async () => { r = await dene(`select acik_teklif_ver('${aid2}'::uuid, 800, 'x')`); });
+const at3 = (await db.query(`select id from acik_teklifler where talep_id='${aid2}'`)).rows[0]?.id;
+await olarak(ASCI, async () => { r = await dene(`select acik_teklif_geri_cek('${at3}'::uuid)`); kontrol('aşçı bekleyen teklifini geri çeker', r.ok, r.hata ?? ''); r = await dene(`select acik_teklif_ver('${aid2}'::uuid, 800, 'x')`); });
+await olarak(MUS, async () => { r = await dene(`select acik_talep_iptal('${aid2}'::uuid)`); kontrol('başkasının açık talebini iptal EDEMEZ', !r.ok); });
+await olarak(MUS3, async () => { r = await dene(`select acik_talep_iptal('${aid2}'::uuid)`); kontrol('müşteri açık talebini iptal eder', r.ok, r.hata ?? ''); });
+kontrol('iptalde bekleyen teklifler reddedilir', (await db.query(`select durum from acik_teklifler where talep_id='${aid2}'`)).rows.every((x) => x.durum === 'red'));
+await olarak(MUS3, async () => {
+  for (let i = 0; i < 5; i++) await dene(acikTalep(5 + i));
+  r = await dene(acikTalep(12)); kontrol('en fazla 5 açık talep sınırı', !r.ok, r.hata?.slice(0, 40));
+});
 console.log(`\nSONUÇ: ${gecen} geçti, ${kalan} kaldı`);

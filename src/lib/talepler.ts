@@ -18,6 +18,8 @@ export type Talep = {
   kisi_sayisi: number;
   durum: Durum;
   olusturma_tarihi: string;
+  /** Açık talepte seçilen teklifin fiyatı (doğrudan taleplerde boş). */
+  teklif_fiyati: number | null;
 };
 
 // Rakam yazdıkça "gg.aa.yyyy" biçimine çevirir.
@@ -90,7 +92,7 @@ export async function talepOlustur(g: TalepGirdisi) {
 export async function taleplerim(): Promise<Talep[]> {
   const { data, error } = await supabase
     .from('talepler')
-    .select('id, asci_id, semt, tarih, kisi_sayisi, durum, olusturma_tarihi')
+    .select('id, asci_id, semt, tarih, kisi_sayisi, durum, olusturma_tarihi, teklif_fiyati')
     .order('olusturma_tarihi', { ascending: false });
   if (error) throw error;
   return (data as Talep[]) ?? [];
@@ -113,6 +115,7 @@ export type GelenTalep = {
   notlar: string;
   durum: Durum;
   adres: string | null;
+  teklif_fiyati: number | null;
 };
 
 export async function gelenTalepler(): Promise<GelenTalep[]> {
