@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
+import ReklamBandi from './src/components/ReklamBandi';
 import HataSinirlayici from './src/components/HataSinirlayici';
 import AltMenu, { Sekme } from './src/components/AltMenu';
 import { supabaseHazir } from './src/lib/supabase';
@@ -108,6 +109,7 @@ function Ekranlar() {
     return (
       <View style={styles.kap}>
         <View style={{ flex: 1 }}>{icerik}</View>
+        <ReklamBandi />
         <AltMenu rol={profil.rol} aktif={ekran.ad as Sekme} sec={(s) => setEkran({ ad: s })} />
       </View>
     );

@@ -211,7 +211,8 @@ def uret(yemek, tohum, dosya):
 import uuid, zlib, datetime
 
 SUPABASE_TABAN = 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/'
-SURUM = '2026-10-11'
+import json as _json
+SURUM = _json.loads((Path(__file__).resolve().parent.parent / 'src' / 'yasal' / 'metinler.json').read_text(encoding='utf-8'))['surum']
 
 # ad, uzmanlıklar, semtler, fiyat, günler, tanıtım, yemekler(4), yorum sayısı
 ASCILAR = [
@@ -302,7 +303,43 @@ def sql_uret():
             yorumlar.append(f"({sq(tid)}::uuid, {sq(uid('001', musteri))}::uuid, {sq(uid('000', i))}::uuid, {yildiz}, {sq(metin)}, {cevap}, {cevap_t}, now() - interval '{max(gun - 1, 1)} days')")
     a("insert into public.talepler (id, musteri_id, asci_id, semt, tarih, kisi_sayisi, mutfak_tercihleri, durum, olusturma_tarihi) values\n" + ",\n".join(talepler) + ";\n")
     a("insert into public.yorumlar (talep_id, musteri_id, asci_id, yildiz, yorum, asci_cevabi, cevap_tarihi, olusturma_tarihi) values\n" + ",\n".join(yorumlar) + ";\n")
+    reklam = []
+    for i, (marka, baslik, alt, _) in enumerate(REKLAMLAR, 1):
+        reklam.append(f"({sq('DEMO ' + marka + ' kampanyası')}, {sq(marka)}, {sq(SUPABASE_TABAN + f'reklam-{i}.jpg')}, 'https://example.com/', {i})")
+    a("-- Demo reklam banner'ları (schema_13.sql çalıştırılmışsa eklenir)")
+    a("do $$ begin if to_regclass('public.reklamlar') is not null then delete from public.reklamlar where baslik like 'DEMO %'; insert into public.reklamlar (baslik, reklamveren, gorsel_adres, hedef_adres, sira) values\n" + ",\n".join(reklam) + "; end if; end $$;\n")
     return "\n".join(sat)
+
+REKLAMLAR = [
+    ('DEMO Market', 'Haftalık alışverişin kapında', 'Taze sebze, meyve ve et ürünlerinde ilk siparişe %10 indirim', ((231, 76, 60), (120, 20, 20))),
+    ('DEMO Mutfak', 'Mutfak ekipmanlarında %20 indirim', 'Tencere, tava ve bıçak setleri bu hafta indirimde', ((52, 152, 219), (20, 50, 90))),
+    ('DEMO Çiftlik', 'Köy yumurtası ve doğal süt', 'Çiftlikten sofranıza, haftalık abonelik fırsatı', ((46, 160, 90), (16, 70, 40))),
+]
+
+def reklam_uret(i, marka, baslik, alt, renkler, dosya):
+    from PIL import ImageFont
+    W, H = 1200, 300
+    im = Image.new('RGB', (W, H), renkler[1])
+    d = ImageDraw.Draw(im)
+    for x in range(W):
+        t = x / W
+        d.line((x, 0, x, H), fill=tuple(int(renkler[0][k] * (1 - t) + renkler[1][k] * t) for k in range(3)))
+    for cx, cy, r in [(1020, 70, 190), (1130, 250, 120), (900, 280, 70)]:
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), outline=tuple(min(255, c + 70) for c in renkler[0]), width=4)
+    def font(boy, kalin=True):
+        for yol in ['/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf' if kalin else '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+                    '/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf' if kalin else '/usr/share/fonts/dejavu/DejaVuSans.ttf']:
+            try:
+                return ImageFont.truetype(yol, boy)
+            except OSError:
+                pass
+        return ImageFont.load_default()
+    d.text((60, 52), marka.upper(), font=font(30), fill=(255, 235, 150))
+    d.text((60, 104), baslik, font=font(54), fill=(255, 255, 255))
+    d.text((60, 190), alt, font=font(28, False), fill=(255, 245, 235))
+    d.rounded_rectangle((W - 250, H - 62, W - 24, H - 20), 20, fill=(0, 0, 0))
+    d.text((W - 238, H - 55), 'DEMO REKLAM', font=font(24), fill=(255, 220, 90))
+    im.save(dosya, quality=85)
 
 if __name__ == '__main__':
     CIKTI.mkdir(parents=True, exist_ok=True)
@@ -313,10 +350,14 @@ if __name__ == '__main__':
         for k, yemek in enumerate(x[6]):
             uret(yemek, zlib.crc32(f'{i}-{k}-{yemek}'.encode()) % 100000, CIKTI / f'asci{i:02d}-{k}.jpg')
             adet += 1
+    for i, (marka, baslik, alt, renkler) in enumerate(REKLAMLAR, 1):
+        reklam_uret(i, marka, baslik, alt, renkler, CIKTI / f'reklam-{i}.jpg')
+        adet += 1
     sql = Path(__file__).resolve().parent.parent / 'supabase' / 'demo_veri.sql'
     sql.write_text(sql_uret(), encoding='utf-8')
     (sql.parent / 'demo_veri_sil.sql').write_text(
         "-- Demo verisini siler (örnek aşçılar, müşteriler, talepler, yorumlar). Gerçek kullanıcılara dokunmaz.\n"
         "delete from auth.users where id::text like 'dddddddd-%';\n"
+        "do $$ begin if to_regclass('public.reklamlar') is not null then delete from public.reklamlar where baslik like 'DEMO %'; end if; end $$;\n"
         "-- Ardından Storage > fotograflar > demo klasörünü de silmeyi unutma.\n", encoding='utf-8')
     print(f'{adet} gorsel ve SQL dosyalari uretildi')

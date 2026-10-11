@@ -62,6 +62,11 @@
     .galeri img { width: 76px; height: 76px; border-radius: 12px; object-fit: cover; cursor: zoom-in; border: 1px solid var(--cizgi); }
     .perde { position: fixed; inset: 0; background: rgba(43,26,18,.85); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 10; cursor: zoom-out; }
     .perde img { max-width: 100%; max-height: 100%; border-radius: 16px; background: var(--beyaz); }
+    .form { background: var(--beyaz); border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(43,26,18,.08); display: grid; gap: 4px; }
+    .form .iki { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form small { opacity: .65; }
+    .reklamGorsel { width: 100%; max-width: 480px; aspect-ratio: 4 / 1; object-fit: cover; border-radius: 12px; border: 1px solid var(--cizgi); cursor: zoom-in; display: block; margin: 8px 0; background: var(--krem); }
+    .rozet.planli { background: var(--beyaz); }
     .eylemler { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
     .bos { text-align: center; padding: 48px 0; opacity: .7; }
     .ozet { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -94,6 +99,7 @@
       <div class="sekmeler">
         <button class="sekme acik" id="sekmeAscilar">Aşçılar</button>
         <button class="sekme" id="sekmeUyeler">Üyeler</button>
+        <button class="sekme" id="sekmeReklamlar">Reklamlar</button>
         <button class="sekme" id="sekmeSikayetler">Şikayetler</button>
         <span class="bosluk"></span>
         <button class="cerceveli kucuk" id="yenile">Yenile</button>

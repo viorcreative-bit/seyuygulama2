@@ -1,5 +1,5 @@
 {
-  "surum": "2026-10-11",
+  "surum": "2026-10-11.2",
   "taslak": true,
   "bilgiler": {
     "sirketUnvani": "[ŞİRKET ÜNVANI]",
@@ -68,23 +68,27 @@
           "metin": "Aşçılar profil ve yemek fotoğrafı yüklemek için galeriye erişim izni verir. Uygulama yalnızca sizin seçtiğiniz fotoğrafları yükler; galerinizin geri kalanına erişmez."
         },
         {
-          "baslik": "6. Güvenlik",
+          "baslik": "6. Reklamlar",
+          "metin": "Uygulamada reklamverenlere ait banner reklamlar gösterilebilir. Reklamlar \"Reklam\" etiketiyle belirtilir. Kişisel verileriniz (ad, telefon, adres vb.) reklamverenlerle paylaşılmaz; reklamverenlere yalnızca reklamın kaç kez gösterildiği ve kaç kez dokunulduğu gibi toplam sayılar iletilir. Bir reklama dokunursanız reklamverenin internet sitesine yönlendirilirsiniz; o sitenin gizlilik uygulamalarından {{sirketUnvani}} sorumlu değildir."
+        },
+        {
+          "baslik": "7. Güvenlik",
           "metin": "Verileriniz şifreli bağlantı üzerinden iletilir, şifreniz yalnızca şifrelenmiş olarak saklanır ve erişim kuralları veri tabanı seviyesinde uygulanır. Hiçbir sistem tamamen risksiz değildir; şüpheli bir durum fark ederseniz bize bildirin."
         },
         {
-          "baslik": "7. Çocuklar",
+          "baslik": "8. Çocuklar",
           "metin": "Uygulama 18 yaşından küçükler için tasarlanmamıştır; 18 yaş altındaki kişilerin hesap oluşturması yasaktır."
         },
         {
-          "baslik": "8. Hesabınızı silme",
+          "baslik": "9. Hesabınızı silme",
           "metin": "Hesabım > Hesabımı Sil bölümünden hesabınızı ve ona bağlı verileri istediğiniz zaman silebilirsiniz. Devam eden (bekleyen veya kabul edilmiş) talebiniz varsa önce onu sonuçlandırmanız veya iptal etmeniz gerekir."
         },
         {
-          "baslik": "9. Değişiklikler",
+          "baslik": "10. Değişiklikler",
           "metin": "Bu politika güncellenebilir. Önemli değişikliklerde uygulama içinde sizi bilgilendirir ve onayınızı isteriz."
         },
         {
-          "baslik": "10. İletişim",
+          "baslik": "11. İletişim",
           "metin": "{{sirketUnvani}} · {{adres}} · {{eposta}}"
         }
       ]
@@ -126,23 +130,27 @@
           "metin": "Sahte hesap açmak, başkasının kimliğini kullanmak, diğer kullanıcıları rahatsız etmek, platformu kötüye kullanmak, hukuka aykırı veya zararlı içerik yüklemek yasaktır. Bu davranışlarda hesap askıya alınabilir veya silinebilir."
         },
         {
-          "baslik": "9. Sorumluluğun sınırı",
+          "baslik": "9. Reklamlar ve dış bağlantılar",
+          "metin": "Uygulamada üçüncü kişilere ait reklamlar ve dış bağlantılar yer alabilir. Reklamverenlerin sunduğu ürün ve hizmetlerden, reklam içeriklerinin doğruluğundan ve bağlantı verilen sitelerden {{sirketUnvani}} sorumlu değildir."
+        },
+        {
+          "baslik": "10. Sorumluluğun sınırı",
           "metin": "{{sirketUnvani}}, aracı platform olarak, müşteri ile aşçı arasındaki hizmetin niteliğinden, gıda güvenliğinden ve taraflar arasındaki uyuşmazlıklardan, yasaların izin verdiği ölçüde sorumlu değildir. Uygulamanın kesintisiz veya hatasız çalışacağı garanti edilmez."
         },
         {
-          "baslik": "10. Şikayet ve fesih",
+          "baslik": "11. Şikayet ve fesih",
           "metin": "Şikayetlerinizi uygulamadaki \"Şikayet et\" bağlantısından iletebilirsiniz. Hesabınızı istediğiniz zaman silebilirsiniz. Koşulların ihlali hâlinde hesabınız askıya alınabilir veya kapatılabilir."
         },
         {
-          "baslik": "11. Değişiklikler",
+          "baslik": "12. Değişiklikler",
           "metin": "Bu koşullar güncellenebilir; önemli değişikliklerde onayınız yeniden istenir."
         },
         {
-          "baslik": "12. Uygulanacak hukuk",
+          "baslik": "13. Uygulanacak hukuk",
           "metin": "Bu koşullara Türk hukuku uygulanır. Uyuşmazlıklarda tüketici mevzuatındaki yetkili mercilerle birlikte İstanbul mahkemeleri ve icra daireleri yetkilidir."
         },
         {
-          "baslik": "13. İletişim",
+          "baslik": "14. İletişim",
           "metin": "{{sirketUnvani}} · {{adres}} · {{eposta}}"
         }
       ]

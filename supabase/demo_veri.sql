@@ -36,34 +36,34 @@ insert into auth.users (id, instance_id, aud, role, phone, phone_confirmed_at, e
 ('dddddddd-0000-4000-8000-001000000008'::uuid, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', '90000010008', now(), extensions.crypt(gen_random_uuid()::text, extensions.gen_salt('bf')), '{"provider":"phone","providers":["phone"]}'::jsonb, '{"sifre_var":true,"demo":true}'::jsonb, now(), now(), '', '', '', '');
 
 insert into public.profiles (id, rol, ad, telefon, fotograf, kvkk_onay_surumu) values
-('dddddddd-0000-4000-8000-000000000001'::uuid, 'asci', 'Ayşe Demir', '+90000000001', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci01-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000002'::uuid, 'asci', 'Mehmet Kaya', '+90000000002', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci02-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000003'::uuid, 'asci', 'Zeynep Arslan', '+90000000003', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci03-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000004'::uuid, 'asci', 'Hasan Çelik', '+90000000004', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci04-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000005'::uuid, 'asci', 'Elif Yıldız', '+90000000005', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci05-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000006'::uuid, 'asci', 'Fatma Şahin', '+90000000006', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci06-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000007'::uuid, 'asci', 'Kemal Öztürk', '+90000000007', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci07-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000008'::uuid, 'asci', 'Selin Aydın', '+90000000008', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci08-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000009'::uuid, 'asci', 'Murat Koç', '+90000000009', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci09-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000010'::uuid, 'asci', 'Gül Erdem', '+90000000010', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci10-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000011'::uuid, 'asci', 'Ahmet Polat', '+90000000011', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci11-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000012'::uuid, 'asci', 'Esra Güneş', '+90000000012', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci12-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000013'::uuid, 'asci', 'Burak Yılmaz', '+90000000013', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci13-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000014'::uuid, 'asci', 'Naz Tekin', '+90000000014', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci14-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000015'::uuid, 'asci', 'Orhan Başaran', '+90000000015', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci15-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000016'::uuid, 'asci', 'Derya Aksoy', '+90000000016', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci16-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000017'::uuid, 'asci', 'İbrahim Kurt', '+90000000017', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci17-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000018'::uuid, 'asci', 'Seda Çakır', '+90000000018', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci18-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000019'::uuid, 'asci', 'Cem Özkan', '+90000000019', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci19-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-000000000020'::uuid, 'asci', 'Nilay Karaca', '+90000000020', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci20-0.jpg', '2026-10-11'),
-('dddddddd-0000-4000-8000-001000000001'::uuid, 'musteri', 'Ali Veli', '+90000010001', null, '2026-10-11'),
-('dddddddd-0000-4000-8000-001000000002'::uuid, 'musteri', 'Selin Kaya', '+90000010002', null, '2026-10-11'),
-('dddddddd-0000-4000-8000-001000000003'::uuid, 'musteri', 'Can Öztürk', '+90000010003', null, '2026-10-11'),
-('dddddddd-0000-4000-8000-001000000004'::uuid, 'musteri', 'Deniz Arı', '+90000010004', null, '2026-10-11'),
-('dddddddd-0000-4000-8000-001000000005'::uuid, 'musteri', 'Burcu Sönmez', '+90000010005', null, '2026-10-11'),
-('dddddddd-0000-4000-8000-001000000006'::uuid, 'musteri', 'Emre Tuna', '+90000010006', null, '2026-10-11'),
-('dddddddd-0000-4000-8000-001000000007'::uuid, 'musteri', 'Pınar Gür', '+90000010007', null, '2026-10-11'),
-('dddddddd-0000-4000-8000-001000000008'::uuid, 'musteri', 'Volkan Ece', '+90000010008', null, '2026-10-11');
+('dddddddd-0000-4000-8000-000000000001'::uuid, 'asci', 'Ayşe Demir', '+90000000001', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci01-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000002'::uuid, 'asci', 'Mehmet Kaya', '+90000000002', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci02-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000003'::uuid, 'asci', 'Zeynep Arslan', '+90000000003', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci03-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000004'::uuid, 'asci', 'Hasan Çelik', '+90000000004', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci04-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000005'::uuid, 'asci', 'Elif Yıldız', '+90000000005', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci05-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000006'::uuid, 'asci', 'Fatma Şahin', '+90000000006', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci06-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000007'::uuid, 'asci', 'Kemal Öztürk', '+90000000007', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci07-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000008'::uuid, 'asci', 'Selin Aydın', '+90000000008', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci08-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000009'::uuid, 'asci', 'Murat Koç', '+90000000009', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci09-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000010'::uuid, 'asci', 'Gül Erdem', '+90000000010', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci10-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000011'::uuid, 'asci', 'Ahmet Polat', '+90000000011', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci11-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000012'::uuid, 'asci', 'Esra Güneş', '+90000000012', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci12-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000013'::uuid, 'asci', 'Burak Yılmaz', '+90000000013', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci13-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000014'::uuid, 'asci', 'Naz Tekin', '+90000000014', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci14-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000015'::uuid, 'asci', 'Orhan Başaran', '+90000000015', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci15-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000016'::uuid, 'asci', 'Derya Aksoy', '+90000000016', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci16-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000017'::uuid, 'asci', 'İbrahim Kurt', '+90000000017', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci17-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000018'::uuid, 'asci', 'Seda Çakır', '+90000000018', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci18-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000019'::uuid, 'asci', 'Cem Özkan', '+90000000019', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci19-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-000000000020'::uuid, 'asci', 'Nilay Karaca', '+90000000020', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/asci20-0.jpg', '2026-10-11.2'),
+('dddddddd-0000-4000-8000-001000000001'::uuid, 'musteri', 'Ali Veli', '+90000010001', null, '2026-10-11.2'),
+('dddddddd-0000-4000-8000-001000000002'::uuid, 'musteri', 'Selin Kaya', '+90000010002', null, '2026-10-11.2'),
+('dddddddd-0000-4000-8000-001000000003'::uuid, 'musteri', 'Can Öztürk', '+90000010003', null, '2026-10-11.2'),
+('dddddddd-0000-4000-8000-001000000004'::uuid, 'musteri', 'Deniz Arı', '+90000010004', null, '2026-10-11.2'),
+('dddddddd-0000-4000-8000-001000000005'::uuid, 'musteri', 'Burcu Sönmez', '+90000010005', null, '2026-10-11.2'),
+('dddddddd-0000-4000-8000-001000000006'::uuid, 'musteri', 'Emre Tuna', '+90000010006', null, '2026-10-11.2'),
+('dddddddd-0000-4000-8000-001000000007'::uuid, 'musteri', 'Pınar Gür', '+90000010007', null, '2026-10-11.2'),
+('dddddddd-0000-4000-8000-001000000008'::uuid, 'musteri', 'Volkan Ece', '+90000010008', null, '2026-10-11.2');
 
 insert into public.asci_profilleri (profil_id, tanitim, uzmanliklar, semtler, baslangic_fiyati, musait_gunler, onayli_mi, guncelleme_tarihi) values
 ('dddddddd-0000-4000-8000-000000000001'::uuid, 'Ege mutfağının zeytinyağlılarını ve mevsim yemeklerini evinizde taze taze hazırlıyorum. On iki yıllık deneyimim var.', array['Ege', 'Türk mutfağı', 'Diyet']::text[], array['Kadıköy', 'Moda', 'Ataşehir']::text[], 5200, array['Pazartesi', 'Salı', 'Çarşamba']::text[], true, now() - interval '1 days'),
@@ -330,3 +330,9 @@ insert into public.yorumlar (talep_id, musteri_id, asci_id, yildiz, yorum, asci_
 ('23e9eb54-c8db-403c-b725-d85c878fc1de'::uuid, 'dddddddd-0000-4000-8000-001000000005'::uuid, 'dddddddd-0000-4000-8000-000000000019'::uuid, 5, 'Çocuklarım bile tabaklarını bitirdi, teşekkürler.', null, null, now() - interval '35 days'),
 ('9a2ac845-5a7c-4ed7-86bb-72f794917337'::uuid, 'dddddddd-0000-4000-8000-001000000003'::uuid, 'dddddddd-0000-4000-8000-000000000020'::uuid, 5, 'Çok güler yüzlü, işini bilen biri. Tekrar çağıracağım.', null, null, now() - interval '72 days'),
 ('67c851c7-7510-4361-ab89-3b4b8dfe3a65'::uuid, 'dddddddd-0000-4000-8000-001000000002'::uuid, 'dddddddd-0000-4000-8000-000000000020'::uuid, 3, 'Yemekler fena değildi ama beklentimin biraz altında kaldı.', 'Teşekkür ederim, geri bildiriminizi dikkate alacağım.', now() - interval '17 days', now() - interval '18 days');
+
+-- Demo reklam banner'ları (schema_13.sql çalıştırılmışsa eklenir)
+do $$ begin if to_regclass('public.reklamlar') is not null then delete from public.reklamlar where baslik like 'DEMO %'; insert into public.reklamlar (baslik, reklamveren, gorsel_adres, hedef_adres, sira) values
+('DEMO DEMO Market kampanyası', 'DEMO Market', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/reklam-1.jpg', 'https://example.com/', 1),
+('DEMO DEMO Mutfak kampanyası', 'DEMO Mutfak', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/reklam-2.jpg', 'https://example.com/', 2),
+('DEMO DEMO Çiftlik kampanyası', 'DEMO Çiftlik', 'https://skuqzizpjtfwgfidksws.supabase.co/storage/v1/object/public/fotograflar/demo/reklam-3.jpg', 'https://example.com/', 3); end if; end $$;

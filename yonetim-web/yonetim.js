@@ -67,6 +67,8 @@ let sekme = 'ascilar';
 let ascilar = [];
 let sikayetler = [];
 let uyeler = [];
+let reklamlar = [];
+let reklamFormuAcik = false;
 let galeriler = {}; // aşçı id -> yemek fotoğrafı adresleri
 let filtre = { asci: 'bekleyen', uye: 'hepsi', sikayet: 'acik', arama: '' };
 
@@ -120,12 +122,14 @@ $('cikis').addEventListener('click', async () => {
 // ---------- Veri ----------
 async function yukle() {
   $('liste').replaceChildren(el('p', { class: 'bos' }, 'Yükleniyor...'));
-  const [a, s, u, g] = await Promise.all([
+  const [a, s, u, g, rk] = await Promise.all([
     supabase.from('yonetici_ascilar').select('*'),
     supabase.from('yonetici_sikayetleri').select('*'),
     supabase.from('yonetici_uyeler').select('*'),
     supabase.from('asci_fotograflari').select('asci_id, adres').order('sira'),
+    supabase.from('reklamlar').select('*').order('olusturma_tarihi', { ascending: false }),
   ]);
+  reklamlar = rk.error ? [] : rk.data ?? []; // schema_13.sql çalıştırılmadıysa sekme boş kalır
   if (a.error || s.error || u.error) {
     $('liste').replaceChildren(el('p', { class: 'hata bos' }, 'Veriler yüklenemedi. Oturumun kapanmış olabilir, sayfayı yenileyip tekrar gir.'));
     return;
@@ -225,9 +229,11 @@ function ozetCiz() {
     el('div', {}, el('b', {}, String(ascilar.filter((a) => a.onayli_mi).length)), 'Onaylı aşçı'),
     el('div', {}, el('b', {}, String(musteriler)), 'Müşteri'),
     el('div', {}, el('b', {}, String(acik)), 'Açık şikayet'),
+    el('div', {}, el('b', {}, String(reklamlar.filter(reklamYayinda).length)), 'Yayındaki reklam'),
   );
   $('sekmeAscilar').textContent = `Aşçılar${bekleyen ? ` (${bekleyen})` : ''}`;
   $('sekmeUyeler').textContent = `Üyeler (${uyeler.length})`;
+  $('sekmeReklamlar').textContent = `Reklamlar (${reklamlar.length})`;
   $('sekmeSikayetler').textContent = `Şikayetler${acik ? ` (${acik})` : ''}`;
 }
 
@@ -249,6 +255,8 @@ function filtreCiz() {
     alan.replaceChildren(
       secimKutusu([['bekleyen', 'Onay bekleyenler'], ['onayli', 'Onaylılar'], ['red', 'Reddedilenler'], ['hepsi', 'Hepsi']], filtre.asci, (v) => { filtre.asci = v; ciz(); }),
       aramaKutusu());
+  } else if (sekme === 'reklamlar') {
+    alan.replaceChildren(el('button', { class: 'kucuk', onclick: () => { reklamFormuAcik = !reklamFormuAcik; listeCiz(); } }, 'Yeni reklam ekle'));
   } else if (sekme === 'uyeler') {
     alan.replaceChildren(
       secimKutusu([['hepsi', 'Tüm üyeler'], ['musteri', 'Müşteriler'], ['asci', 'Aşçılar'], ['askida', 'Askıdakiler']], filtre.uye, (v) => { filtre.uye = v; ciz(); }),
@@ -306,6 +314,100 @@ function uyeKarti(u) {
           el('button', { class: 'tehlike kucuk', onclick: () => uyeSil(u) }, 'Hesabı Sil')));
 }
 
+// ---------- Reklamlar ----------
+const reklamYayinda = (r) => r.aktif && new Date(r.baslangic) <= new Date() && (!r.bitis || new Date(r.bitis) > new Date());
+
+function reklamDurumu(r) {
+  if (!r.aktif) return ['', 'Kapalı'];
+  if (new Date(r.baslangic) > new Date()) return ['planli', 'Planlandı'];
+  if (r.bitis && new Date(r.bitis) <= new Date()) return ['', 'Süresi doldu'];
+  return ['onayli', 'Yayında'];
+}
+
+async function reklamAktifDegistir(r) {
+  const { error } = await supabase.from('reklamlar').update({ aktif: !r.aktif }).eq('id', r.id);
+  if (error) return alert('İşlem yapılamadı. Lütfen tekrar dene.');
+  await yukle();
+}
+
+async function reklamSil(r) {
+  if (!confirm(`"${r.baslik}" reklamı silinsin mi? Bu işlem geri alınamaz.`)) return;
+  const { error } = await supabase.from('reklamlar').delete().eq('id', r.id);
+  if (error) return alert('İşlem yapılamadı. Lütfen tekrar dene.');
+  const i = r.gorsel_adres.indexOf('/reklamlar/');
+  if (i >= 0) await supabase.storage.from('reklamlar').remove([decodeURIComponent(r.gorsel_adres.slice(i + '/reklamlar/'.length))]);
+  await yukle();
+}
+
+function reklamKarti(r) {
+  const [sinif, ad] = reklamDurumu(r);
+  const ctr = r.gosterim_sayisi > 0 ? ((r.tiklama_sayisi / r.gosterim_sayisi) * 100).toFixed(1) : '0.0';
+  const satir = (e, d) => (d ? el('p', {}, el('b', {}, `${e}: `), d) : null);
+  return el('div', { class: 'kart' },
+    el('div', { class: 'ust' }, el('h3', {}, r.baslik), el('span', { class: `rozet ${sinif}` }, ad)),
+    guvenliUrl(r.gorsel_adres) ? el('img', { class: 'reklamGorsel', src: r.gorsel_adres, alt: r.baslik, onclick: () => buyut(r.gorsel_adres) }) : null,
+    satir('Reklamveren', r.reklamveren),
+    satir('Bağlantı', r.hedef_adres),
+    satir('Yayın', `${tarihSaat(r.baslangic)} → ${r.bitis ? tarihSaat(r.bitis) : 'süresiz'}`),
+    satir('İstatistik', `${r.gosterim_sayisi} gösterim · ${r.tiklama_sayisi} tıklama · %${ctr} tıklanma oranı`),
+    el('div', { class: 'eylemler' },
+      el('button', { class: 'cerceveli kucuk', onclick: () => reklamAktifDegistir(r) }, r.aktif ? 'Kapat' : 'Aç'),
+      el('button', { class: 'tehlike kucuk', onclick: () => reklamSil(r) }, 'Sil')));
+}
+
+function reklamFormu() {
+  const yerel = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  const baslik = el('input', { placeholder: 'Reklam adı (yalnızca sende görünür)', maxLength: 80 });
+  const veren = el('input', { placeholder: 'Reklamveren (isteğe bağlı)', maxLength: 80 });
+  const hedef = el('input', { placeholder: 'https://... (dokununca açılacak adres, isteğe bağlı)', type: 'url' });
+  const bas = el('input', { type: 'datetime-local', value: yerel(new Date()) });
+  const bit = el('input', { type: 'datetime-local' });
+  const dosya = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp' });
+  const mesaj = el('div', { class: 'hata gizli' });
+  const kaydet = el('button', {}, 'Reklamı Kaydet');
+  const hata = (m) => { mesaj.textContent = m; mesaj.classList.toggle('gizli', !m); };
+
+  kaydet.addEventListener('click', async () => {
+    hata('');
+    const f = dosya.files[0];
+    if (baslik.value.trim().length < 2) return hata('Reklam adı en az 2 karakter olmalı.');
+    if (!f) return hata('Lütfen bir banner görseli seç.');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) return hata('Görsel JPG, PNG veya WebP olmalı.');
+    if (f.size > 1024 * 1024) return hata('Görsel en fazla 1 MB olmalı.');
+    if (hedef.value && !/^https:\/\//i.test(hedef.value)) return hata('Bağlantı https:// ile başlamalı.');
+    if (bit.value && new Date(bit.value) <= new Date(bas.value)) return hata('Bitiş, başlangıçtan sonra olmalı.');
+    const boyut = await new Promise((tamam) => { const i = new Image(); i.onload = () => tamam([i.naturalWidth, i.naturalHeight]); i.onerror = () => tamam(null); i.src = URL.createObjectURL(f); });
+    if (!boyut) return hata('Görsel okunamadı.');
+    const oran = boyut[0] / boyut[1];
+    if ((oran < 3.2 || oran > 4.8) && !confirm(`Görselin oranı (${boyut[0]}×${boyut[1]}) önerilen 4:1'den farklı; uygulamada kırpılabilir. Yine de devam edilsin mi?`)) return;
+
+    kaydet.disabled = true;
+    const uzanti = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[f.type];
+    const yol = `${crypto.randomUUID()}.${uzanti}`;
+    const yukleme = await supabase.storage.from('reklamlar').upload(yol, f, { contentType: f.type });
+    if (yukleme.error) { kaydet.disabled = false; return hata('Görsel yüklenemedi. Lütfen tekrar dene.'); }
+    const adres = supabase.storage.from('reklamlar').getPublicUrl(yol).data.publicUrl;
+    const { error } = await supabase.from('reklamlar').insert({
+      baslik: baslik.value.trim(), reklamveren: veren.value.trim(), gorsel_adres: adres,
+      hedef_adres: hedef.value.trim() || null,
+      baslangic: new Date(bas.value).toISOString(), bitis: bit.value ? new Date(bit.value).toISOString() : null,
+    });
+    kaydet.disabled = false;
+    if (error) { await supabase.storage.from('reklamlar').remove([yol]); return hata('Reklam kaydedilemedi. Lütfen tekrar dene.'); }
+    reklamFormuAcik = false;
+    await yukle();
+  });
+
+  const alan = (e, k) => el('div', {}, el('label', {}, e), k);
+  return el('div', { class: 'form' },
+    el('h3', { style: 'margin:0 0 6px' }, 'Yeni reklam'),
+    alan('Reklam adı', baslik), alan('Reklamveren', veren), alan('Bağlantı (dokununca açılır)', hedef),
+    el('div', { class: 'iki' }, alan('Yayın başlangıcı', bas), alan('Yayın bitişi (boşsa süresiz)', bit)),
+    alan('Banner görseli', dosya),
+    el('small', {}, 'Önerilen boyut: 1200×300 piksel (4:1), JPG/PNG/WebP, en fazla 1 MB. Uygulamada alt menünün üstünde, "Reklam" etiketiyle görünür.'),
+    mesaj, el('div', { class: 'eylemler' }, kaydet, el('button', { class: 'cerceveli', onclick: () => { reklamFormuAcik = false; listeCiz(); } }, 'Vazgeç')));
+}
+
 function sikayetKarti(s) {
   const not = el('textarea', { placeholder: 'Yönetici notu (isteğe bağlı)', value: s.yonetici_notu ?? '' });
   const rozetSinifi = s.durum === 'acik' ? 'bekliyor' : s.durum === 'inceleniyor' ? 'inceleniyor' : '';
@@ -336,6 +438,8 @@ function listeCiz() {
       .filter(eslesir)
       .sort((x, y) => Number(x.onayli_mi) - Number(y.onayli_mi) || y.guncelleme_tarihi.localeCompare(x.guncelleme_tarihi));
     liste.replaceChildren(...(gorunen.length ? gorunen.map(asciKarti) : bos('Gösterilecek aşçı yok.')));
+  } else if (sekme === 'reklamlar') {
+    liste.replaceChildren(...[reklamFormuAcik ? reklamFormu() : null, ...(reklamlar.length ? reklamlar.map(reklamKarti) : bos('Henüz reklam yok. "Yeni reklam ekle" ile başlayabilirsin.'))].filter(Boolean));
   } else if (sekme === 'uyeler') {
     const gorunen = uyeler
       .filter((u) => filtre.uye === 'hepsi' || (filtre.uye === 'askida' ? u.askida : u.rol === filtre.uye))
@@ -361,11 +465,13 @@ function sekmeSec(yeni) {
   filtre.arama = '';
   $('sekmeAscilar').classList.toggle('acik', yeni === 'ascilar');
   $('sekmeUyeler').classList.toggle('acik', yeni === 'uyeler');
+  $('sekmeReklamlar').classList.toggle('acik', yeni === 'reklamlar');
   $('sekmeSikayetler').classList.toggle('acik', yeni === 'sikayetler');
   ciz();
 }
 $('sekmeAscilar').addEventListener('click', () => sekmeSec('ascilar'));
 $('sekmeUyeler').addEventListener('click', () => sekmeSec('uyeler'));
+$('sekmeReklamlar').addEventListener('click', () => sekmeSec('reklamlar'));
 $('sekmeSikayetler').addEventListener('click', () => sekmeSec('sikayetler'));
 $('yenile').addEventListener('click', yukle);
 

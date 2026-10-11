@@ -1,6 +1,6 @@
 import { kur, semalar } from './kur.mjs';
 const db = await kur();
-await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','demo_veri.sql']);
+await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','demo_veri.sql']);
 const U = (n) => `dddddddd-0000-4000-8000-${n}`;
 const ASCI = U('000000000001'), ASCI2 = U('000000000002'), MUS = U('001000000001'), MUS2 = U('001000000002');
 const YENI = 'eeeeeeee-0000-4000-8000-000000000001', ADM = 'eeeeeeee-0000-4000-8000-000000000009';
@@ -104,4 +104,32 @@ await db.exec("insert into auth.users (id, phone) values ('ffffffff-0000-4000-80
 await db.exec(`insert into talepler (musteri_id, asci_id, semt, tarih, kisi_sayisi, durum) values ('ffffffff-0000-4000-8000-000000000001','${ASCI}','Kadıköy', now()+interval '1 day', 2, 'bekliyor')`);
 await olarak('ffffffff-0000-4000-8000-000000000001', async () => { r = await dene(`select hesabi_sil()`); kontrol('devam eden talebi olan hesap SİLİNEMEZ', !r.ok, r.hata?.slice(0, 50)); });
 await olarak(ADM, async () => { r = await dene(`select hesabi_sil()`); kontrol('yönetici hesabı uygulamadan silinemez', !r.ok, r.hata?.slice(0, 50)); });
+
+// --- Reklamlar
+await db.exec(`
+  insert into reklamlar (baslik, gorsel_adres, hedef_adres, aktif) values ('Yayında','https://x.test/a.png','https://x.test',true);
+  insert into reklamlar (baslik, gorsel_adres, aktif) values ('Kapalı','https://x.test/b.png',false);
+  insert into reklamlar (baslik, gorsel_adres, baslangic, bitis) values ('Süresi dolmuş','https://x.test/c.png', now()-interval '10 days', now()-interval '1 day');
+  insert into reklamlar (baslik, gorsel_adres, baslangic) values ('Henüz başlamadı','https://x.test/d.png', now()+interval '5 days');`);
+await db.exec("select set_config('request.jwt.claim.sub','',false); set role anon;");
+kontrol('ziyaretçi yalnızca yayındaki reklamı görür', (await db.query('select baslik from reklamlar')).rows.map((x) => x.baslik).join() === 'Yayında');
+r = await dene(`insert into reklamlar (baslik, gorsel_adres) values ('Sahte','https://x.test/z.png')`); kontrol('ziyaretçi reklam EKLEYEMEZ', !r.ok);
+await db.exec('reset role');
+await olarak(MUS, async () => {
+  r = await dene(`insert into reklamlar (baslik, gorsel_adres) values ('Sahte','https://x.test/z.png')`); kontrol('müşteri reklam EKLEYEMEZ', !r.ok, r.hata?.slice(0, 45));
+  r = await dene(`update reklamlar set aktif=false`); kontrol('müşteri reklam GÜNCELLEYEMEZ (0 satır)', !r.ok || (await db.query(`select count(*)::int n from reklamlar where aktif`)).rows[0].n === 1);
+  r = await dene(`delete from reklamlar`); kontrol('müşteri reklam SİLEMEZ', (await db.query(`select count(*)::int n from reklamlar`)).rows[0].n === 1);
+  const id = (await db.query(`select id from reklamlar`)).rows[0].id;
+  await db.query(`select reklam_goster('${id}'::uuid)`); await db.query(`select reklam_tikla('${id}'::uuid)`);
+});
+kontrol('gösterim ve tıklama sayaçları artar', (await db.query(`select gosterim_sayisi g, tiklama_sayisi t from reklamlar where baslik='Yayında'`)).rows[0].g === 1);
+await db.query(`select reklam_tikla((select id from reklamlar where baslik='Kapalı'))`);
+kontrol('kapalı reklamın sayacı artmaz', (await db.query(`select tiklama_sayisi t from reklamlar where baslik='Kapalı'`)).rows[0].t === 0);
+await olarak(ADM, async () => {
+  kontrol('yönetici tüm reklamları görür', (await db.query(`select 1 from reklamlar`)).rows.length === 4);
+  r = await dene(`insert into reklamlar (baslik, gorsel_adres, hedef_adres) values ('Yeni','https://x.test/n.png','https://x.test/n')`); kontrol('yönetici reklam ekler', r.ok, r.hata ?? '');
+  r = await dene(`insert into reklamlar (baslik, gorsel_adres, hedef_adres) values ('Kötü','https://x.test/n.png','javascript:alert(1)')`); kontrol('https olmayan bağlantı reddedilir', !r.ok);
+  r = await dene(`insert into reklamlar (baslik, gorsel_adres, baslangic, bitis) values ('Ters','https://x.test/n.png', now(), now()-interval '1 day')`); kontrol('bitiş başlangıçtan önce olamaz', !r.ok);
+  r = await dene(`delete from reklamlar where baslik='Yeni'`); kontrol('yönetici reklam siler', r.ok);
+});
 console.log(`\nSONUÇ: ${gecen} geçti, ${kalan} kaldı`);
