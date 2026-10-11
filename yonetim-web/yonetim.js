@@ -46,7 +46,8 @@ const SIKAYET_SIRA = { acik: 0, inceleniyor: 1, cozuldu: 2 };
 let sekme = 'ascilar';
 let ascilar = [];
 let sikayetler = [];
-let filtre = { asci: 'bekleyen', sikayet: 'acik', arama: '' };
+let uyeler = [];
+let filtre = { asci: 'bekleyen', uye: 'hepsi', sikayet: 'acik', arama: '' };
 
 // ---------- Giriş ----------
 function girisGoster(mesaj = '') {
@@ -98,27 +99,71 @@ $('cikis').addEventListener('click', async () => {
 // ---------- Veri ----------
 async function yukle() {
   $('liste').replaceChildren(el('p', { class: 'bos' }, 'Yükleniyor...'));
-  const [a, s] = await Promise.all([
+  const [a, s, u] = await Promise.all([
     supabase.from('yonetici_ascilar').select('*'),
     supabase.from('yonetici_sikayetleri').select('*'),
+    supabase.from('yonetici_uyeler').select('*'),
   ]);
-  if (a.error || s.error) {
+  if (a.error || s.error || u.error) {
     $('liste').replaceChildren(el('p', { class: 'hata bos' }, 'Veriler yüklenemedi. Oturumun kapanmış olabilir, sayfayı yenileyip tekrar gir.'));
     return;
   }
   ascilar = a.data ?? [];
   sikayetler = s.data ?? [];
+  uyeler = u.data ?? [];
   ciz();
 }
 
-async function asciOnayla(asci, onayli) {
+async function rpc(ad, args) {
+  const { error } = await supabase.rpc(ad, args);
+  if (error) {
+    alert('İşlem yapılamadı. Lütfen tekrar dene.');
+    return false;
+  }
+  await yukle();
+  return true;
+}
+
+// Geri alınamayan işlemlerde, kullanıcının "SİL" yazmasını ister.
+function silmeOnayi(mesaj) {
+  if (!confirm(mesaj)) return false;
+  const yanit = prompt('Onaylamak için büyük harfle SİL yaz:');
+  return yanit !== null && yanit.trim() === 'SİL';
+}
+
+function asciOnayla(asci, onayli) {
   const soru = onayli
     ? `${asci.ad} onaylansın mı? Müşterilere görünür olacak ve talep alabilecek.`
     : `${asci.ad} için onay kaldırılsın mı? Müşterilere görünmeyecek ve yeni talep alamayacak.`;
-  if (!confirm(soru)) return;
-  const { error } = await supabase.rpc('asci_onayla', { p_asci_id: asci.id, p_onayli: onayli });
-  if (error) return alert('İşlem yapılamadı. Lütfen tekrar dene.');
-  await yukle();
+  if (confirm(soru)) return rpc('asci_onayla', { p_asci_id: asci.id, p_onayli: onayli });
+}
+
+function asciReddet(asci) {
+  const neden = prompt(`${asci.ad} reddedilsin mi? Aşçıya gösterilecek sebebi yaz (boş bırakabilirsin):`);
+  if (neden === null) return;
+  return rpc('asci_reddet', { p_asci_id: asci.id, p_neden: neden });
+}
+
+function asciProfiliSil(asci) {
+  const mesaj =
+    `${asci.ad} adlı aşçının profili SİLİNECEK.\n\n` +
+    `Bu aşçıya ait ${asci.talep_sayisi} talep ve ${asci.yorum_sayisi} yorum da kalıcı olarak silinir. ` +
+    `Aşçının hesabı kalır, isterse yeni profil oluşturabilir.\n\nBu işlem geri alınamaz.`;
+  if (silmeOnayi(mesaj)) return rpc('asci_profili_sil', { p_asci_id: asci.id });
+}
+
+function uyeAskiya(uye, askida) {
+  const soru = askida
+    ? `${uye.ad} askıya alınsın mı? Giriş yapamaz, açık oturumları kapanır. Verileri silinmez.`
+    : `${uye.ad} tekrar aktif edilsin mi?`;
+  if (confirm(soru)) return rpc('uye_askiya_al', { p_id: uye.id, p_askida: askida });
+}
+
+function uyeSil(uye) {
+  const mesaj =
+    `${uye.ad} (${uye.rol === 'asci' ? 'aşçı' : 'müşteri'}) hesabı SİLİNECEK.\n\n` +
+    `Profili, ${uye.talep_sayisi} talebi, yorumları ve şikayetleri kalıcı olarak silinir.\n\nBu işlem geri alınamaz.`;
+  if (silmeOnayi(mesaj)) return rpc('uye_sil', { p_id: uye.id });
 }
 
 async function sikayetGuncelle(s, durum, not) {
@@ -129,53 +174,91 @@ async function sikayetGuncelle(s, durum, not) {
 
 // ---------- Çizim ----------
 function ozetCiz() {
-  const bekleyen = ascilar.filter((a) => !a.onayli_mi).length;
+  const bekleyen = ascilar.filter((a) => !a.onayli_mi && !a.reddedildi_mi).length;
   const acik = sikayetler.filter((s) => s.durum !== 'cozuldu').length;
+  const musteriler = uyeler.filter((u) => u.rol === 'musteri').length;
   $('ozet').replaceChildren(
     el('div', {}, el('b', {}, String(bekleyen)), 'Onay bekleyen aşçı'),
-    el('div', {}, el('b', {}, String(ascilar.length - bekleyen)), 'Onaylı aşçı'),
+    el('div', {}, el('b', {}, String(ascilar.filter((a) => a.onayli_mi).length)), 'Onaylı aşçı'),
+    el('div', {}, el('b', {}, String(musteriler)), 'Müşteri'),
     el('div', {}, el('b', {}, String(acik)), 'Açık şikayet'),
   );
-  $('sekmeAscilar').textContent = `Aşçı Onayları${bekleyen ? ` (${bekleyen})` : ''}`;
+  $('sekmeAscilar').textContent = `Aşçılar${bekleyen ? ` (${bekleyen})` : ''}`;
+  $('sekmeUyeler').textContent = `Üyeler (${uyeler.length})`;
   $('sekmeSikayetler').textContent = `Şikayetler${acik ? ` (${acik})` : ''}`;
+}
+
+function secimKutusu(secenekler, deger, degisti) {
+  const sec = el('select', { class: 'filtre', onchange: (e) => degisti(e.target.value) },
+    ...secenekler.map(([v, y]) => el('option', { value: v }, y)));
+  sec.value = deger;
+  return sec;
 }
 
 function filtreCiz() {
   const alan = $('filtreAlani');
-  if (sekme === 'ascilar') {
-    const sec = el('select', { class: 'filtre', onchange: (e) => { filtre.asci = e.target.value; ciz(); } },
-      el('option', { value: 'bekleyen' }, 'Onay bekleyenler'),
-      el('option', { value: 'onayli' }, 'Onaylılar'),
-      el('option', { value: 'hepsi' }, 'Hepsi'));
-    sec.value = filtre.asci;
+  const aramaKutusu = () => {
     const ara = el('input', { class: 'arama', placeholder: 'Ada veya telefona göre ara', value: filtre.arama });
     ara.addEventListener('input', (e) => { filtre.arama = e.target.value; listeCiz(); });
-    alan.replaceChildren(sec, ara);
+    return ara;
+  };
+  if (sekme === 'ascilar') {
+    alan.replaceChildren(
+      secimKutusu([['bekleyen', 'Onay bekleyenler'], ['onayli', 'Onaylılar'], ['red', 'Reddedilenler'], ['hepsi', 'Hepsi']], filtre.asci, (v) => { filtre.asci = v; ciz(); }),
+      aramaKutusu());
+  } else if (sekme === 'uyeler') {
+    alan.replaceChildren(
+      secimKutusu([['hepsi', 'Tüm üyeler'], ['musteri', 'Müşteriler'], ['asci', 'Aşçılar'], ['askida', 'Askıdakiler']], filtre.uye, (v) => { filtre.uye = v; ciz(); }),
+      aramaKutusu());
   } else {
-    const sec = el('select', { class: 'filtre', onchange: (e) => { filtre.sikayet = e.target.value; ciz(); } },
-      el('option', { value: 'acik' }, 'Çözülmemişler'),
-      el('option', { value: 'cozuldu' }, 'Çözülenler'),
-      el('option', { value: 'hepsi' }, 'Hepsi'));
-    sec.value = filtre.sikayet;
-    alan.replaceChildren(sec);
+    alan.replaceChildren(
+      secimKutusu([['acik', 'Çözülmemişler'], ['cozuldu', 'Çözülenler'], ['hepsi', 'Hepsi']], filtre.sikayet, (v) => { filtre.sikayet = v; ciz(); }));
   }
 }
 
 function asciKarti(a) {
   const satir = (etiket, deger) => (deger ? el('p', {}, el('b', {}, `${etiket}: `), deger) : null);
+  const rozet = a.onayli_mi ? ['onayli', 'Onaylı'] : a.reddedildi_mi ? ['red', 'Reddedildi'] : ['bekliyor', 'Onay bekliyor'];
   return el('div', { class: 'kart' },
     el('div', { class: 'ust' },
       el('h3', {}, a.ad),
-      el('span', { class: `rozet ${a.onayli_mi ? 'onayli' : 'bekliyor'}` }, a.onayli_mi ? 'Onaylı' : 'Onay bekliyor')),
+      el('span', { class: `rozet ${rozet[0]}` }, rozet[1])),
     satir('Telefon', a.telefon),
     satir('Uzmanlık', (a.uzmanliklar ?? []).join(', ')),
     satir('Semtler', (a.semtler ?? []).join(', ')),
     satir('Başlangıç fiyatı', a.baslangic_fiyati != null ? tl(a.baslangic_fiyati) : ''),
+    satir('Talep / yorum', `${a.talep_sayisi} talep, ${a.yorum_sayisi} yorum`),
+    a.reddedildi_mi && a.red_nedeni ? satir('Red nedeni', a.red_nedeni) : null,
     a.tanitim ? el('p', {}, a.tanitim) : el('p', { class: 'soluk' }, 'Tanıtım yazısı yok.'),
     el('div', { class: 'eylemler' },
       a.onayli_mi
         ? el('button', { class: 'cerceveli kucuk', onclick: () => asciOnayla(a, false) }, 'Onayı Kaldır')
-        : el('button', { class: 'kucuk', onclick: () => asciOnayla(a, true) }, 'Onayla')));
+        : [
+            el('button', { class: 'kucuk', onclick: () => asciOnayla(a, true) }, 'Onayla'),
+            a.reddedildi_mi ? null : el('button', { class: 'cerceveli kucuk', onclick: () => asciReddet(a) }, 'Reddet'),
+          ],
+      el('button', { class: 'tehlike kucuk', onclick: () => asciProfiliSil(a) }, 'Profili Sil')));
+}
+
+function uyeKarti(u) {
+  const satir = (etiket, deger) => (deger ? el('p', {}, el('b', {}, `${etiket}: `), deger) : null);
+  return el('div', { class: 'kart' },
+    el('div', { class: 'ust' },
+      el('h3', {}, u.ad),
+      el('span', {},
+        u.yonetici ? el('span', { class: 'rozet onayli' }, 'Yönetici ') : null,
+        u.askida ? el('span', { class: 'rozet red' }, 'Askıda ') : null,
+        el('span', { class: 'rozet' }, u.rol === 'asci' ? 'Aşçı' : 'Müşteri'))),
+    satir('Telefon', u.telefon),
+    satir('Kayıt tarihi', tarihSaat(u.kayit_tarihi)),
+    satir('Talep sayısı', String(u.talep_sayisi)),
+    u.yonetici
+      ? el('p', { class: 'soluk' }, 'Yönetici hesapları buradan askıya alınamaz veya silinemez.')
+      : el('div', { class: 'eylemler' },
+          u.askida
+            ? el('button', { class: 'kucuk', onclick: () => uyeAskiya(u, false) }, 'Aktif Et')
+            : el('button', { class: 'cerceveli kucuk', onclick: () => uyeAskiya(u, true) }, 'Askıya Al'),
+          el('button', { class: 'tehlike kucuk', onclick: () => uyeSil(u) }, 'Hesabı Sil')));
 }
 
 function sikayetKarti(s) {
@@ -198,18 +281,27 @@ function sikayetKarti(s) {
 
 function listeCiz() {
   const liste = $('liste');
+  const ara = filtre.arama.trim().toLocaleLowerCase('tr-TR');
+  const eslesir = (x) => !ara || `${x.ad} ${x.telefon ?? ''}`.toLocaleLowerCase('tr-TR').includes(ara);
+  const bos = (m) => [el('p', { class: 'bos' }, m)];
   if (sekme === 'ascilar') {
-    const ara = filtre.arama.trim().toLocaleLowerCase('tr-TR');
+    const durum = (a) => (a.onayli_mi ? 'onayli' : a.reddedildi_mi ? 'red' : 'bekleyen');
     const gorunen = ascilar
-      .filter((a) => filtre.asci === 'hepsi' || (filtre.asci === 'bekleyen' ? !a.onayli_mi : a.onayli_mi))
-      .filter((a) => !ara || `${a.ad} ${a.telefon ?? ''}`.toLocaleLowerCase('tr-TR').includes(ara))
+      .filter((a) => filtre.asci === 'hepsi' || durum(a) === filtre.asci)
+      .filter(eslesir)
       .sort((x, y) => Number(x.onayli_mi) - Number(y.onayli_mi) || y.guncelleme_tarihi.localeCompare(x.guncelleme_tarihi));
-    liste.replaceChildren(...(gorunen.length ? gorunen.map(asciKarti) : [el('p', { class: 'bos' }, 'Gösterilecek aşçı yok.')]));
+    liste.replaceChildren(...(gorunen.length ? gorunen.map(asciKarti) : bos('Gösterilecek aşçı yok.')));
+  } else if (sekme === 'uyeler') {
+    const gorunen = uyeler
+      .filter((u) => filtre.uye === 'hepsi' || (filtre.uye === 'askida' ? u.askida : u.rol === filtre.uye))
+      .filter(eslesir)
+      .sort((x, y) => y.kayit_tarihi.localeCompare(x.kayit_tarihi));
+    liste.replaceChildren(...(gorunen.length ? gorunen.map(uyeKarti) : bos('Gösterilecek üye yok.')));
   } else {
     const gorunen = sikayetler
       .filter((s) => filtre.sikayet === 'hepsi' || (filtre.sikayet === 'acik' ? s.durum !== 'cozuldu' : s.durum === 'cozuldu'))
       .sort((x, y) => SIKAYET_SIRA[x.durum] - SIKAYET_SIRA[y.durum] || y.olusturma_tarihi.localeCompare(x.olusturma_tarihi));
-    liste.replaceChildren(...(gorunen.length ? gorunen.map(sikayetKarti) : [el('p', { class: 'bos' }, 'Gösterilecek şikayet yok.')]));
+    liste.replaceChildren(...(gorunen.length ? gorunen.map(sikayetKarti) : bos('Gösterilecek şikayet yok.')));
   }
 }
 
@@ -221,11 +313,14 @@ function ciz() {
 
 function sekmeSec(yeni) {
   sekme = yeni;
+  filtre.arama = '';
   $('sekmeAscilar').classList.toggle('acik', yeni === 'ascilar');
+  $('sekmeUyeler').classList.toggle('acik', yeni === 'uyeler');
   $('sekmeSikayetler').classList.toggle('acik', yeni === 'sikayetler');
   ciz();
 }
 $('sekmeAscilar').addEventListener('click', () => sekmeSec('ascilar'));
+$('sekmeUyeler').addEventListener('click', () => sekmeSec('uyeler'));
 $('sekmeSikayetler').addEventListener('click', () => sekmeSec('sikayetler'));
 $('yenile').addEventListener('click', yukle);
 

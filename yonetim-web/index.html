@@ -33,6 +33,7 @@
     .telSatir span { font-weight: 700; font-size: 18px; }
     button { font: inherit; font-weight: 800; cursor: pointer; border-radius: 999px; padding: 11px 22px; border: 2px solid var(--kirmizi); background: var(--kirmizi); color: var(--sari); }
     button.cerceveli { background: transparent; color: var(--kirmizi); }
+    button.tehlike { background: var(--beyaz); color: var(--kirmizi); border-color: var(--kirmizi); border-style: dashed; }
     button.kucuk { padding: 7px 16px; font-size: 14px; }
     button:disabled { opacity: .5; cursor: default; }
     .giris button { width: 100%; margin-top: 20px; }
@@ -52,6 +53,7 @@
     .rozet { display: inline-block; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--cizgi); font-size: 13px; font-weight: 700; background: var(--beyaz); }
     .rozet.bekliyor { background: var(--sari); border-color: var(--sari); }
     .rozet.onayli { background: var(--yesil); border-color: var(--yesil); color: var(--beyaz); }
+    .rozet.red { background: var(--metin); border-color: var(--metin); color: var(--krem); }
     .rozet.inceleniyor { background: var(--kirmizi); border-color: var(--kirmizi); color: var(--sari); }
     .eylemler { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
     .bos { text-align: center; padding: 48px 0; opacity: .7; }
@@ -83,7 +85,8 @@
     <section class="gizli" id="panel">
       <div class="ozet" id="ozet"></div>
       <div class="sekmeler">
-        <button class="sekme acik" id="sekmeAscilar">Aşçı Onayları</button>
+        <button class="sekme acik" id="sekmeAscilar">Aşçılar</button>
+        <button class="sekme" id="sekmeUyeler">Üyeler</button>
         <button class="sekme" id="sekmeSikayetler">Şikayetler</button>
         <span class="bosluk"></span>
         <button class="cerceveli kucuk" id="yenile">Yenile</button>

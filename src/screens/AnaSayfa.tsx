@@ -24,17 +24,19 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
 
   const [listeDurumu, setListeDurumu] = useState('');
   const [bekleyen, setBekleyen] = useState(0);
-  const [asciOnayli, setAsciOnayli] = useState<boolean | null>(null);
+  const [asciDurumu, setAsciDurumu] = useState<{ onayli: boolean; reddedildi: boolean; neden: string | null } | null>(null);
 
   useEffect(() => {
     if (profil?.rol === 'asci') {
       bekleyenTalepSayisi().then(setBekleyen);
       supabase
         .from('asci_profilleri')
-        .select('onayli_mi')
+        .select('onayli_mi, reddedildi_mi, red_nedeni')
         .eq('profil_id', oturum?.user.id ?? '')
         .maybeSingle()
-        .then(({ data }) => setAsciOnayli(data ? data.onayli_mi : null));
+        .then(({ data }) =>
+          setAsciDurumu(data ? { onayli: data.onayli_mi, reddedildi: data.reddedildi_mi, neden: data.red_nedeni } : null),
+        );
     }
   }, [profil?.rol, oturum?.user.id]);
 
@@ -66,10 +68,12 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
         <Text style={styles.slogan}>Ev yemeği, şef elinden.</Text>
       </View>
 
-      {profil?.rol === 'asci' && asciOnayli === false ? (
+      {profil?.rol === 'asci' && asciDurumu && !asciDurumu.onayli ? (
         <View style={styles.uyari}>
           <Text style={styles.uyariYazi}>
-            Profilin yönetici onayı bekliyor. Onaylanana kadar müşteriler seni göremez ve talep gönderemez.
+            {asciDurumu.reddedildi
+              ? `Profilin onaylanmadı.${asciDurumu.neden ? ` Neden: ${asciDurumu.neden}` : ''} Profilini düzenleyip kaydedersen yeniden incelenir.`
+              : 'Profilin yönetici onayı bekliyor. Onaylanana kadar müşteriler seni göremez ve talep gönderemez.'}
           </Text>
         </View>
       ) : null}

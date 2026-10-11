@@ -13,6 +13,15 @@ Sonra tarayıcıda şu adresi aç: http://localhost:5174
 
 Giriş: yönetici yaptığın hesabın telefon numarası ve şifresi. (Yönetici olmayan bir hesapla giriş yapılamaz.)
 
+## Panelde neler yapılır
+- **Aşçılar:** Onayla, Reddet (sebep yazılır, aşçıya gösterilir), Onayı Kaldır, Profili Sil.
+- **Üyeler:** Tüm müşteri ve aşçılar. Askıya Al / Aktif Et (askıdaki kişi giriş yapamaz) ve Hesabı Sil.
+- **Şikayetler:** Durumu "İnceleniyor" veya "Çözüldü" yapma ve not yazma.
+
+Silme işlemleri geri alınamaz; panel önce uyarır ve "SİL" yazmanı ister. Yönetici hesapları askıya alınamaz ve silinemez.
+
+Not: Silinen kişilerin yüklediği fotoğraf dosyaları depolamada kalır (veritabanı kayıtları silinir). KVKK kapsamında tam temizlik için bu dosyaların ayrıca temizlenmesi gerekir; yayına yaklaşırken birlikte ele alınmalı.
+
 ## Yönetici ekleme
 Yalnızca Supabase → SQL Editor'den yapılır (numarayı değiştir):
 
