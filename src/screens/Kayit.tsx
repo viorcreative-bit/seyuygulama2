@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { Rol, useAuth } from '../auth/AuthContext';
+import AvatarSecici from '../components/AvatarSecici';
 import Dugme from '../components/Dugme';
+import { AVATARLAR } from '../data/avatarlar';
+import { hazirResmiYukle } from '../lib/fotograf';
 import { supabase } from '../lib/supabase';
 import { YASAL_ADLARI, YASAL_SURUMU, YasalAnahtar } from '../yasal';
 import YasalMetin from './YasalMetin';
@@ -22,6 +25,7 @@ export default function Kayit() {
   const { oturum, profilYenile } = useAuth();
   const [ad, setAd] = useState('');
   const [rol, setRol] = useState<Rol | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [sifre, setSifre] = useState('');
   const [tekrar, setTekrar] = useState('');
   const [kabul, setKabul] = useState(false);
@@ -47,6 +51,16 @@ export default function Kayit() {
       setHata('Kayıt tamamlanamadı. Lütfen tekrar dene.');
       return;
     }
+    // Seçilen avatar profil fotoğrafı olur. Yüklenemezse kayıt yine de tamamlanır (sonra fotoğraf eklenebilir).
+    const secilen = AVATARLAR.find((a) => a.anahtar === avatar);
+    if (secilen) {
+      try {
+        const adres = await hazirResmiYukle(oturum.user.id, secilen.kaynak as number);
+        await supabase.from('profiles').update({ fotograf: adres }).eq('id', oturum.user.id);
+      } catch {
+        // avatar eklenemedi; önemli değil
+      }
+    }
     // Şifre kaydedilemezse profil yine de oluşmuştur; bir sonraki ekran şifre belirlemeyi zorunlu tutar.
     await supabase.auth.updateUser({ password: sifre, data: { sifre_var: true } });
     await profilYenile();
@@ -71,6 +85,7 @@ export default function Kayit() {
           </Pressable>
         );
       })}
+      <AvatarSecici secili={avatar} degisti={setAvatar} />
       <SifreGirdisi deger={sifre} degisti={setSifre} placeholder="Şifre belirle" otomatik="new-password" />
       <SifreGirdisi deger={tekrar} degisti={setTekrar} placeholder="Şifre (tekrar)" otomatik="new-password" />
       <Text style={styles.ipucu}>Şifre en az 8 karakter, en az bir harf ve bir rakam içermeli.</Text>
