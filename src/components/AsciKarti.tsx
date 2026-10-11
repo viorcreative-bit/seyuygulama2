@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Asci } from '../data/ornekAscilar';
 import { colors, fontSize, radius, spacing } from '../theme';
 
@@ -11,20 +11,27 @@ function basHarfler(ad: string) {
     .toLocaleUpperCase('tr-TR');
 }
 
-export default function AsciKarti({ asci }: { asci: Asci }) {
+export default function AsciKarti({ asci, onPress }: { asci: Asci; onPress?: () => void }) {
   return (
-    <View style={styles.kart}>
-      {/* Gerçek fotoğraflar 4. aşamada eklenecek; şimdilik baş harfler */}
-      <View style={styles.foto}>
-        <Text style={styles.fotoYazi}>{basHarfler(asci.ad)}</Text>
-      </View>
+    <Pressable style={styles.kart} onPress={onPress} disabled={!onPress} accessibilityRole="button">
+      {asci.foto ? (
+        <Image source={{ uri: asci.foto }} style={styles.foto} />
+      ) : (
+        <View style={[styles.foto, styles.fotoBos]}>
+          <Text style={styles.fotoYazi}>{basHarfler(asci.ad)}</Text>
+        </View>
+      )}
       <Text style={styles.ad} numberOfLines={1}>{asci.ad}</Text>
       <Text style={styles.uzmanlik} numberOfLines={1}>{asci.uzmanlik}</Text>
-      <Text style={styles.puan}>
-        ★ {asci.puan.toLocaleString('tr-TR', { minimumFractionDigits: 1 })}
-        <Text style={styles.yorum}>  ({asci.yorumSayisi} yorum)</Text>
-      </Text>
-    </View>
+      {asci.puan != null && asci.yorumSayisi > 0 ? (
+        <Text style={styles.puan}>
+          ★ {asci.puan.toLocaleString('tr-TR', { minimumFractionDigits: 1 })}
+          <Text style={styles.yorum}>  ({asci.yorumSayisi} yorum)</Text>
+        </Text>
+      ) : (
+        <Text style={styles.yorum}>Yeni aşçı</Text>
+      )}
+    </Pressable>
   );
 }
 
@@ -45,11 +52,9 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: radius.tam,
-    backgroundColor: colors.kirmizi,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginBottom: spacing.s,
   },
+  fotoBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
   fotoYazi: { color: colors.sari, fontSize: fontSize.buyuk, fontWeight: '700' },
   ad: { fontSize: fontSize.normal, fontWeight: '700', color: colors.metin },
   uzmanlik: { fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.7, marginTop: 2 },

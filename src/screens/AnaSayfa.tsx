@@ -1,18 +1,27 @@
-import { Alert, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import AsciKarti from '../components/AsciKarti';
 import { useAuth } from '../auth/AuthContext';
-import { enSevilenAscilar, ornekAscilar } from '../data/ornekAscilar';
+import { Asci, enSevilenAscilar, ornekAscilar } from '../data/ornekAscilar';
+import { vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
-export default function AnaSayfa({ profilDuzenle }: { profilDuzenle: () => void }) {
+type Props = { profilDuzenle: () => void; asciAc: (id: string) => void };
+
+export default function AnaSayfa({ profilDuzenle, asciAc }: Props) {
   const ascilar = enSevilenAscilar(ornekAscilar);
   const { profil, cikisYap } = useAuth();
+  const [yeniler, setYeniler] = useState<Asci[]>([]);
+
+  useEffect(() => {
+    yeniAscilar().then((l) => setYeniler(l.map(vitrindenKarta)));
+  }, []);
 
   const talepEt = () =>
     Alert.alert('Çok yakında', 'Aşçı talep etme ekranı 6. aşamada eklenecek.');
 
   return (
-    <View style={styles.kap}>
+    <ScrollView style={styles.kap} contentContainerStyle={{ paddingBottom: spacing.xl }}>
       <View style={styles.ustSatir}>
         <Text style={styles.merhaba}>Merhaba, {profil?.ad}</Text>
         <Pressable onPress={cikisYap} accessibilityRole="button">
@@ -52,13 +61,28 @@ export default function AnaSayfa({ profilDuzenle }: { profilDuzenle: () => void 
         contentContainerStyle={styles.liste}
         ItemSeparatorComponent={() => <View style={{ width: spacing.m }} />}
       />
-    </View>
+
+      {yeniler.length > 0 ? (
+        <>
+          <Text style={styles.bolum}>Aşçılarımız</Text>
+          <FlatList
+            horizontal
+            data={yeniler}
+            keyExtractor={(a) => a.id}
+            renderItem={({ item }) => <AsciKarti asci={item} onPress={() => asciAc(item.id)} />}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.liste}
+            ItemSeparatorComponent={() => <View style={{ width: spacing.m }} />}
+          />
+        </>
+      ) : null}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, paddingTop: 56 },
-  ustSatir: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.l },
+  kap: { flex: 1, backgroundColor: colors.krem },
+  ustSatir: { paddingTop: 56, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.l },
   merhaba: { fontSize: fontSize.normal, color: colors.metin, fontWeight: '600' },
   cikis: { fontSize: fontSize.normal, color: colors.kirmizi, fontWeight: '700' },
   ust: { alignItems: 'center', paddingHorizontal: spacing.l },

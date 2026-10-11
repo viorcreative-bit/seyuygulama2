@@ -2,8 +2,9 @@ export type Asci = {
   id: string;
   ad: string;
   uzmanlik: string;
-  puan: number;
+  puan: number | null;
   yorumSayisi: number;
+  foto?: string | null;
 };
 
 // Geçici örnek veriler. 9. aşamada Supabase'den gelen gerçek verilerle değişecek.
@@ -20,5 +21,5 @@ export const EN_AZ_YORUM = 3;
 export function enSevilenAscilar(liste: Asci[]): Asci[] {
   return liste
     .filter((a) => a.yorumSayisi >= EN_AZ_YORUM)
-    .sort((a, b) => b.puan - a.puan || b.yorumSayisi - a.yorumSayisi);
+    .sort((a, b) => (b.puan ?? 0) - (a.puan ?? 0) || b.yorumSayisi - a.yorumSayisi);
 }

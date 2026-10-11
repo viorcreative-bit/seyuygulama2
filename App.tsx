@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import { supabaseHazir } from './src/lib/supabase';
 import AnaSayfa from './src/screens/AnaSayfa';
 import AsciProfilDuzenle from './src/screens/AsciProfilDuzenle';
+import AsciProfil from './src/screens/AsciProfil';
 import Giris from './src/screens/Giris';
 import Kayit from './src/screens/Kayit';
 import { colors, fontSize, spacing } from './src/theme';
@@ -12,6 +13,7 @@ import { colors, fontSize, spacing } from './src/theme';
 function Ekranlar() {
   const { yukleniyor, oturum, profil } = useAuth();
   const [profilEkrani, setProfilEkrani] = useState(false);
+  const [bakilanAsci, setBakilanAsci] = useState<string | null>(null);
   if (yukleniyor) {
     return (
       <View style={styles.orta}>
@@ -22,7 +24,8 @@ function Ekranlar() {
   if (!oturum) return <Giris />;
   if (!profil) return <Kayit />;
   if (profilEkrani && profil.rol === 'asci') return <AsciProfilDuzenle geri={() => setProfilEkrani(false)} />;
-  return <AnaSayfa profilDuzenle={() => setProfilEkrani(true)} />;
+  if (bakilanAsci) return <AsciProfil asciId={bakilanAsci} geri={() => setBakilanAsci(null)} />;
+  return <AnaSayfa profilDuzenle={() => setProfilEkrani(true)} asciAc={setBakilanAsci} />;
 }
 
 export default function App() {
