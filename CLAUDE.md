@@ -92,7 +92,7 @@ Talep durumları: **Bekliyor → Kabul edildi / Reddedildi → Tamamlandı / İp
 - Telefon bildirimi (Expo push): yeni talep/teklif, kabul/ret, iptal, tamamlandı, yeni yorum. Veritabanı tetikleyicileri `pg_net` ile Expo'ya gönderir (`schema_15.sql`, tablo `push_tokenlari`); istemci `src/lib/bildirim.ts`. Bildirim metinlerinde adres/telefon yoktur. Gerçek cihaz ve EAS proje kimliği gerekir (Expo Go'da sınırlı).
 - Favoriler: müşteri aşçı kartındaki/profildeki kalple favoriler (`favoriler` tablosu, `src/auth/FavoriContext.tsx`); ana sayfada "Favorilerim" filtresi.
 - Aşçı profilinde yapacağı yemekler ve kullanacağı malzemeler (`asci_yemekleri`, `schema_16.sql`, `YemekDuzenleyici.tsx`); müşteri aşçı profilinde görür, yönetici panelinde onay kartında görünür.
-- Yönetici web paneli de koyu temadadır.
+- Yönetici web paneli de koyu temadadır; yönetici panelden üyenin şifresini belirleyebilir (`uye_sifre_degistir`, `schema_19.sql`): üye geçici şifreyle girince yeni şifre belirlemek zorundadır (`gecici_sifre`).
 
 ### 8. Açık talep ve aşçı teklifleri
 - Müşteri ana sayfada "Talep Oluştur" der; istediği yemekleri, gün ve saati, kişi sayısını, semt ve adresi yazar (`AcikTalepOlustur.tsx`). Talep tüm onaylı aşçılara gider (Talepler > Teklif Ver); aşçılar toplam fiyat teklifi verir; müşteri bir teklifi seçer.

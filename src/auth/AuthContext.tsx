@@ -12,6 +12,8 @@ type Deger = {
   profil: Profil | null;
   /** Hesabın bir şifresi var mı? (yalnızca ekran yönlendirmesi için; güvenlik buna dayanmaz) */
   sifreVar: boolean;
+  /** Yönetici şifreyi belirlediyse (geçici şifre) kullanıcı ilk girişte yeni şifre belirlemek zorundadır. */
+  geciciSifre: boolean;
   /** SMS koduyla "şifremi unuttum" akışından girildi; yeni şifre belirlenmeden devam edilemez. */
   sifreSifirlaniyor: boolean;
   setSifreSifirlaniyor: (b: boolean) => void;
@@ -92,6 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     oturum,
     profil,
     sifreVar: oturum?.user.user_metadata?.sifre_var === true,
+    geciciSifre: oturum?.user.user_metadata?.gecici_sifre === true,
     sifreSifirlaniyor,
     setSifreSifirlaniyor,
     setGirisRolu: (r) => {

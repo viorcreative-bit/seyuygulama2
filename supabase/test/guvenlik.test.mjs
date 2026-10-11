@@ -1,6 +1,6 @@
 import { kur, semalar } from './kur.mjs';
 const db = await kur();
-await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','schema_16.sql','schema_17.sql','schema_18.sql','demo_veri.sql']);
+await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','schema_16.sql','schema_17.sql','schema_18.sql','schema_19.sql','demo_veri.sql']);
 const U = (n) => `dddddddd-0000-4000-8000-${n}`;
 const ASCI = U('000000000001'), ASCI2 = U('000000000002'), MUS = U('001000000001'), MUS2 = U('001000000002');
 const YENI = 'eeeeeeee-0000-4000-8000-000000000001', ADM = 'eeeeeeee-0000-4000-8000-000000000009';
@@ -402,4 +402,29 @@ await olarak(MUS, async () => {
 });
 // hesap silinince sohbet de silinir
 await db.exec(`delete from auth.users where id='${ASCI3}'`).catch(() => {});
+
+// --- Yöneticinin üye şifresi belirlemesi
+const sifreDogru = async (uid, sifre) => (await db.query(`select (encrypted_password = extensions.crypt('${sifre}', encrypted_password)) ok from auth.users where id='${uid}'`)).rows[0].ok;
+await db.exec(`insert into auth.sessions (user_id) values ('${MUS3}')`);
+await olarak(ADM, async () => {
+  r = await dene(`select uye_sifre_degistir('${MUS3}'::uuid, 'Yeni1234sifre')`); kontrol('yönetici müşterinin şifresini belirler', r.ok, r.hata ?? '');
+  r = await dene(`select uye_sifre_degistir('${ASCI}'::uuid, 'Asci5678pass')`); kontrol('yönetici aşçının şifresini belirler', r.ok, r.hata ?? '');
+  r = await dene(`select uye_sifre_degistir('${MUS3}'::uuid, 'kisa1')`); kontrol('kısa şifre reddedilir', !r.ok);
+  r = await dene(`select uye_sifre_degistir('${MUS3}'::uuid, 'sadeceharfler')`); kontrol('rakamsız şifre reddedilir', !r.ok);
+  r = await dene(`select uye_sifre_degistir('${MUS3}'::uuid, '1234567890')`); kontrol('harfsiz şifre reddedilir', !r.ok);
+  r = await dene(`select uye_sifre_degistir('${ADM}'::uuid, 'Yonetici1234')`); kontrol('yönetici kendi şifresini buradan değiştiremez', !r.ok);
+  r = await dene(`select uye_sifre_degistir('aaaaaaaa-1111-4000-8000-000000000000'::uuid, 'Yeni1234sifre')`); kontrol('olmayan üye için hata verir', !r.ok);
+});
+kontrol('şifre gerçekten değişti (yeni şifre geçer)', await sifreDogru(MUS3, 'Yeni1234sifre') && await sifreDogru(ASCI, 'Asci5678pass'));
+kontrol('eski şifre artık geçmez', !(await sifreDogru(MUS3, 'baska123456')));
+kontrol('üyenin açık oturumları kapandı', (await db.query(`select 1 from auth.sessions where user_id='${MUS3}'`)).rows.length === 0);
+kontrol('geçici şifre işareti kondu', (await db.query(`select raw_user_meta_data->>'gecici_sifre' g from auth.users where id='${MUS3}'`)).rows[0].g === 'true');
+kontrol('işlem kaydı tutuldu, şifre kaydı YOK', (await db.query(`select islem from yonetici_kayitlari where hedef_id='${MUS3}'`)).rows.length === 1
+  && !JSON.stringify((await db.query(`select * from yonetici_kayitlari`)).rows).includes('Yeni1234'));
+await olarak(MUS, async () => {
+  r = await dene(`select uye_sifre_degistir('${MUS3}'::uuid, 'Hack12345678')`); kontrol('müşteri başkasının şifresini DEĞİŞTİREMEZ', !r.ok);
+  r = await dene(`select * from yonetici_kayitlari`); kontrol('yönetici kayıtları uygulamadan okunamaz', !r.ok);
+});
+await olarak(ASCI2, async () => { r = await dene(`select uye_sifre_degistir('${MUS}'::uuid, 'Hack12345678')`); kontrol('aşçı başkasının şifresini DEĞİŞTİREMEZ', !r.ok); });
+kontrol('yetkisiz denemeler şifreyi değiştirmedi', await sifreDogru(MUS3, 'Yeni1234sifre'));
 console.log(`\nSONUÇ: ${gecen} geçti, ${kalan} kaldı`);

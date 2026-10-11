@@ -22,7 +22,7 @@ export default function SifreBelirle() {
     if (h) return setHata(h);
     setHata('');
     setYukleniyor(true);
-    const { error } = await supabase.auth.updateUser({ password: sifre, data: { sifre_var: true } });
+    const { error } = await supabase.auth.updateUser({ password: sifre, data: { sifre_var: true, gecici_sifre: false } });
     setYukleniyor(false);
     if (error) {
       setHata(

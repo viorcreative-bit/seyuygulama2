@@ -211,6 +211,35 @@ function uyeAskiya(uye, askida) {
   if (confirm(soru)) return rpc('uye_askiya_al', { p_id: uye.id, p_askida: askida });
 }
 
+// Şifre en az 8 karakter, en az bir harf ve bir rakam (uygulamadaki kuralla aynı).
+const SIFRE_KURALI = /^(?=.*[A-Za-zÇĞİÖŞÜçğıöşü])(?=.*\d).{8,72}$/;
+
+function rastgeleSifre() {
+  const harf = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+  const rakam = '23456789';
+  const sec = (k) => k[crypto.getRandomValues(new Uint32Array(1))[0] % k.length];
+  const s = [sec(harf), sec(rakam), sec(harf), sec(harf), sec(rakam), sec(harf), sec(harf), sec(harf), sec(rakam), sec(harf)];
+  for (let i = s.length - 1; i > 0; i--) { // karıştır
+    const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+    [s[i], s[j]] = [s[j], s[i]];
+  }
+  return s.join('');
+}
+
+// Üyenin (aşçı ya da müşteri) şifresini yönetici belirler. Üye bu şifreyle girince hemen yeni şifre belirler.
+async function uyeSifreBelirle(uye) {
+  const girilen = prompt(
+    `${uye.ad} için yeni geçici şifre yaz (en az 8 karakter, en az bir harf ve bir rakam).\n\nBoş bırakıp Tamam'a basarsan rastgele bir şifre üretilir.`);
+  if (girilen === null) return;
+  const sifre = girilen.trim() || rastgeleSifre();
+  if (!SIFRE_KURALI.test(sifre)) return alert('Şifre en az 8 karakter olmalı ve en az bir harf ile bir rakam içermeli.');
+  if (!confirm(`${uye.ad} adlı üyenin şifresi değiştirilecek ve açık oturumları kapanacak. Devam edilsin mi?`)) return;
+  const { error } = await supabase.rpc('uye_sifre_degistir', { p_id: uye.id, p_sifre: sifre });
+  if (error) return alert('Şifre değiştirilemedi. schema_19.sql çalıştırıldı mı? Yönetici girişin açık mı?');
+  // Şifre bu pencerede bir kez gösterilir (kopyalanabilir); sistemde düz metin olarak saklanmaz.
+  prompt(`Şifre değiştirildi. Bu şifreyi üyeye ilet; giriş yapınca hemen yeni şifre belirlemesi istenecek.\n\nŞifre (kopyala):`, sifre);
+}
+
 async function uyeSil(uye) {
   const mesaj =
     `${uye.ad} (${uye.rol === 'asci' ? 'aşçı' : 'müşteri'}) hesabı SİLİNECEK.\n\n` +
@@ -301,6 +330,7 @@ function asciKarti(a) {
             el('button', { class: 'kucuk', onclick: () => asciOnayla(a, true) }, 'Onayla'),
             a.reddedildi_mi ? null : el('button', { class: 'cerceveli kucuk', onclick: () => asciReddet(a) }, 'Reddet'),
           ],
+      el('button', { class: 'cerceveli kucuk', onclick: () => uyeSifreBelirle({ id: a.id, ad: a.ad }) }, 'Şifre Belirle'),
       el('button', { class: 'tehlike kucuk', onclick: () => asciProfiliSil(a) }, 'Profili Sil')));
 }
 
@@ -323,6 +353,7 @@ function uyeKarti(u) {
           u.askida
             ? el('button', { class: 'kucuk', onclick: () => uyeAskiya(u, false) }, 'Aktif Et')
             : el('button', { class: 'cerceveli kucuk', onclick: () => uyeAskiya(u, true) }, 'Askıya Al'),
+          el('button', { class: 'cerceveli kucuk', onclick: () => uyeSifreBelirle(u) }, 'Şifre Belirle'),
           el('button', { class: 'tehlike kucuk', onclick: () => uyeSil(u) }, 'Hesabı Sil')));
 }
 

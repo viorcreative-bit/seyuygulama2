@@ -46,3 +46,6 @@ where profil_id = (select id from public.profiles where telefon = '+905551112233
 Güvenlik yetkisi sayfada değil veritabanındadır: sayfaya erişen biri yönetici değilse hiçbir yönetici verisini göremez ve işlem yapamaz.
 
 Panel uygulamayla aynı koyu temayı kullanır.
+
+## Üye şifresi belirleme
+Aşçılar ve Üyeler sekmesindeki kartlarda **Şifre Belirle** düğmesi var (yönetici hesapları hariç). Şifre yazarsın ya da boş bırakıp rastgele üretirsin. Şifre bir kez gösterilir; sen üyeye iletirsin. Üyenin açık oturumları kapanır ve bu şifreyle girince hemen kendi yeni şifresini belirlemesi istenir. Şifrenin kendisi hiçbir yerde saklanmaz; yapılan işlem `yonetici_kayitlari` tablosuna (kim, kime, ne zaman) yazılır. Gerekli veritabanı: `schema_19.sql`.

@@ -70,7 +70,7 @@ type Ekran =
 const SEKMELER: Sekme[] = ['ana', 'taleplerim', 'gelenTalepler', 'mesajlar', 'asciYorumlari', 'hesap'];
 
 function Ekranlar() {
-  const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor } = useAuth();
+  const { yukleniyor, oturum, profil, sifreVar, geciciSifre, sifreSifirlaniyor } = useAuth();
   const [ekran, setEkran] = useState<Ekran>({ ad: 'ana' });
   const [talepGorunumu, setTalepGorunumu] = useState<Gorunum>('bireysel');
   const asciKimligi = oturum?.user.id ?? '';
@@ -104,7 +104,7 @@ function Ekranlar() {
   // Yasal metinler yenilendiyse (veya eski hesapsa) önce kabul alınır.
   if (profil.kvkk_onay_surumu !== YASAL_SURUMU) return <YasalOnay />;
   // Şifresi olmayan (eski) hesaplar ve "şifremi unuttum" ile girenler yeni şifre belirlemeden ilerleyemez.
-  if (!sifreVar || sifreSifirlaniyor) return <SifreBelirle />;
+  if (!sifreVar || sifreSifirlaniyor || geciciSifre) return <SifreBelirle />;
 
   if (!profil.fotograf && avatarAtlandi === false) {
     return (

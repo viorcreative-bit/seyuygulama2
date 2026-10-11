@@ -34,7 +34,7 @@ export default function SifreDegistir({ geri }: { geri: () => void }) {
       return setHata('Mevcut şifren hatalı.');
     }
     // 2) Yeni şifreyi kaydet.
-    const { error } = await supabase.auth.updateUser({ password: yeni, data: { sifre_var: true } });
+    const { error } = await supabase.auth.updateUser({ password: yeni, data: { sifre_var: true, gecici_sifre: false } });
     setYukleniyor(false);
     if (error) return setHata(`Şifre değiştirilemedi. Lütfen tekrar dene.${sebep(error)}`);
     Alert.alert('Şifren değişti', 'Bundan sonra yeni şifrenle giriş yapabilirsin.', [{ text: 'Tamam', onPress: geri }]);
