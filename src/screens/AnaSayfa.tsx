@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { enSevilenAscilar, ornekAscilar } from '../data/ornekAscilar';
 import { colors, fontSize, radius, spacing } from '../theme';
 
-export default function AnaSayfa() {
+export default function AnaSayfa({ profilDuzenle }: { profilDuzenle: () => void }) {
   const ascilar = enSevilenAscilar(ornekAscilar);
   const { profil, cikisYap } = useAuth();
 
@@ -31,6 +31,16 @@ export default function AnaSayfa() {
       >
         <Text style={styles.butonYazi}>Hemen Aşçı Talep Et</Text>
       </Pressable>
+
+      {profil?.rol === 'asci' ? (
+        <Pressable
+          onPress={profilDuzenle}
+          style={styles.profilButon}
+          accessibilityRole="button"
+        >
+          <Text style={styles.profilButonYazi}>Aşçı Profilimi Düzenle</Text>
+        </Pressable>
+      ) : null}
 
       <Text style={styles.bolum}>En Sevilen Aşçılar</Text>
       <FlatList
@@ -69,6 +79,16 @@ const styles = StyleSheet.create({
   },
   butonBasili: { opacity: 0.85, transform: [{ scale: 0.98 }] },
   butonYazi: { color: colors.sari, fontSize: fontSize.buyuk, fontWeight: '800' },
+  profilButon: {
+    marginHorizontal: spacing.l,
+    marginTop: spacing.m,
+    paddingVertical: 14,
+    borderRadius: radius.l,
+    borderWidth: 2,
+    borderColor: colors.kirmizi,
+    alignItems: 'center',
+  },
+  profilButonYazi: { color: colors.kirmizi, fontSize: fontSize.normal + 2, fontWeight: '800' },
   bolum: {
     fontSize: fontSize.baslik,
     fontWeight: '700',

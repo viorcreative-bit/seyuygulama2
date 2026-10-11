@@ -23,6 +23,14 @@
       "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFF8E7"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aşçı profilinde yemek fotoğraflarını göstermek için galerine erişmemiz gerekiyor."
+        }
+      ]
+    ]
   }
 }
