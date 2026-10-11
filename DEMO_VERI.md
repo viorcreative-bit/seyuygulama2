@@ -32,3 +32,6 @@ Uygulamanın altında 3 demo reklam bandı dönmeye başlar ("DEMO REKLAM" yazı
 ## Not
 Demo veride kurumsal talep yoktur; kurumsal akışı denemek için bir müşteri hesabıyla talep aç, bir aşçı hesabında Profili Düzenle'den "Kurumsal hizmet" anahtarını aç ve teklif ver.
 Demo aşçıların yemekleri ve malzemeleri de eklenir (`schema_16.sql` çalıştırılmışsa).
+
+## Fotoğrafı olmayan mevcut aşçılara avatar
+`assets/avatars` içindeki 6 dosyayı Storage > fotograflar > avatar klasörüne yükle, sonra `supabase/avatar_ata.sql` dosyasını SQL Editor'de çalıştır. Fotoğrafı olan aşçılara dokunmaz.
