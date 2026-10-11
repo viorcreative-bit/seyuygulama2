@@ -10,6 +10,8 @@ type Deger = {
   oturum: Session | null;
   profil: Profil | null;
   /** Hesabın bir şifresi var mı? (yalnızca ekran yönlendirmesi için; güvenlik buna dayanmaz) */
+  /** Hesap yönetici mi? (Ekran gösterimi için; asıl yetki kontrolü veritabanındadır.) */
+  yonetici: boolean;
   sifreVar: boolean;
   /** SMS koduyla "şifremi unuttum" akışından girildi; yeni şifre belirlenmeden devam edilemez. */
   sifreSifirlaniyor: boolean;
@@ -28,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [yukleniyor, setYukleniyor] = useState(true);
   const [oturum, setOturum] = useState<Session | null>(null);
   const [profil, setProfil] = useState<Profil | null>(null);
+  const [yonetici, setYonetici] = useState(false);
   const [sifreSifirlaniyor, setSifreSifirlaniyor] = useState(false);
   const [girisHatasi, setGirisHatasi] = useState('');
   const girisRolu = useRef<Rol | null>(null);
@@ -36,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const profilGetir = useCallback(async (s: Session | null) => {
     if (!s) {
       setProfil(null);
+      setYonetici(false);
       return;
     }
     const { data } = await supabase
@@ -58,6 +62,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     girisRolu.current = null;
     setProfil(p);
+    if (p) {
+      const { data: y } = await supabase.rpc('yonetici_mi');
+      setYonetici(y === true);
+    }
   }, []);
 
   useEffect(() => {
@@ -90,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     yukleniyor,
     oturum,
     profil,
+    yonetici,
     sifreVar: oturum?.user.user_metadata?.sifre_var === true,
     sifreSifirlaniyor,
     setSifreSifirlaniyor,

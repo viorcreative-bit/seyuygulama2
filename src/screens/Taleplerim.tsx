@@ -15,9 +15,13 @@ const rozet: Record<Durum, { zemin: string; yazi: string }> = {
   iptal: { zemin: colors.beyaz, yazi: colors.metin },
 };
 
-type Props = { geri: () => void; yorumYap: (t: Talep, asciAdi: string) => void };
+type Props = {
+  geri: () => void;
+  yorumYap: (t: Talep, asciAdi: string) => void;
+  sikayetEt: (t: Talep, asciAdi: string) => void;
+};
 
-export default function Taleplerim({ geri, yorumYap }: Props) {
+export default function Taleplerim({ geri, yorumYap, sikayetEt }: Props) {
   const [liste, setListe] = useState<Talep[] | null>(null);
   const [adlar, setAdlar] = useState<Record<string, string>>({});
   const [hata, setHata] = useState('');
@@ -97,6 +101,11 @@ export default function Taleplerim({ geri, yorumYap }: Props) {
                 </View>
               )
             ) : null}
+            {item.durum === 'kabul' || item.durum === 'tamamlandi' ? (
+              <Pressable onPress={() => sikayetEt(item, adlar[item.asci_id] ?? 'Aşçı')} accessibilityRole="button">
+                <Text style={styles.sikayet}>Şikayet et</Text>
+              </Pressable>
+            ) : null}
             {item.durum === 'bekliyor' || item.durum === 'kabul' ? (
               <Pressable onPress={() => iptal(item)} accessibilityRole="button">
                 <Text style={styles.iptal}>Talebi iptal et</Text>
@@ -122,5 +131,6 @@ const styles = StyleSheet.create({
   rozetYazi: { fontSize: 13, fontWeight: '700' },
   bilgi: { fontSize: fontSize.kucuk + 1, color: colors.metin, opacity: 0.8 },
   yorumSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.s, marginTop: 4 },
+  sikayet: { marginTop: spacing.s, color: colors.metin, opacity: 0.6, fontWeight: '600', fontSize: fontSize.kucuk + 1 },
   iptal: { marginTop: spacing.s, color: colors.kirmizi, fontWeight: '700', fontSize: fontSize.kucuk + 1 },
 });

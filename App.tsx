@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import { supabaseHazir } from './src/lib/supabase';
+import { tarihSaatYaz } from './src/lib/talepler';
 import AnaSayfa from './src/screens/AnaSayfa';
 import AsciProfil from './src/screens/AsciProfil';
 import AsciProfilDuzenle from './src/screens/AsciProfilDuzenle';
@@ -14,6 +15,8 @@ import Kayit from './src/screens/Kayit';
 import SifreBelirle from './src/screens/SifreBelirle';
 import SifreDegistir from './src/screens/SifreDegistir';
 import YorumYaz from './src/screens/YorumYaz';
+import SikayetYaz from './src/screens/SikayetYaz';
+import YoneticiPaneli from './src/screens/YoneticiPaneli';
 import TalepOlustur from './src/screens/TalepOlustur';
 import Taleplerim from './src/screens/Taleplerim';
 import { colors, fontSize, spacing } from './src/theme';
@@ -28,10 +31,12 @@ type Ekran =
   | { ad: 'gelenTalepler' }
   | { ad: 'sifreDegistir' }
   | { ad: 'asciYorumlari' }
+  | { ad: 'yonetici' }
+  | { ad: 'sikayet'; talepId: string; ozet: string; geriye: 'taleplerim' | 'gelenTalepler' }
   | { ad: 'yorumYaz'; talepId: string; asciId: string; asciAdi: string };
 
 function Ekranlar() {
-  const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor } = useAuth();
+  const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor, yonetici } = useAuth();
   const [ekran, setEkran] = useState<Ekran>({ ad: 'ana' });
   const ana = () => setEkran({ ad: 'ana' });
 
@@ -67,6 +72,9 @@ function Ekranlar() {
       return (
         <Taleplerim
           geri={ana}
+          sikayetEt={(t, asciAdi) =>
+            setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${asciAdi} · ${tarihSaatYaz(t.tarih)}`, geriye: 'taleplerim' })
+          }
           yorumYap={(t, asciAdi) => setEkran({ ad: 'yorumYaz', talepId: t.id, asciId: t.asci_id, asciAdi })}
         />
       );
@@ -85,7 +93,20 @@ function Ekranlar() {
     case 'sifreDegistir':
       return <SifreDegistir geri={ana} />;
     case 'gelenTalepler':
-      return profil.rol === 'asci' ? <GelenTalepler geri={ana} /> : <AnaSayfa {...anaProps(setEkran)} />;
+      return profil.rol === 'asci' ? (
+        <GelenTalepler
+          geri={ana}
+          sikayetEt={(t) =>
+            setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${t.musteri_ad} · ${tarihSaatYaz(t.tarih)}`, geriye: 'gelenTalepler' })
+          }
+        />
+      ) : (
+        <AnaSayfa {...anaProps(setEkran)} />
+      );
+    case 'sikayet':
+      return <SikayetYaz talepId={ekran.talepId} ozet={ekran.ozet} geri={() => setEkran({ ad: ekran.geriye })} />;
+    case 'yonetici':
+      return yonetici ? <YoneticiPaneli geri={ana} /> : <AnaSayfa {...anaProps(setEkran)} />;
     default:
       return <AnaSayfa {...anaProps(setEkran)} />;
   }
@@ -100,6 +121,7 @@ function anaProps(setEkran: (e: Ekran) => void) {
     gelenTalepler: () => setEkran({ ad: 'gelenTalepler' }),
     sifreDegistir: () => setEkran({ ad: 'sifreDegistir' }),
     yorumlarim: () => setEkran({ ad: 'asciYorumlari' }),
+    yoneticiPaneli: () => setEkran({ ad: 'yonetici' }),
   };
 }
 

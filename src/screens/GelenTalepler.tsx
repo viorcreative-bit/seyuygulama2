@@ -16,7 +16,9 @@ function Satir({ etiket, deger, vurgu }: { etiket: string; deger: string; vurgu?
   );
 }
 
-export default function GelenTalepler({ geri }: { geri: () => void }) {
+type Props = { geri: () => void; sikayetEt: (t: GelenTalep) => void };
+
+export default function GelenTalepler({ geri, sikayetEt }: Props) {
   const [liste, setListe] = useState<GelenTalep[] | null>(null);
   const [hata, setHata] = useState('');
   const [islemde, setIslemde] = useState<string | null>(null);
@@ -94,6 +96,11 @@ export default function GelenTalepler({ geri }: { geri: () => void }) {
               <Satir etiket="Alerjiler" deger={t.alerjiler} vurgu />
               <Satir etiket="Notlar" deger={t.notlar} />
 
+              {t.durum === 'kabul' || t.durum === 'tamamlandi' ? (
+                <Pressable onPress={() => sikayetEt(t)} accessibilityRole="button">
+                  <Text style={styles.sikayet}>Şikayet et</Text>
+                </Pressable>
+              ) : null}
               {t.durum === 'bekliyor' ? (
                 <View style={styles.butonlar}>
                   <View style={{ flex: 1 }}>
@@ -137,5 +144,6 @@ const styles = StyleSheet.create({
   satirEtiket: { fontWeight: '700' },
   vurgu: { fontWeight: '700', color: colors.kirmizi },
   butonlar: { flexDirection: 'row', gap: spacing.s, marginTop: spacing.s },
+  sikayet: { marginTop: spacing.s, color: colors.metin, opacity: 0.6, fontWeight: '600', fontSize: fontSize.kucuk + 1 },
   ipucu: { marginTop: spacing.s, fontSize: 13, color: colors.metin, opacity: 0.6 },
 });
