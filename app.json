@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Aşçım Gelsin",
+    "slug": "ascim-gelsin",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#A30909",
+        "foregroundImage": "./assets/logo.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/logo.png"
+    },
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF8E7"
+    }
+  }
+}
