@@ -1,5 +1,5 @@
 {
-  "surum": "2026-10-11.3",
+  "surum": "2026-10-11.4",
   "taslak": true,
   "bilgiler": {
     "sirketUnvani": "[ŞİRKET ÜNVANI]",
@@ -19,7 +19,7 @@
         },
         {
           "baslik": "2. İşlenen kişisel veriler",
-          "metin": "• Kimlik ve iletişim: ad soyad, telefon numarası.\n• Hesap: şifre (yalnızca şifrelenmiş olarak saklanır), rol (müşteri/aşçı), kayıt tarihi.\n• Hizmet talebi: semt, açık adres, tarih ve saat, kişi sayısı, mutfak tercihi, istenen yemekler, alerji ve özel notlar.\n• Kurumsal talep: şirket adı, yetkili kişi adı ve telefonu, hizmet adresi, bütçe; aşçıların verdiği fiyat teklifleri.\n• Görsel: profil fotoğrafı ve aşçıların yüklediği yemek fotoğrafları.\n• İçerik: yorumlar, yıldız puanları, aşçı cevapları, şikayetler.\n• Aşçılar için: tanıtım yazısı, uzmanlık alanları, hizmet semtleri, ücret bilgisi, müsait günler.\n• İşlem güvenliği: giriş kayıtları ve teknik kayıtlar."
+          "metin": "• Kimlik ve iletişim: ad soyad, telefon numarası.\n• Hesap: şifre (yalnızca şifrelenmiş olarak saklanır), rol (müşteri/aşçı), kayıt tarihi.\n• Hizmet talebi: semt, açık adres, tarih ve saat, kişi sayısı, mutfak tercihi, istenen yemekler, alerji ve özel notlar.\n• Kurumsal talep: şirket adı, yetkili kişi adı ve telefonu, hizmet adresi, bütçe; aşçıların verdiği fiyat teklifleri.\n• Görsel: profil fotoğrafı ve aşçıların yüklediği yemek fotoğrafları.\n• İçerik: yorumlar, yıldız puanları, aşçı cevapları, şikayetler.\n• Aşçılar için: tanıtım yazısı, uzmanlık alanları, hizmet semtleri, ücret bilgisi, müsait günler.\n• Bildirim: telefonunuzun bildirim adresi (izin verirseniz), favori aşçı listeniz.\n• İşlem güvenliği: giriş kayıtları ve teknik kayıtlar."
         },
         {
           "baslik": "3. İşleme amaçları",

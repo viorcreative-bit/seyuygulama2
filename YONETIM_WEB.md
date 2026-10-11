@@ -44,3 +44,5 @@ where profil_id = (select id from public.profiles where telefon = '+905551112233
 `yonetim-web` klasörü düz HTML/JS dosyalarından oluşur. Netlify, Cloudflare Pages veya GitHub Pages gibi bir servise yüklenebilir. Yüklemeden önce `npm run yonetim` ile üretilen `yonetim-web/config.js` dosyası da klasörde bulunmalıdır (Git'e eklenmez, `.env`'den üretilir).
 
 Güvenlik yetkisi sayfada değil veritabanındadır: sayfaya erişen biri yönetici değilse hiçbir yönetici verisini göremez ve işlem yapamaz.
+
+Panel uygulamayla aynı koyu temayı kullanır.

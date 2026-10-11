@@ -12,10 +12,17 @@ function basHarfler(ad: string) {
     .toLocaleUpperCase('tr-TR');
 }
 
-type Props = { asci: Asci; onPress?: () => void; genislik: number };
+type Props = {
+  asci: Asci;
+  onPress?: () => void;
+  genislik: number;
+  /** Verilirse sağ üstte kalp düğmesi çıkar (yalnızca müşteriler için). */
+  favori?: boolean;
+  favoriDegistir?: () => void;
+};
 
 // Fotoğraf ağırlıklı aşçı kartı: üstte büyük fotoğraf, altta sarı bilgi şeridi.
-export default function AsciKarti({ asci, onPress, genislik }: Props) {
+export default function AsciKarti({ asci, onPress, genislik, favori, favoriDegistir }: Props) {
   const puanVar = asci.puan != null && asci.yorumSayisi > 0;
   return (
     <Pressable
@@ -32,6 +39,17 @@ export default function AsciKarti({ asci, onPress, genislik }: Props) {
             <Text style={styles.fotoYazi}>{basHarfler(asci.ad)}</Text>
           </View>
         )}
+        {favoriDegistir ? (
+          <Pressable
+            onPress={favoriDegistir}
+            style={styles.kalp}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={favori ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+          >
+            <Ionicons name={favori ? 'heart' : 'heart-outline'} size={18} color={favori ? colors.kirmiziAcik : colors.metin} />
+          </Pressable>
+        ) : null}
         <View style={styles.puanRozeti}>
           <Ionicons name="star" size={13} color={colors.sari} />
           <Text style={styles.puanYazi}>
@@ -67,6 +85,17 @@ const styles = StyleSheet.create({
     borderRadius: radius.tam,
     paddingVertical: 4,
     paddingHorizontal: 10,
+  },
+  kalp: {
+    position: 'absolute',
+    top: spacing.s,
+    right: spacing.s,
+    width: 34,
+    height: 34,
+    borderRadius: radius.tam,
+    backgroundColor: colors.zemin,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   puanYazi: { color: colors.metin, fontSize: 12, fontWeight: '800' },
   serit: { padding: spacing.s + 4, gap: 1 },

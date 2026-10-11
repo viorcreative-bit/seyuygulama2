@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useAuth } from '../auth/AuthContext';
+import { useFavoriler } from '../auth/FavoriContext';
 import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
 import Ekran from '../components/Ekran';
@@ -28,6 +30,8 @@ function Etiketler({ liste }: { liste: string[] }) {
 type Props = { asciId: string; geri: () => void; talepEt?: () => void };
 
 export default function AsciProfil({ asciId, geri, talepEt }: Props) {
+  const { profil } = useAuth();
+  const { favoriMi, degistir: favoriDegistir } = useFavoriler();
   const [asci, setAsci] = useState<Vitrin | null>(null);
   const [galeri, setGaleri] = useState<string[]>([]);
   const [yorumlar, setYorumlar] = useState<Yorum[]>([]);
@@ -74,6 +78,16 @@ export default function AsciProfil({ asciId, geri, talepEt }: Props) {
           <Pressable onPress={geri} style={styles.geri} accessibilityRole="button" accessibilityLabel="Geri">
             <Ionicons name="chevron-back" size={22} color={colors.metin} />
           </Pressable>
+          {profil?.rol === 'musteri' ? (
+            <Pressable
+              onPress={() => favoriDegistir(asciId)}
+              style={[styles.geri, { left: undefined, right: spacing.l }]}
+              accessibilityRole="button"
+              accessibilityLabel={favoriMi(asciId) ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+            >
+              <Ionicons name={favoriMi(asciId) ? 'heart' : 'heart-outline'} size={22} color={favoriMi(asciId) ? colors.kirmiziAcik : colors.metin} />
+            </Pressable>
+          ) : null}
         </View>
 
         <View style={styles.panel}>

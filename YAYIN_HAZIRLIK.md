@@ -105,3 +105,8 @@ eas submit --platform all --profile production
 3. Başlık onaylanınca ve API bilgilerin hazır olunca bana haber ver: Supabase'te çalışacak bağlantı fonksiyonunu yazıp test ederiz.
 
 **Test numarası hatırlatması:** Supabase > Authentication > Providers > Phone sayfasındaki "Test OTPs Valid Until" tarihi dolunca test numarası çalışmaz. Süre dolmadan tarihi ileri çek.
+
+## 10. Telefon bildirimleri
+- Veritabanı: `supabase/schema_15.sql` (Supabase'de `pg_net` eklentisi otomatik açılır; açılmazsa Database > Extensions'tan `pg_net`'i aç).
+- Bildirimlerin gerçek telefonda çalışması için: EAS hesabı + proje kimliği (`eas init`), iPhone için Apple Developer hesabı ve push anahtarı, Android için Firebase (FCM) anahtarı gerekir. Expo Go'da (özellikle Android) uzak bildirim çalışmaz; "development build" gerekir.
+- Bildirim izni verilmezse uygulama normal çalışır, sadece bildirim gelmez.

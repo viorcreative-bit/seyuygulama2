@@ -1,5 +1,6 @@
 import { Session } from '@supabase/supabase-js';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { bildirimKaydiniSil } from '../lib/bildirim';
 import { supabase } from '../lib/supabase';
 
 export type Rol = 'musteri' | 'asci';
@@ -100,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setGirisHatasi,
     profilYenile: () => profilGetir(oturum),
     cikisYap: async () => {
+      await bildirimKaydiniSil();
       await supabase.auth.signOut();
     },
   };

@@ -4,6 +4,7 @@ import {
   FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View,
 } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
+import { useFavoriler } from '../auth/FavoriContext';
 import AsciKarti from '../components/AsciKarti';
 import Ekran from '../components/Ekran';
 import { UZMANLIKLAR } from '../data/secenekler';
@@ -19,6 +20,8 @@ const bosluk = (s: string) => s.trim().toLocaleLowerCase('tr-TR');
 
 export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
   const { profil, oturum } = useAuth();
+  const { favoriMi, degistir: favoriDegistir } = useFavoriler();
+  const musteri = profil?.rol === 'musteri';
   const { width } = useWindowDimensions();
   const ikiliGenislik = (width - KENAR * 2 - spacing.m) / 2;
 
@@ -27,6 +30,7 @@ export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
   const [durum, setDurum] = useState('');
   const [arama, setArama] = useState('');
   const [kategori, setKategori] = useState<string | null>(null);
+  const [yalnizFavori, setYalnizFavori] = useState(false);
   const [asciDurumu, setAsciDurumu] = useState<{ onayli: boolean; reddedildi: boolean; neden: string | null } | null>(null);
 
   useEffect(() => {
@@ -55,12 +59,13 @@ export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
     const a = bosluk(arama);
     return tumu.filter(
       (v) =>
+        (!yalnizFavori || favoriMi(v.id)) &&
         (!kategori || v.uzmanliklar.includes(kategori)) &&
         (!a || bosluk(`${v.ad} ${v.uzmanliklar.join(' ')} ${v.semtler.join(' ')}`).includes(a)),
     );
-  }, [tumu, arama, kategori]);
+  }, [tumu, arama, kategori, yalnizFavori, favoriMi]);
 
-  const filtreVar = arama.trim() !== '' || kategori !== null;
+  const filtreVar = arama.trim() !== '' || kategori !== null || yalnizFavori;
   const ilkAd = profil?.ad.split(' ')[0] ?? '';
 
   return (
@@ -135,15 +140,23 @@ export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
 
         <FlatList
           horizontal
-          data={[null, ...UZMANLIKLAR]}
+          data={[...(musteri ? ['__favori'] : []), null, ...UZMANLIKLAR]}
           keyExtractor={(k) => k ?? 'tumu'}
           showsHorizontalScrollIndicator={false}
           style={{ flexGrow: 0 }}
           contentContainerStyle={styles.kategoriler}
           renderItem={({ item }) => {
-            const acik = item === kategori;
+            if (item === '__favori') {
+              return (
+                <Pressable onPress={() => setYalnizFavori(!yalnizFavori)} style={[styles.kategori, styles.favoriChip, yalnizFavori && styles.kategoriAcik]}>
+                  <Ionicons name={yalnizFavori ? 'heart' : 'heart-outline'} size={15} color={yalnizFavori ? colors.koyuMetin : colors.kirmiziAcik} />
+                  <Text style={[styles.kategoriYazi, yalnizFavori && { color: colors.koyuMetin }]}>Favorilerim</Text>
+                </Pressable>
+              );
+            }
+            const acik = item === kategori && !yalnizFavori;
             return (
-              <Pressable onPress={() => setKategori(item)} style={[styles.kategori, acik && styles.kategoriAcik]}>
+              <Pressable onPress={() => { setKategori(item); setYalnizFavori(false); }} style={[styles.kategori, acik && styles.kategoriAcik]}>
                 <Text style={[styles.kategoriYazi, acik && { color: colors.koyuMetin }]}>{item ?? 'Tümü'}</Text>
               </Pressable>
             );
@@ -159,7 +172,13 @@ export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
                 data={sevilenler}
                 keyExtractor={(a) => a.id}
                 renderItem={({ item }) => (
-                  <AsciKarti asci={vitrindenKarta(item)} genislik={170} onPress={() => asciAc(item.id)} />
+                  <AsciKarti
+                    asci={vitrindenKarta(item)}
+                    genislik={170}
+                    onPress={() => asciAc(item.id)}
+                    favori={favoriMi(item.id)}
+                    favoriDegistir={musteri ? () => favoriDegistir(item.id) : undefined}
+                  />
                 )}
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: KENAR }}
@@ -175,10 +194,17 @@ export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
 
         <Text style={styles.bolum}>{filtreVar ? 'Sonuçlar' : 'Aşçılarımız'}</Text>
         {durum ? <Text style={styles.durum}>{durum}</Text> : null}
-        {!durum && suzulen.length === 0 ? <Text style={styles.durum}>Aramana uyan aşçı bulunamadı.</Text> : null}
+        {!durum && suzulen.length === 0 ? <Text style={styles.durum}>{yalnizFavori && !arama.trim() && !kategori ? 'Henüz favori aşçın yok. Kartlardaki kalbe dokunarak ekleyebilirsin.' : 'Aramana uyan aşçı bulunamadı.'}</Text> : null}
         <View style={styles.izgara}>
           {suzulen.map((v) => (
-            <AsciKarti key={v.id} asci={vitrindenKarta(v)} genislik={ikiliGenislik} onPress={() => asciAc(v.id)} />
+            <AsciKarti
+              key={v.id}
+              asci={vitrindenKarta(v)}
+              genislik={ikiliGenislik}
+              onPress={() => asciAc(v.id)}
+              favori={favoriMi(v.id)}
+              favoriDegistir={musteri ? () => favoriDegistir(v.id) : undefined}
+            />
           ))}
         </View>
       </ScrollView>
@@ -249,6 +275,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.cizgi,
   },
+  favoriChip: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   kategoriAcik: { backgroundColor: colors.sari, borderColor: colors.sari },
   kategoriYazi: { fontSize: fontSize.kucuk, fontWeight: '700', color: colors.metin },
   bolum: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.metin, marginTop: spacing.m, marginBottom: spacing.m, marginHorizontal: KENAR },

@@ -1,6 +1,6 @@
 import { kur, semalar } from './kur.mjs';
 const db = await kur();
-await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','demo_veri.sql']);
+await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','demo_veri.sql']);
 const U = (n) => `dddddddd-0000-4000-8000-${n}`;
 const ASCI = U('000000000001'), ASCI2 = U('000000000002'), MUS = U('001000000001'), MUS2 = U('001000000002');
 const YENI = 'eeeeeeee-0000-4000-8000-000000000001', ADM = 'eeeeeeee-0000-4000-8000-000000000009';
@@ -218,4 +218,46 @@ await olarak(MUS3, async () => kontrol('iptal sonrası hesap silinebilir (engel 
 // Yönetici izleme
 await olarak(ADM, async () => kontrol('yönetici kurumsal izleme listesini görür', (await db.query(`select 1 from yonetici_kurumsal`)).rows.length === 2));
 await olarak(MUS, async () => kontrol('müşteri izleme listesini GÖRMEZ', (await db.query(`select 1 from yonetici_kurumsal`)).rows.length === 0));
+
+// --- Bildirimler (sahte HTTP eklentisiyle: gönderilen mesajları kaydeder)
+await db.exec(`
+  create schema net; create table public.http_kayit (url text, body jsonb);
+  create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}', timeout_milliseconds integer default 5000)
+    returns bigint language sql as $$ insert into public.http_kayit values (url, body) returning 1::bigint $$;
+  grant usage on schema net to authenticated;`);
+const TOK_A = 'ExponentPushToken[asci-1]', TOK_B = 'ExponentPushToken[musteri-3]';
+await olarak(ASCI, async () => {
+  r = await dene(`select push_kaydet('${TOK_A}', 'ios')`); kontrol('aşçı bildirim adresini kaydeder', r.ok, r.hata ?? '');
+  r = await dene(`select push_kaydet('sahte-adres', 'ios')`); kontrol('geçersiz bildirim adresi reddedilir', !r.ok);
+  r = await dene(`select * from push_tokenlari`); kontrol('bildirim adresleri doğrudan OKUNAMAZ', !r.ok);
+  r = await dene(`select bildirim_gonder(array['${ASCI}']::uuid[], 'x', 'y')`); kontrol('bildirim_gonder dışarıdan ÇAĞRILAMAZ', !r.ok);
+});
+await olarak(MUS3, async () => { r = await dene(`select push_kaydet('${TOK_B}', 'android')`); kontrol('müşteri bildirim adresini kaydeder', r.ok, r.hata ?? ''); });
+await db.exec(`delete from http_kayit`);
+await olarak(MUS, async () => { r = await dene(rpcTalep(ASCI)); });
+{
+  const k = (await db.query(`select body from http_kayit`)).rows;
+  kontrol('yeni talepte yalnızca ilgili aşçıya bildirim gider', k.length === 1 && k[0].body.length === 1 && k[0].body[0].to === TOK_A, JSON.stringify(k));
+  kontrol('bildirimde açık adres YOK', !JSON.stringify(k).includes('Cd. No'));
+}
+await olarak(ASCI, async () => { r = await dene(`select push_sil('${TOK_B}')`); });
+kontrol('başkasının bildirim adresi silinemez', (await db.query(`select 1 from push_tokenlari where token='${TOK_B}'`)).rows.length === 1);
+await olarak(MUS3, async () => { r = await dene(`select push_sil('${TOK_B}')`); });
+kontrol('kullanıcı kendi bildirim adresini siler', (await db.query(`select 1 from push_tokenlari where token='${TOK_B}'`)).rows.length === 0);
+await db.exec(`drop schema net cascade; drop table http_kayit;`);
+await olarak(MUS, async () => { r = await dene(rpcTalep(ASCI)); kontrol('bildirim eklentisi yokken talep yine de açılır', r.ok, r.hata ?? ''); });
+
+// --- Favoriler
+await olarak(MUS, async () => {
+  r = await dene(`insert into favoriler (musteri_id, asci_id) values ('${MUS}','${ASCI}')`); kontrol('müşteri aşçıyı favoriye ekler', r.ok, r.hata ?? '');
+  r = await dene(`insert into favoriler (musteri_id, asci_id) values ('${MUS}','${YENI}')`); kontrol('onaysız aşçı favoriye eklenemez', !r.ok);
+  r = await dene(`insert into favoriler (musteri_id, asci_id) values ('${MUS3}','${ASCI2}')`); kontrol('başkası adına favori eklenemez', !r.ok);
+});
+await olarak(MUS3, async () => {
+  kontrol('başkasının favorilerini GÖRMEZ', (await db.query(`select 1 from favoriler`)).rows.length === 0);
+  r = await dene(`delete from favoriler where asci_id='${ASCI}'`); 
+});
+kontrol('başkasının favorisi silinemez', (await db.query(`select 1 from favoriler where musteri_id='${MUS}'`)).rows.length === 1);
+await olarak(ASCI2, async () => { r = await dene(`insert into favoriler (musteri_id, asci_id) values ('${ASCI2}','${ASCI}')`); kontrol('aşçı favori ekleyemez', !r.ok); });
+await olarak(MUS, async () => { r = await dene(`delete from favoriler where asci_id='${ASCI}'`); kontrol('müşteri favoriyi kaldırır', r.ok && (await db.query(`select 1 from favoriler`)).rows.length === 0); });
 console.log(`\nSONUÇ: ${gecen} geçti, ${kalan} kaldı`);

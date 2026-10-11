@@ -1,11 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
+import { FavoriProvider } from './src/auth/FavoriContext';
 import ReklamBandi from './src/components/ReklamBandi';
 import HataSinirlayici from './src/components/HataSinirlayici';
 import AltMenu, { Sekme } from './src/components/AltMenu';
 import TalepSekmeleri, { Gorunum } from './src/components/TalepSekmeleri';
+import { bildirimKaydet } from './src/lib/bildirim';
 import { yeniFirsatSayisi } from './src/lib/kurumsal';
 import { supabaseHazir } from './src/lib/supabase';
 import { tarihSaatYaz } from './src/lib/talepler';
@@ -58,6 +60,11 @@ function Ekranlar() {
   const [talepGorunumu, setTalepGorunumu] = useState<Gorunum>('bireysel');
   const asciKimligi = oturum?.user.id ?? '';
   const rozetGetir = useCallback(() => yeniFirsatSayisi(asciKimligi), [asciKimligi]);
+  // Giriş tamamlanınca telefondan bildirim izni istenir (bir kez; sonra sessizce yenilenir).
+  const girisTamam = !!oturum && !!profil;
+  useEffect(() => {
+    if (girisTamam) bildirimKaydet();
+  }, [girisTamam, asciKimligi]);
   const git = (ad: Sekme) => () => setEkran({ ad });
   const ana = git('ana');
 
@@ -229,9 +236,11 @@ export default function App() {
   return (
     <HataSinirlayici>
       <AuthProvider>
-        <View style={styles.kap}>
-          <Ekranlar />
-        </View>
+        <FavoriProvider>
+          <View style={styles.kap}>
+            <Ekranlar />
+          </View>
+        </FavoriProvider>
         <StatusBar style="light" />
       </AuthProvider>
     </HataSinirlayici>

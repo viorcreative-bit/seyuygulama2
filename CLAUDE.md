@@ -87,6 +87,11 @@ Talep durumları: **Bekliyor → Kabul edildi / Reddedildi → Tamamlandı / İp
 - Uygulamanın altında (menünün üstünde) yönetici panelinden yönetilen dönen reklam bandı: `src/components/ReklamBandi.tsx`, tablo `reklamlar` (`schema_13.sql`).
 - Kurumsal talep: şirket talep açar (kişi 10–5000, tekrar, öğün, bütçe), kurumsal hizmet veren aşçılar kişi başı fiyat teklifi verir, şirket bir teklifi seçer; şirket iletişim bilgisi yalnızca seçilen aşçıya görünür. Tablolar `kurumsal_talepler`, `kurumsal_teklifler`, `kurumsal_iletisim` (`schema_14.sql`); ekranlar `Kurumsal*.tsx`; müşteri/aşçı "Talepler" sekmesinde Bireysel | Kurumsal ayrımı.
 
+### 7. Bildirimler ve favoriler
+- Telefon bildirimi (Expo push): yeni talep/teklif, kabul/ret, iptal, tamamlandı, yeni yorum. Veritabanı tetikleyicileri `pg_net` ile Expo'ya gönderir (`schema_15.sql`, tablo `push_tokenlari`); istemci `src/lib/bildirim.ts`. Bildirim metinlerinde adres/telefon yoktur. Gerçek cihaz ve EAS proje kimliği gerekir (Expo Go'da sınırlı).
+- Favoriler: müşteri aşçı kartındaki/profildeki kalple favoriler (`favoriler` tablosu, `src/auth/FavoriContext.tsx`); ana sayfada "Favorilerim" filtresi.
+- Yönetici web paneli de koyu temadadır.
+
 ## Veritabanı tabloları (taslak)
 
 - `profiles`: id, rol (musteri / asci), ad, telefon, fotoğraf, oluşturulma tarihi

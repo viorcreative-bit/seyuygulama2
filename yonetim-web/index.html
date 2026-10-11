@@ -7,77 +7,85 @@
   <title>Aşçım Gelsin Yönetim</title>
   <style>
     :root {
+      --zemin: #160606;
+      --zemin-ust: #2B0B0B;
+      --yuzey: #2A1010;
+      --yuzey-ust: #3A1818;
+      --cizgi: #4D2626;
+      --metin: #FFF8E7;
+      --soluk: #BFA99A;
+      --koyu-metin: #2B1A12;
       --kirmizi: #A30909;
+      --kirmizi-acik: #FF6B5E;
       --sari: #FEC010;
-      --krem: #FFF8E7;
-      --metin: #2B1A12;
-      --beyaz: #FFFFFF;
-      --cizgi: #E5D9BF;
-      --yesil: #1E6B3A;
+      --yesil: #2E9B5A;
     }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--krem); color: var(--metin); }
+    body { margin: 0; min-height: 100vh; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--zemin) linear-gradient(180deg, var(--zemin-ust), var(--zemin) 480px) no-repeat; color: var(--metin); }
     .gizli { display: none !important; }
-    header { background: var(--kirmizi); color: var(--sari); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    header { background: var(--yuzey); border-bottom: 1px solid var(--cizgi); color: var(--sari); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     header h1 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 12px; }
     header img { width: 44px; height: 44px; border-radius: 50%; }
-    header .kisi { color: var(--krem); font-size: 14px; display: flex; align-items: center; gap: 12px; }
+    header .kisi { color: var(--soluk); font-size: 14px; display: flex; align-items: center; gap: 12px; }
     main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
-    .giris { max-width: 400px; margin: 10vh auto 0; background: var(--beyaz); border-radius: 20px; padding: 32px 24px; box-shadow: 0 6px 24px rgba(43,26,18,.12); text-align: center; }
-    .giris img { width: 120px; height: 120px; }
-    .giris h2 { color: var(--kirmizi); margin: 8px 0 20px; }
-    label { display: block; text-align: left; font-weight: 700; font-size: 14px; margin: 14px 0 6px; }
-    input, textarea, select { width: 100%; font: inherit; padding: 12px 14px; border: 1px solid var(--cizgi); border-radius: 12px; background: var(--beyaz); color: var(--metin); }
+    .giris { max-width: 400px; margin: 10vh auto 0; background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 24px; padding: 32px 24px; box-shadow: 0 10px 40px rgba(0,0,0,.45); text-align: center; }
+    .giris img { width: 120px; height: 120px; border-radius: 50%; }
+    .giris h2 { color: var(--sari); margin: 8px 0 20px; }
+    label { display: block; text-align: left; font-weight: 700; font-size: 14px; margin: 14px 0 6px; color: var(--soluk); }
+    input, textarea, select { width: 100%; font: inherit; padding: 12px 14px; border: 1px solid var(--cizgi); border-radius: 14px; background: var(--zemin); color: var(--metin); color-scheme: dark; }
+    input::placeholder, textarea::placeholder { color: var(--soluk); opacity: .7; }
+    input:focus, textarea:focus, select:focus { outline: 2px solid var(--sari); outline-offset: 1px; }
     textarea { min-height: 64px; resize: vertical; }
     .telSatir { display: flex; align-items: center; gap: 8px; }
     .telSatir span { font-weight: 700; font-size: 18px; }
-    button { font: inherit; font-weight: 800; cursor: pointer; border-radius: 999px; padding: 11px 22px; border: 2px solid var(--kirmizi); background: var(--kirmizi); color: var(--sari); }
-    button.cerceveli { background: transparent; color: var(--kirmizi); }
-    button.tehlike { background: var(--beyaz); color: var(--kirmizi); border-color: var(--kirmizi); border-style: dashed; }
+    button { font: inherit; font-weight: 800; cursor: pointer; border-radius: 999px; padding: 11px 22px; border: 2px solid var(--sari); background: var(--sari); color: var(--koyu-metin); }
+    button:hover:not(:disabled) { filter: brightness(1.08); }
+    button.cerceveli { background: transparent; color: var(--sari); }
+    button.tehlike { background: transparent; color: var(--kirmizi-acik); border-color: var(--kirmizi-acik); border-style: dashed; }
     button.kucuk { padding: 7px 16px; font-size: 14px; }
     button:disabled { opacity: .5; cursor: default; }
     .giris button { width: 100%; margin-top: 20px; }
-    .hata { color: var(--kirmizi); font-weight: 600; margin-top: 14px; font-size: 14px; }
+    .hata { color: var(--kirmizi-acik); font-weight: 600; margin-top: 14px; font-size: 14px; }
     .sekmeler { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
     .sekmeler .bosluk { flex: 1; }
-    .sekme { background: transparent; color: var(--kirmizi); }
-    .sekme.acik { background: var(--kirmizi); color: var(--sari); }
+    .sekme { background: var(--yuzey); color: var(--metin); border-color: var(--cizgi); }
+    .sekme.acik { background: var(--sari); color: var(--koyu-metin); border-color: var(--sari); }
     .filtre { width: auto; padding: 9px 12px; }
     .arama { flex: 1; min-width: 160px; }
     .kartlar { display: grid; gap: 14px; }
-    .kart { background: var(--beyaz); border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(43,26,18,.08); }
+    .kart { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 20px; padding: 18px 20px; }
     .kart .ust { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
     .kart h3 { margin: 0; font-size: 18px; }
     .kart p { margin: 6px 0 0; line-height: 1.5; font-size: 15px; }
-    .soluk { opacity: .65; font-size: 14px; }
-    .rozet { display: inline-block; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--cizgi); font-size: 13px; font-weight: 700; background: var(--beyaz); }
-    .rozet.bekliyor { background: var(--sari); border-color: var(--sari); }
-    .rozet.onayli { background: var(--yesil); border-color: var(--yesil); color: var(--beyaz); }
-    .rozet.red { background: var(--metin); border-color: var(--metin); color: var(--krem); }
+    .soluk { color: var(--soluk); font-size: 14px; }
+    .rozet { display: inline-block; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--cizgi); font-size: 13px; font-weight: 700; background: var(--yuzey-ust); color: var(--metin); }
+    .rozet.bekliyor { background: var(--sari); border-color: var(--sari); color: var(--koyu-metin); }
+    .rozet.onayli { background: var(--yesil); border-color: var(--yesil); color: #fff; }
+    .rozet.red { background: transparent; border-color: var(--kirmizi-acik); color: var(--kirmizi-acik); }
     .rozet.inceleniyor { background: var(--kirmizi); border-color: var(--kirmizi); color: var(--sari); }
+    .rozet.planli { background: var(--yuzey-ust); }
     .kimlik { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex: none; background: var(--kirmizi); cursor: zoom-in; }
     .avatar.harf { display: flex; align-items: center; justify-content: center; color: var(--sari); font-weight: 800; font-size: 22px; cursor: default; }
     .galeri { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    .galeri img { width: 76px; height: 76px; border-radius: 12px; object-fit: cover; cursor: zoom-in; border: 1px solid var(--cizgi); }
-    .perde { position: fixed; inset: 0; background: rgba(43,26,18,.85); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 10; cursor: zoom-out; }
-    .perde img { max-width: 100%; max-height: 100%; border-radius: 16px; background: var(--beyaz); }
-    .form { background: var(--beyaz); border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(43,26,18,.08); display: grid; gap: 4px; }
+    .galeri img { width: 76px; height: 76px; border-radius: 14px; object-fit: cover; cursor: zoom-in; border: 1px solid var(--cizgi); }
+    .perde { position: fixed; inset: 0; background: rgba(10,2,2,.9); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 10; cursor: zoom-out; }
+    .perde img { max-width: 100%; max-height: 100%; border-radius: 16px; background: var(--yuzey); }
+    .form { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 20px; padding: 18px 20px; display: grid; gap: 4px; }
     .form .iki { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .form small { opacity: .65; }
-    .reklamGorsel { width: 100%; max-width: 480px; aspect-ratio: 4 / 1; object-fit: cover; border-radius: 12px; border: 1px solid var(--cizgi); cursor: zoom-in; display: block; margin: 8px 0; background: var(--krem); }
-    .rozet.planli { background: var(--beyaz); }
+    .form small { color: var(--soluk); }
+    .reklamGorsel { width: 100%; max-width: 480px; aspect-ratio: 4 / 1; object-fit: cover; border-radius: 12px; border: 1px solid var(--cizgi); cursor: zoom-in; display: block; margin: 8px 0; background: var(--zemin); }
     .eylemler { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-    .bos { text-align: center; padding: 48px 0; opacity: .7; }
+    .bos { text-align: center; padding: 48px 0; color: var(--soluk); }
     .ozet { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-    .ozet div { background: var(--beyaz); border-radius: 14px; padding: 12px 18px; font-size: 14px; }
-    .ozet b { display: block; font-size: 24px; color: var(--kirmizi); }
+    .ozet div { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 16px; padding: 12px 18px; font-size: 14px; color: var(--soluk); }
+    .ozet b { display: block; font-size: 24px; color: var(--sari); }
   </style>
 </head>
 <body>
   <header class="gizli" id="ust">
     <h1><img src="logo.png" alt="" />Aşçım Gelsin Yönetim</h1>
-    <div class="kisi"><span id="kisi"></span><button class="cerceveli kucuk" id="cikis" style="color:var(--krem);border-color:var(--krem)">Çıkış</button></div>
+    <div class="kisi"><span id="kisi"></span><button class="cerceveli kucuk" id="cikis">Çıkış</button></div>
   </header>
 
   <main>
