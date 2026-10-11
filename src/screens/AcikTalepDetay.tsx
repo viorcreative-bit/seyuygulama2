@@ -4,6 +4,8 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import Bos from '../components/Bos';
 import ProfilResmi from '../components/ProfilResmi';
 import Dugme from '../components/Dugme';
+import MesajDugmesi from '../components/MesajDugmesi';
+import { teklifSohbeti } from '../lib/sohbet';
 import Ekran from '../components/Ekran';
 import Rozet from '../components/Rozet';
 import { ACIK_DURUM_ADI, AcikTalep, AcikTeklif, acikTalepGetir, acikTalepIptal, acikTeklifleri, acikTeklifSec } from '../lib/acik';
@@ -13,7 +15,7 @@ import { tl } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 import { ACIK_TON } from './AcikTaleplerim';
 
-type Props = { talepId: string; geri: () => void; asciAc: (id: string) => void; talebeGit: () => void };
+type Props = { talepId: string; geri: () => void; asciAc: (id: string) => void; talebeGit: () => void; sohbetAc: (sohbetId: string) => void };
 
 function Satir({ etiket, deger }: { etiket: string; deger: string }) {
   if (!deger) return null;
@@ -26,7 +28,7 @@ function Satir({ etiket, deger }: { etiket: string; deger: string }) {
 }
 
 // Müşterinin açık talebi: özet, gelen teklifler ve teklif seçme.
-export default function AcikTalepDetay({ talepId, geri, asciAc, talebeGit }: Props) {
+export default function AcikTalepDetay({ talepId, geri, asciAc, talebeGit, sohbetAc }: Props) {
   const [talep, setTalep] = useState<AcikTalep | null>(null);
   const [teklifler, setTeklifler] = useState<AcikTeklif[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
@@ -153,9 +155,12 @@ export default function AcikTalepDetay({ talepId, geri, asciAc, talebeGit }: Pro
               </View>
               <Text style={styles.fiyat}>{tl(te.fiyat)}</Text>
               {te.mesaj ? <Text style={styles.mesaj}>{te.mesaj}</Text> : null}
-              <Pressable onPress={() => asciAc(te.asci_id)} accessibilityRole="button">
-                <Text style={styles.profilLink}>Aşçı profilini gör</Text>
-              </Pressable>
+              <View style={styles.eylem}>
+                <Pressable onPress={() => asciAc(te.asci_id)} accessibilityRole="button">
+                  <Text style={styles.profilLink}>Aşçı profilini gör</Text>
+                </Pressable>
+                {talep.durum !== 'iptal' ? <MesajDugmesi ac={() => teklifSohbeti(te.id)} git={sohbetAc} yazi="Mesaj Gönder" /> : null}
+              </View>
               {secimAcik && te.durum === 'bekliyor' ? (
                 <View style={{ marginTop: spacing.s }}>
                   <Dugme yazi="Bu Teklifi Seç" onPress={() => sec(te)} pasif={islemde} />
@@ -195,5 +200,6 @@ const styles = StyleSheet.create({
   puan: { fontSize: 13, color: colors.metinSoluk },
   fiyat: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.sari },
   mesaj: { fontSize: fontSize.kucuk + 1, color: colors.metin, lineHeight: 21, backgroundColor: colors.yuzeyUst, borderRadius: radius.s, padding: spacing.s + 4 },
+  eylem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.m },
   profilLink: { color: colors.sari, fontWeight: '700', fontSize: fontSize.kucuk + 1 },
 });

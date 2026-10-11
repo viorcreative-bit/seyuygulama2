@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
+import MesajDugmesi from '../components/MesajDugmesi';
+import { talepSohbeti } from '../lib/sohbet';
 import DurumRozeti from '../components/DurumRozeti';
 import { Yildizlar } from '../components/Yildizlar';
 import { supabase } from '../lib/supabase';
@@ -12,6 +14,7 @@ import { yorumYazilanTalepler } from '../lib/yorumlar';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 type Props = {
+  sohbetAc: (sohbetId: string) => void;
   yorumYap: (t: Talep, asciAdi: string) => void;
   sikayetEt: (t: Talep, asciAdi: string) => void;
 };
@@ -25,7 +28,7 @@ function Bilgi({ simge, yazi }: { simge: keyof typeof Ionicons.glyphMap; yazi: s
   );
 }
 
-export default function Taleplerim({ yorumYap, sikayetEt }: Props) {
+export default function Taleplerim({ sohbetAc, yorumYap, sikayetEt }: Props) {
   const [liste, setListe] = useState<Talep[] | null>(null);
   const [adlar, setAdlar] = useState<Record<string, string>>({});
   const [hata, setHata] = useState('');
@@ -107,6 +110,12 @@ export default function Taleplerim({ yorumYap, sikayetEt }: Props) {
                     <Dugme yazi="Yorum Yap" onPress={() => yorumYap(item, asciAdi)} />
                   </View>
                 )
+              ) : null}
+
+              {item.durum !== 'iptal' ? (
+                <View style={{ marginTop: spacing.s }}>
+                  <MesajDugmesi ac={() => talepSohbeti(item.id)} git={sohbetAc} yazi="Aşçıya Mesaj Gönder" />
+                </View>
               ) : null}
 
               <View style={styles.baglantilar}>

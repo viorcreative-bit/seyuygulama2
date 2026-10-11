@@ -4,6 +4,8 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import Bos from '../components/Bos';
 import ProfilResmi from '../components/ProfilResmi';
 import Dugme from '../components/Dugme';
+import MesajDugmesi from '../components/MesajDugmesi';
+import { kurumsalSohbeti } from '../lib/sohbet';
 import Ekran from '../components/Ekran';
 import Rozet from '../components/Rozet';
 import { sebep } from '../lib/hata';
@@ -16,7 +18,7 @@ import { tl } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 import { DURUM_TONU } from './KurumsalTaleplerim';
 
-type Props = { talepId: string; geri: () => void; asciAc: (id: string) => void };
+type Props = { talepId: string; geri: () => void; asciAc: (id: string) => void; sohbetAc: (sohbetId: string) => void };
 
 function Satir({ etiket, deger }: { etiket: string; deger: string }) {
   if (!deger) return null;
@@ -29,7 +31,7 @@ function Satir({ etiket, deger }: { etiket: string; deger: string }) {
 }
 
 // Şirketin kurumsal talebi: özet, gelen teklifler ve teklif seçme.
-export default function KurumsalTalepDetay({ talepId, geri, asciAc }: Props) {
+export default function KurumsalTalepDetay({ talepId, geri, asciAc, sohbetAc }: Props) {
   const [talep, setTalep] = useState<KurumsalTalep | null>(null);
   const [teklifler, setTeklifler] = useState<KurumsalTeklif[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
@@ -168,10 +170,11 @@ export default function KurumsalTalepDetay({ talepId, geri, asciAc }: Props) {
                 </View>
                 {butceyiAsiyor ? <Text style={styles.uyari}>Bütçenin üzerinde</Text> : null}
                 {te.mesaj ? <Text style={styles.mesaj}>{te.mesaj}</Text> : null}
-                <View style={styles.eylemler}>
+                <View style={[styles.eylemler, { justifyContent: 'space-between', alignItems: 'center' }]}>
                   <Pressable onPress={() => asciAc(te.asci_id)} accessibilityRole="button">
                     <Text style={styles.profilLink}>Aşçı profilini gör</Text>
                   </Pressable>
+                  {talep.durum !== 'iptal' ? <MesajDugmesi ac={() => kurumsalSohbeti(te.id)} git={sohbetAc} yazi="Mesaj Gönder" /> : null}
                 </View>
                 {secimAcik && te.durum === 'bekliyor' ? (
                   <View style={{ marginTop: spacing.s }}>

@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
+import MesajDugmesi from '../components/MesajDugmesi';
+import { talepSohbeti } from '../lib/sohbet';
 import DurumRozeti from '../components/DurumRozeti';
 import { Durum, GelenTalep, durumDegistir, gelenTalepler, tarihSaatYaz } from '../lib/talepler';
 import { tl } from '../lib/vitrin';
@@ -20,9 +22,9 @@ function Satir({ etiket, deger, vurgu }: { etiket: string; deger: string; vurgu?
   );
 }
 
-type Props = { sikayetEt: (t: GelenTalep) => void };
+type Props = { sikayetEt: (t: GelenTalep) => void; sohbetAc: (sohbetId: string) => void };
 
-export default function GelenTalepler({ sikayetEt }: Props) {
+export default function GelenTalepler({ sikayetEt, sohbetAc }: Props) {
   const [liste, setListe] = useState<GelenTalep[] | null>(null);
   const [hata, setHata] = useState('');
   const [islemde, setIslemde] = useState<string | null>(null);
@@ -102,6 +104,11 @@ export default function GelenTalepler({ sikayetEt }: Props) {
               <Satir etiket="Alerjiler" deger={t.alerjiler} vurgu />
               <Satir etiket="Notlar" deger={t.notlar} />
 
+              {t.durum !== 'iptal' && t.durum !== 'red' ? (
+                <View style={{ marginTop: spacing.s }}>
+                  <MesajDugmesi ac={() => talepSohbeti(t.id)} git={sohbetAc} yazi="Müşteriye Mesaj Gönder" />
+                </View>
+              ) : null}
               {t.durum === 'kabul' || t.durum === 'tamamlandi' ? (
                 <Pressable onPress={() => sikayetEt(t)} accessibilityRole="button">
                   <Text style={styles.sikayet}>Şikayet et</Text>

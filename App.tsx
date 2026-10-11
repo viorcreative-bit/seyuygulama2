@@ -23,6 +23,8 @@ import AsciProfil from './src/screens/AsciProfil';
 import AsciProfilDuzenle from './src/screens/AsciProfilDuzenle';
 import AsciSec from './src/screens/AsciSec';
 import AvatarSec from './src/screens/AvatarSec';
+import Mesajlar from './src/screens/Mesajlar';
+import Sohbet from './src/screens/Sohbet';
 import AsciYorumlari from './src/screens/AsciYorumlari';
 import GelenTalepler from './src/screens/GelenTalepler';
 import GirisAkisi from './src/screens/GirisAkisi';
@@ -56,6 +58,7 @@ type Ekran =
   | { ad: 'talep'; asciId: string }
   | { ad: 'sifreDegistir' }
   | { ad: 'avatar' }
+  | { ad: 'sohbet'; id: string; onceki: Ekran }
   | { ad: 'kurumsalTalep' }
   | { ad: 'kurumsalDetay'; id: string }
   | { ad: 'kurumsalFirsat'; id: string }
@@ -64,7 +67,7 @@ type Ekran =
   | { ad: 'yorumYaz'; talepId: string; asciId: string; asciAdi: string }
   | { ad: 'sikayet'; talepId: string; ozet: string; geriye: 'taleplerim' | 'gelenTalepler' };
 
-const SEKMELER: Sekme[] = ['ana', 'taleplerim', 'gelenTalepler', 'asciYorumlari', 'hesap'];
+const SEKMELER: Sekme[] = ['ana', 'taleplerim', 'gelenTalepler', 'mesajlar', 'asciYorumlari', 'hesap'];
 
 function Ekranlar() {
   const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor } = useAuth();
@@ -85,6 +88,8 @@ function Ekranlar() {
     AsyncStorage.getItem(`avatar_atla_${asciKimligi}`).then((v) => setAvatarAtlandi(v === '1')).catch(() => setAvatarAtlandi(false));
   }, [asciKimligi]);
   const git = (ad: Sekme) => () => setEkran({ ad });
+  // Sohbet açıldığında geri düğmesi bulunulan ekrana döner.
+  const sohbetAc = (id: string) => setEkran({ ad: 'sohbet', id, onceki: ekran });
   const ana = git('ana');
 
   if (yukleniyor) {
@@ -129,6 +134,7 @@ function Ekranlar() {
             etiketler={{ bireysel: 'Doğrudan', acik: 'Açık Talepler', kurumsal: 'Kurumsal' }}
             bireysel={
               <Taleplerim
+                sohbetAc={sohbetAc}
                 yorumYap={(t, asciAdi) => setEkran({ ad: 'yorumYaz', talepId: t.id, asciId: t.asci_id, asciAdi })}
                 sikayetEt={(t, asciAdi) =>
                   setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${asciAdi} · ${tarihSaatYaz(t.tarih)}`, geriye: 'taleplerim' })
@@ -166,6 +172,7 @@ function Ekranlar() {
             rozetGetir={{ acik: acikRozet, kurumsal: kurumsalRozet }}
             bireysel={
               <GelenTalepler
+                sohbetAc={sohbetAc}
                 sikayetEt={(t) =>
                   setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${t.musteri_ad} · ${tarihSaatYaz(t.tarih)}`, geriye: 'gelenTalepler' })
                 }
@@ -190,6 +197,9 @@ function Ekranlar() {
             }
           />
         ) : null;
+        break;
+      case 'mesajlar':
+        icerik = <Mesajlar ac={(s) => setEkran({ ad: 'sohbet', id: s.id, onceki: ekran })} />;
         break;
       case 'asciYorumlari':
         icerik = asci ? <AsciYorumlari /> : null;
@@ -255,6 +265,7 @@ function Ekranlar() {
         <AcikTalepDetay
           talepId={ekran.id}
           geri={git('taleplerim')}
+          sohbetAc={sohbetAc}
           asciAc={(id) => setEkran({ ad: 'asci', id })}
           talebeGit={() => {
             setTalepGorunumu('bireysel');
@@ -263,11 +274,13 @@ function Ekranlar() {
         />
       );
     case 'acikFirsat':
-      return <AcikFirsatDetay talepId={ekran.id} geri={git('gelenTalepler')} />;
+      return <AcikFirsatDetay talepId={ekran.id} geri={git('gelenTalepler')} sohbetAc={sohbetAc} />;
     case 'kurumsalDetay':
-      return <KurumsalTalepDetay talepId={ekran.id} geri={git('taleplerim')} asciAc={(id) => setEkran({ ad: 'asci', id })} />;
+      return <KurumsalTalepDetay talepId={ekran.id} geri={git('taleplerim')} sohbetAc={sohbetAc} asciAc={(id) => setEkran({ ad: 'asci', id })} />;
     case 'kurumsalFirsat':
-      return <KurumsalFirsatDetay talepId={ekran.id} geri={git('gelenTalepler')} />;
+      return <KurumsalFirsatDetay talepId={ekran.id} geri={git('gelenTalepler')} sohbetAc={sohbetAc} />;
+    case 'sohbet':
+      return <Sohbet sohbetId={ekran.id} geri={() => setEkran(ekran.onceki)} />;
     case 'yasal':
       return <YasalMetin anahtar={ekran.anahtar} geri={git('hesap')} />;
     case 'asci':

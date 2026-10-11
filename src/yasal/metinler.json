@@ -1,5 +1,5 @@
 {
-  "surum": "2026-10-11.5",
+  "surum": "2026-10-11.6",
   "taslak": true,
   "bilgiler": {
     "sirketUnvani": "[ŞİRKET ÜNVANI]",
@@ -19,7 +19,7 @@
         },
         {
           "baslik": "2. İşlenen kişisel veriler",
-          "metin": "• Kimlik ve iletişim: ad soyad, telefon numarası.\n• Hesap: şifre (yalnızca şifrelenmiş olarak saklanır), rol (müşteri/aşçı), kayıt tarihi.\n• Hizmet talebi: semt, açık adres, tarih ve saat, kişi sayısı, mutfak tercihi, istenen yemekler, alerji ve özel notlar.\n• Kurumsal talep: şirket adı, yetkili kişi adı ve telefonu, hizmet adresi, bütçe; aşçıların verdiği fiyat teklifleri.\n• Görsel: profil fotoğrafı ve aşçıların yüklediği yemek fotoğrafları.\n• İçerik: yorumlar, yıldız puanları, aşçı cevapları, şikayetler.\n• Aşçılar için: tanıtım yazısı, uzmanlık alanları, hizmet semtleri, ücret bilgisi, müsait günler.\n• Bildirim: telefonunuzun bildirim adresi (izin verirseniz), favori aşçı listeniz.\n• İşlem güvenliği: giriş kayıtları ve teknik kayıtlar."
+          "metin": "• Kimlik ve iletişim: ad soyad, telefon numarası.\n• Hesap: şifre (yalnızca şifrelenmiş olarak saklanır), rol (müşteri/aşçı), kayıt tarihi.\n• Hizmet talebi: semt, açık adres, tarih ve saat, kişi sayısı, mutfak tercihi, istenen yemekler, alerji ve özel notlar.\n• Kurumsal talep: şirket adı, yetkili kişi adı ve telefonu, hizmet adresi, bütçe; aşçıların verdiği fiyat teklifleri.\n• Görsel: profil fotoğrafı ve aşçıların yüklediği yemek fotoğrafları.\n• İçerik: yorumlar, yıldız puanları, aşçı cevapları, şikayetler.\n• Aşçılar için: tanıtım yazısı, uzmanlık alanları, hizmet semtleri, ücret bilgisi, müsait günler.\n• Bildirim: telefonunuzun bildirim adresi (izin verirseniz), favori aşçı listeniz.\n• Mesajlaşma: müşteri ile aşçı arasında uygulama içinde yazdığınız mesajlar. Mesajları yalnızca konuşmanın iki tarafı görebilir; şirketimiz mesajları kendiliğinden okumaz ve hesabınızı sildiğinizde mesajlarınız da silinir.\n• İşlem güvenliği: giriş kayıtları ve teknik kayıtlar."
         },
         {
           "baslik": "3. İşleme amaçları",
@@ -53,7 +53,7 @@
         },
         {
           "baslik": "2. Topladığımız bilgiler",
-          "metin": "Telefon numaranız, adınız, şifreniz (şifrelenmiş), hizmet talebi bilgileriniz (semt, açık adres, tarih, kişi sayısı, tercihler, alerji ve notlar), yüklediğiniz fotoğraflar, yorum ve şikayetleriniz."
+          "metin": "Telefon numaranız, adınız, şifreniz (şifrelenmiş), hizmet talebi bilgileriniz (semt, açık adres, tarih, kişi sayısı, tercihler, alerji ve notlar), yüklediğiniz fotoğraflar, yorum ve şikayetleriniz ile aşçılarla yaptığınız yazışmalar (yalnızca iki taraf görebilir)."
         },
         {
           "baslik": "3. Bilgileri nasıl kullanıyoruz",
@@ -127,7 +127,7 @@
         },
         {
           "baslik": "8. Yasak davranışlar",
-          "metin": "Sahte hesap açmak, başkasının kimliğini kullanmak, diğer kullanıcıları rahatsız etmek, platformu kötüye kullanmak, hukuka aykırı veya zararlı içerik yüklemek yasaktır. Bu davranışlarda hesap askıya alınabilir veya silinebilir."
+          "metin": "Sahte hesap açmak, başkasının kimliğini kullanmak, diğer kullanıcıları (mesajlaşma dahil) rahatsız etmek, taciz veya dolandırıcılık amaçlı mesaj yazmak, platformu kötüye kullanmak, hukuka aykırı veya zararlı içerik yüklemek yasaktır. Bu davranışlarda hesap askıya alınabilir veya silinebilir."
         },
         {
           "baslik": "9. Reklamlar ve dış bağlantılar",

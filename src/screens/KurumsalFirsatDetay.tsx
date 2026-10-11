@@ -4,6 +4,8 @@ import { Alert, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, 
 import { useAuth } from '../auth/AuthContext';
 import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
+import MesajDugmesi from '../components/MesajDugmesi';
+import { kurumsalSohbeti } from '../lib/sohbet';
 import Ekran from '../components/Ekran';
 import Girdi from '../components/Girdi';
 import Rozet from '../components/Rozet';
@@ -28,7 +30,7 @@ function Satir({ etiket, deger, koyu }: { etiket: string; deger: string; koyu?: 
 }
 
 // Aşçının gördüğü kurumsal talep: bilgiler, teklif verme ve (seçilirse) iletişim bilgileri.
-export default function KurumsalFirsatDetay({ talepId, geri }: { talepId: string; geri: () => void }) {
+export default function KurumsalFirsatDetay({ talepId, geri, sohbetAc }: { talepId: string; geri: () => void; sohbetAc: (sohbetId: string) => void }) {
   const { oturum } = useAuth();
   const [talep, setTalep] = useState<KurumsalTalep | null>(null);
   const [teklif, setTeklif] = useState<KurumsalTeklif | null>(null);
@@ -172,6 +174,10 @@ export default function KurumsalFirsatDetay({ talepId, geri }: { talepId: string
               <Dugme yazi={teklif ? 'Teklifi Güncelle' : 'Teklifi Gönder'} onPress={gonder} yukleniyor={islemde} pasif={fiyatSayi < 1} />
               {teklif ? <Dugme yazi="Teklifi Geri Çek" tehlike onPress={geriCek} /> : null}
             </View>
+          ) : null}
+
+          {teklif ? (
+            <MesajDugmesi ac={() => kurumsalSohbeti(teklif.id)} git={sohbetAc} yazi="Şirkete Mesaj Gönder" />
           ) : null}
 
           {teklif && !(acik && teklif.durum === 'bekliyor') ? (

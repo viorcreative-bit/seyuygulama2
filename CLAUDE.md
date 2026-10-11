@@ -99,6 +99,10 @@ Talep durumları: **Bekliyor → Kabul edildi / Reddedildi → Tamamlandı / İp
 - Seçilince normal bir talep (`talepler`, durum `kabul`, `teklif_fiyati` dolu) oluşur; böylece tamamlama, yorum, şikayet ve adres görünürlüğü mevcut akışla devam eder. Aşçı, teklif aşamasında müşterinin adını ve adresini görmez.
 - Tablolar `acik_talepler`, `acik_talep_adresleri`, `acik_teklifler` (`schema_17.sql`); en fazla 5 açık talep; ekranlar `Acik*.tsx`; müşteri sekmeleri Doğrudan | Açık Talepler | Kurumsal, aşçı sekmeleri Bana Gelen | Teklif Ver | Kurumsal.
 
+### 9. Sohbet (mesajlaşma)
+- Müşteri ile aşçı, aralarında bir ilişki olunca yazışır: müşterinin doğrudan talebi olan aşçı, ya da müşterinin açık/kurumsal talebine teklif veren aşçı. Talep/teklif ekranlarındaki "Mesaj Gönder" düğmesi sohbeti açar; Mesajlar sekmesi (alt menü, okunmamış rozetli) tüm sohbetleri listeler (`Mesajlar.tsx`, `Sohbet.tsx`, `src/lib/sohbet.ts`).
+- Tablolar `sohbetler`, `mesajlar` (`schema_18.sql`): mesajları yalnızca iki taraf okuyabilir (yönetici dahil kimse); mesaj değiştirilemez/silinemez; dakikada en fazla 20 mesaj; anlık teslim için Supabase Realtime, yedek olarak 5 sn'de bir yenileme. Bildirimde mesaj içeriği yer almaz. Aşçı müşterinin yalnızca ilk adını görür.
+
 ## Veritabanı tabloları (taslak)
 
 - `profiles`: id, rol (musteri / asci), ad, telefon, fotoğraf, oluşturulma tarihi

@@ -3,6 +3,8 @@ import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, Vi
 import { useAuth } from '../auth/AuthContext';
 import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
+import MesajDugmesi from '../components/MesajDugmesi';
+import { teklifSohbeti } from '../lib/sohbet';
 import Ekran from '../components/Ekran';
 import Girdi from '../components/Girdi';
 import Rozet from '../components/Rozet';
@@ -24,7 +26,7 @@ function Satir({ etiket, deger }: { etiket: string; deger: string }) {
 }
 
 // Aşçının gördüğü açık talep: bilgiler ve fiyat teklifi verme.
-export default function AcikFirsatDetay({ talepId, geri }: { talepId: string; geri: () => void }) {
+export default function AcikFirsatDetay({ talepId, geri, sohbetAc }: { talepId: string; geri: () => void; sohbetAc: (sohbetId: string) => void }) {
   const { oturum } = useAuth();
   const [f, setF] = useState<AcikFirsat | null>(null);
   const [yukleniyor, setYukleniyor] = useState(true);
@@ -137,6 +139,10 @@ export default function AcikFirsatDetay({ talepId, geri }: { talepId: string; ge
               <Dugme yazi={teklif ? 'Teklifi Güncelle' : 'Teklifi Gönder'} onPress={gonder} yukleniyor={islemde} pasif={fiyatSayi < 1} />
               {teklif ? <Dugme yazi="Teklifi Geri Çek" tehlike onPress={geriCek} /> : null}
             </View>
+          ) : null}
+
+          {teklif ? (
+            <MesajDugmesi ac={() => teklifSohbeti(teklif.id)} git={sohbetAc} yazi="Müşteriye Mesaj Gönder" />
           ) : null}
 
           {teklif && teklif.durum !== 'kabul' && !(acik && teklif.durum === 'bekliyor') ? (

@@ -1,6 +1,6 @@
 import { kur, semalar } from './kur.mjs';
 const db = await kur();
-await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','schema_16.sql','schema_17.sql','demo_veri.sql']);
+await semalar(db, ['schema.sql','schema_4.sql','schema_5.sql','schema_6.sql','schema_7.sql','schema_8.sql','schema_9.sql','schema_10.sql','schema_11.sql','schema_12.sql','schema_13.sql','schema_14.sql','schema_15.sql','schema_16.sql','schema_17.sql','schema_18.sql','demo_veri.sql']);
 const U = (n) => `dddddddd-0000-4000-8000-${n}`;
 const ASCI = U('000000000001'), ASCI2 = U('000000000002'), MUS = U('001000000001'), MUS2 = U('001000000002');
 const YENI = 'eeeeeeee-0000-4000-8000-000000000001', ADM = 'eeeeeeee-0000-4000-8000-000000000009';
@@ -352,4 +352,54 @@ await olarak(MUS3, async () => {
   r = await dene(acikTalep(20)); kontrol('bildirim işlevi yokken de açık talep açılır', r.ok, r.hata ?? '');
 });
 await db.exec(`alter function public.bildirim_gonder_gizli(uuid[], text, text) rename to bildirim_gonder`);
+
+// --- Sohbet
+let sid;
+await olarak(MUS, async () => { r = await dene(`select sohbet_baslat_talep('${tid2}'::uuid) id`); kontrol('müşteri talebi olan aşçıyla sohbet açar', r.ok, r.hata ?? ''); sid = r.rows?.[0]?.id; });
+await olarak(ASCI, async () => { r = await dene(`select sohbet_baslat_talep('${tid2}'::uuid) id`); kontrol('aşçı aynı sohbeti açar (tek sohbet)', r.ok && r.rows[0].id === sid, r.hata ?? ''); });
+await olarak(ASCI2, async () => { r = await dene(`select sohbet_baslat_talep('${tid2}'::uuid)`); kontrol('ilişkisi olmayan aşçı sohbet AÇAMAZ', !r.ok); });
+await olarak(MUS3, async () => { r = await dene(`select sohbet_baslat_talep('${tid2}'::uuid)`); kontrol('başka müşteri başkasının talebinden sohbet AÇAMAZ', !r.ok); });
+await olarak(MUS, async () => {
+  r = await dene(`insert into mesajlar (sohbet_id, metin) values ('${sid}', 'Merhaba, menü hakkında konuşabilir miyiz?')`); kontrol('katılımcı mesaj gönderir', r.ok, r.hata ?? '');
+  r = await dene(`insert into mesajlar (sohbet_id, metin, gonderen_id) values ('${sid}', 'sahte', '${ASCI}')`); kontrol('gönderen kimliği sahte yazılamaz', !r.ok);
+  r = await dene(`insert into mesajlar (sohbet_id, metin) values ('${sid}', '   ')`); kontrol('boş mesaj reddedilir', !r.ok);
+  r = await dene(`update mesajlar set metin = 'değişti'`); kontrol('mesaj sonradan değiştirilemez', !r.ok);
+  r = await dene(`delete from mesajlar`); kontrol('mesaj silinemez', !r.ok);
+});
+await olarak(ASCI, async () => {
+  kontrol('aşçı mesajı görür', (await db.query(`select 1 from mesajlar where sohbet_id='${sid}'`)).rows.length === 1);
+  const l = (await db.query(`select diger_ad, okunmamis, son_mesaj from sohbet_listesi where id='${sid}'`)).rows[0];
+  kontrol('listede müşterinin yalnızca ilk adı ve 1 okunmamış mesaj görünür', l && !l.diger_ad.includes(' ') && l.okunmamis === 1, JSON.stringify(l));
+  await dene(`select sohbet_okundu('${sid}'::uuid)`);
+  kontrol('okundu işaretlenir', (await db.query(`select okunmamis from sohbet_listesi where id='${sid}'`)).rows[0].okunmamis === 0);
+  r = await dene(`insert into mesajlar (sohbet_id, metin) values ('${sid}', 'Tabii, yazın.')`); kontrol('aşçı cevap yazar', r.ok, r.hata ?? '');
+});
+await olarak(ASCI2, async () => {
+  kontrol('başka aşçı mesajları GÖRMEZ', (await db.query(`select 1 from mesajlar`)).rows.length === 0);
+  kontrol('başka aşçı sohbeti listede GÖRMEZ', (await db.query(`select 1 from sohbet_listesi where id='${sid}'`)).rows.length === 0);
+  r = await dene(`insert into mesajlar (sohbet_id, metin) values ('${sid}', 'ben de varım')`); kontrol('katılımcı olmayan mesaj YAZAMAZ', !r.ok);
+  r = await dene(`select sohbet_okundu('${sid}'::uuid)`); kontrol('katılımcı olmayan okundu işaretleyemez', !r.ok);
+});
+await olarak(ADM, async () => kontrol('yönetici bile mesajları GÖRMEZ', (await db.query(`select 1 from mesajlar`)).rows.length === 0));
+await olarak(MUS, async () => kontrol('müşteri aşçının tam adını görür', (await db.query(`select diger_ad from sohbet_listesi where id='${sid}'`)).rows[0].diger_ad.length > 0));
+// teklif üzerinden (yeni bir açık talep ve teklif)
+await db.exec(`delete from acik_talepler where musteri_id='${MUS3}'`);
+await olarak(MUS3, async () => { await dene(acikTalep(9)); });
+const aidS = (await db.query(`select id from acik_talepler where musteri_id='${MUS3}'`)).rows[0].id;
+await olarak(ASCI, async () => { await dene(`select acik_teklif_ver('${aidS}'::uuid, 700, 'sohbet için')`); });
+const atS = (await db.query(`select id from acik_teklifler where talep_id='${aidS}'`)).rows[0].id;
+await olarak(MUS3, async () => { r = await dene(`select sohbet_baslat_teklif('${atS}'::uuid) id`); kontrol('müşteri teklif veren aşçıyla sohbet açar', r.ok, r.hata ?? ''); });
+await olarak(ASCI, async () => { r = await dene(`select sohbet_baslat_teklif('${atS}'::uuid)`); kontrol('teklif veren aşçı da sohbeti açabilir', r.ok, r.hata ?? ''); });
+await olarak(MUS, async () => { r = await dene(`select sohbet_baslat_teklif('${atS}'::uuid)`); kontrol('başka müşteri başkasının teklifinden sohbet AÇAMAZ', !r.ok); });
+await olarak(ASCI2, async () => { r = await dene(`select sohbet_baslat_teklif('${atS}'::uuid)`); kontrol('teklifi olmayan aşçı sohbet AÇAMAZ', !r.ok); });
+await olarak(MUS, async () => { r = await dene(`select sohbet_baslat_kurumsal('${t2}'::uuid)`); kontrol('şirket kurumsal teklif veren aşçıyla sohbet açar', r.ok, r.hata ?? ''); });
+await olarak(MUS3, async () => { r = await dene(`select sohbet_baslat_kurumsal('${t2}'::uuid)`); kontrol('başka müşteri kurumsal tekliften sohbet AÇAMAZ', !r.ok); });
+// hız sınırı
+await olarak(MUS, async () => {
+  let ok = 0, red = 0;
+  for (let i = 0; i < 25; i++) { const x = await dene(`insert into mesajlar (sohbet_id, metin) values ('${sid}', 'm${i}')`); x.ok ? ok++ : red++; }
+  kontrol('dakikada en fazla 20 mesaj sınırı', red > 0 && ok < 25, `${ok} gitti, ${red} reddedildi`);
+});
+// hesap silinince sohbet de silinir
+await db.exec(`delete from auth.users where id='${ASCI3}'`).catch(() => {});
 console.log(`\nSONUÇ: ${gecen} geçti, ${kalan} kaldı`);
