@@ -81,6 +81,7 @@ Talep durumları: **Bekliyor → Kabul edildi / Reddedildi → Tamamlandı / İp
 - Giriş: telefon numarası + şifre. Seçilen giriş türü hesabın rolüyle uyuşmalıdır.
 - Kaydol: telefon numarası + SMS kodu, sonra ad, rol ("Müşteriyim" / "Aşçıyım"), isteğe bağlı avatar (3 kadın, 3 erkek; `assets/avatars`, `scripts/avatar-uret.py`, `AvatarSecici.tsx`; seçilen avatar profil fotoğrafı olarak yüklenir) ve şifre.
 - Şifresi olmayan (eski) hesaplar ve şifresini unutanlar: giriş ekranındaki "İlk kez mi giriyorsun veya şifreni mi unuttun?" bağlantısıyla SMS kodu girer, ardından yeni şifre belirlemesi zorunludur.
+- Profil fotoğrafı olmayan üyelere girişte bir kez avatar seçtirilir ("Şimdilik geç" denebilir); Hesabım > Avatarımı Değiştir ile her zaman değiştirilir (`AvatarSec.tsx`).
 - Şifre: en az 8 karakter, en az bir harf ve bir rakam. Kullanıcı ana sayfadaki "Şifre" bağlantısından, mevcut şifresini doğrulayarak değiştirir.
 
 ### 6. Reklam bandı ve kurumsal (toplu yemek)

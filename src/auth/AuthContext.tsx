@@ -4,7 +4,7 @@ import { bildirimKaydiniSil } from '../lib/bildirim';
 import { supabase } from '../lib/supabase';
 
 export type Rol = 'musteri' | 'asci';
-export type Profil = { id: string; rol: Rol; ad: string; telefon: string | null; kvkk_onay_surumu: string | null };
+export type Profil = { id: string; rol: Rol; ad: string; telefon: string | null; kvkk_onay_surumu: string | null; fotograf: string | null };
 
 type Deger = {
   yukleniyor: boolean;
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const { data } = await supabase
       .from('profiles')
-      .select('id, rol, ad, telefon, kvkk_onay_surumu')
+      .select('id, rol, ad, telefon, kvkk_onay_surumu, fotograf')
       .eq('id', s.user.id)
       .maybeSingle();
     const p = (data as Profil | null) ?? null;

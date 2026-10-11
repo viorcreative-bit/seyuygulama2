@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import { FavoriProvider } from './src/auth/FavoriContext';
 import ReklamBandi from './src/components/ReklamBandi';
 import HataSinirlayici from './src/components/HataSinirlayici';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AltMenu, { Sekme } from './src/components/AltMenu';
 import TalepSekmeleri, { Gorunum } from './src/components/TalepSekmeleri';
 import { bildirimKaydet } from './src/lib/bildirim';
@@ -21,6 +22,7 @@ import AnaSayfa from './src/screens/AnaSayfa';
 import AsciProfil from './src/screens/AsciProfil';
 import AsciProfilDuzenle from './src/screens/AsciProfilDuzenle';
 import AsciSec from './src/screens/AsciSec';
+import AvatarSec from './src/screens/AvatarSec';
 import AsciYorumlari from './src/screens/AsciYorumlari';
 import GelenTalepler from './src/screens/GelenTalepler';
 import GirisAkisi from './src/screens/GirisAkisi';
@@ -53,6 +55,7 @@ type Ekran =
   | { ad: 'acikFirsat'; id: string }
   | { ad: 'talep'; asciId: string }
   | { ad: 'sifreDegistir' }
+  | { ad: 'avatar' }
   | { ad: 'kurumsalTalep' }
   | { ad: 'kurumsalDetay'; id: string }
   | { ad: 'kurumsalFirsat'; id: string }
@@ -75,6 +78,12 @@ function Ekranlar() {
   useEffect(() => {
     if (girisTamam) bildirimKaydet();
   }, [girisTamam, asciKimligi]);
+  // Profil fotoğrafı olmayan mevcut üyelere bir kez avatar seçtirilir ('Şimdilik geç' denirse bir daha sorulmaz).
+  const [avatarAtlandi, setAvatarAtlandi] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!asciKimligi) return;
+    AsyncStorage.getItem(`avatar_atla_${asciKimligi}`).then((v) => setAvatarAtlandi(v === '1')).catch(() => setAvatarAtlandi(false));
+  }, [asciKimligi]);
   const git = (ad: Sekme) => () => setEkran({ ad });
   const ana = git('ana');
 
@@ -91,6 +100,18 @@ function Ekranlar() {
   if (profil.kvkk_onay_surumu !== YASAL_SURUMU) return <YasalOnay />;
   // Şifresi olmayan (eski) hesaplar ve "şifremi unuttum" ile girenler yeni şifre belirlemeden ilerleyemez.
   if (!sifreVar || sifreSifirlaniyor) return <SifreBelirle />;
+
+  if (!profil.fotograf && avatarAtlandi === false) {
+    return (
+      <AvatarSec
+        bitti={() => {}}
+        atla={() => {
+          AsyncStorage.setItem(`avatar_atla_${asciKimligi}`, '1').catch(() => {});
+          setAvatarAtlandi(true);
+        }}
+      />
+    );
+  }
 
   const musteri = profil.rol === 'musteri';
   const asci = profil.rol === 'asci';
@@ -180,6 +201,7 @@ function Ekranlar() {
             sifreDegistir={() => setEkran({ ad: 'sifreDegistir' })}
             yasal={(anahtar) => setEkran({ ad: 'yasal', anahtar })}
             hesabiSil={() => setEkran({ ad: 'hesapSil' })}
+            avatarSec={() => setEkran({ ad: 'avatar' })}
           />
         );
         break;
@@ -200,7 +222,9 @@ function Ekranlar() {
   // Tam ekran sayfalar (alt menü yok, geri düğmesi var)
   switch (ekran.ad) {
     case 'profilDuzenle':
-      return asci ? <AsciProfilDuzenle geri={git('hesap')} /> : <Hesabim profilDuzenle={() => {}} sifreDegistir={() => {}} yasal={() => {}} hesabiSil={() => {}} />;
+      return asci ? <AsciProfilDuzenle geri={git('hesap')} /> : <Hesabim profilDuzenle={() => {}} sifreDegistir={() => {}} yasal={() => {}} hesabiSil={() => {}} avatarSec={() => {}} />;
+    case 'avatar':
+      return <AvatarSec geri={git('hesap')} bitti={git('hesap')} />;
     case 'sifreDegistir':
       return <SifreDegistir geri={git('hesap')} />;
     case 'hesapSil':

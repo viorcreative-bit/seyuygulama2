@@ -13,6 +13,7 @@ type Props = {
   sifreDegistir: () => void;
   yasal: (a: YasalAnahtar) => void;
   hesabiSil: () => void;
+  avatarSec: () => void;
 };
 
 type SatirProps = { simge: keyof typeof Ionicons.glyphMap; yazi: string; onPress: () => void; tehlike?: boolean; ayirac?: boolean };
@@ -30,7 +31,7 @@ function Satir({ simge, yazi, onPress, tehlike, ayirac }: SatirProps) {
   );
 }
 
-export default function Hesabim({ profilDuzenle, sifreDegistir, yasal, hesabiSil }: Props) {
+export default function Hesabim({ profilDuzenle, sifreDegistir, yasal, hesabiSil, avatarSec }: Props) {
   const { profil, oturum, cikisYap } = useAuth();
   const [foto, setFoto] = useState<string | null>(null);
 
@@ -72,7 +73,8 @@ export default function Hesabim({ profilDuzenle, sifreDegistir, yasal, hesabiSil
 
         <View style={styles.grup}>
           {profil?.rol === 'asci' ? <Satir simge="create-outline" yazi="Aşçı Profilimi Düzenle" onPress={profilDuzenle} /> : null}
-          <Satir simge="lock-closed-outline" yazi="Şifremi Değiştir" onPress={sifreDegistir} ayirac={profil?.rol === 'asci'} />
+          <Satir simge="happy-outline" yazi="Avatarımı Değiştir" onPress={avatarSec} ayirac={profil?.rol === 'asci'} />
+          <Satir simge="lock-closed-outline" yazi="Şifremi Değiştir" onPress={sifreDegistir} ayirac />
         </View>
 
         <View style={styles.grup}>
