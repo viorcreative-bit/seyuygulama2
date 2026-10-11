@@ -1,16 +1,24 @@
 import { Alert, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import AsciKarti from '../components/AsciKarti';
+import { useAuth } from '../auth/AuthContext';
 import { enSevilenAscilar, ornekAscilar } from '../data/ornekAscilar';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 export default function AnaSayfa() {
   const ascilar = enSevilenAscilar(ornekAscilar);
+  const { profil, cikisYap } = useAuth();
 
   const talepEt = () =>
     Alert.alert('Çok yakında', 'Aşçı talep etme ekranı 6. aşamada eklenecek.');
 
   return (
     <View style={styles.kap}>
+      <View style={styles.ustSatir}>
+        <Text style={styles.merhaba}>Merhaba, {profil?.ad}</Text>
+        <Pressable onPress={cikisYap} accessibilityRole="button">
+          <Text style={styles.cikis}>Çıkış</Text>
+        </Pressable>
+      </View>
       <View style={styles.ust}>
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
         <Text style={styles.slogan}>Ev yemeği, şef elinden.</Text>
@@ -40,6 +48,9 @@ export default function AnaSayfa() {
 
 const styles = StyleSheet.create({
   kap: { flex: 1, backgroundColor: colors.krem, paddingTop: 56 },
+  ustSatir: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.l },
+  merhaba: { fontSize: fontSize.normal, color: colors.metin, fontWeight: '600' },
+  cikis: { fontSize: fontSize.normal, color: colors.kirmizi, fontWeight: '700' },
   ust: { alignItems: 'center', paddingHorizontal: spacing.l },
   logo: { width: 140, height: 140, resizeMode: 'contain' },
   slogan: { marginTop: spacing.s, fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '600' },
