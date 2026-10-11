@@ -45,7 +45,7 @@ Proje sahibi yazılımcı değildir. Bu yüzden:
 
 ### 1. Ana sayfa
 - Üstte logo ve slogan.
-- Ortada büyük, dikkat çeken **"Talep Oluştur"** butonu: açık talep akışını başlatır (aşağıda 8. bölüm). Belirli bir aşçıdan talep etmek için aşçı profilindeki talep düğmesi veya talep formundaki "Belirli bir aşçıdan talep et" bağlantısı kullanılır.
+- Ortada büyük, dikkat çeken **"Talep Oluştur"** butonu: açık talep akışını başlatır (aşağıda 8. bölüm). Hemen altında "Aşçı Talep Et" butonu aşçı seçme ekranını (öne çıkanlar + yemek kategorileri) açar; aşçı profilindeki talep düğmesi de aynı doğrudan talep formuna gider.
 - Altında **"En Sevilen Aşçılar"** bölümü: en yüksek puanlı aşçılar kartlar halinde.
   - Sıralama: ortalama yıldız puanına göre. Tek bir 5 yıldızla zirveye çıkılmasın diye, listeye girmek için en az 3 yorum gerekir.
   - Her kartta: fotoğraf, isim, uzmanlık (örn. "Ege mutfağı"), ortalama yıldız, yorum sayısı.

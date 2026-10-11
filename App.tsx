@@ -184,10 +184,10 @@ function Ekranlar() {
         );
         break;
       default:
-        icerik = <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'acikTalep' })} kurumsalTalepEt={() => setEkran({ ad: 'kurumsalTalep' })} />;
+        icerik = <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'acikTalep' })} asciTalepEt={() => setEkran({ ad: 'asciSec' })} kurumsalTalepEt={() => setEkran({ ad: 'kurumsalTalep' })} />;
     }
     // Rolüne uymayan bir sekmeye düşülürse ana sayfaya dön.
-    if (!icerik) return <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'acikTalep' })} kurumsalTalepEt={() => setEkran({ ad: 'kurumsalTalep' })} />;
+    if (!icerik) return <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'acikTalep' })} asciTalepEt={() => setEkran({ ad: 'asciSec' })} kurumsalTalepEt={() => setEkran({ ad: 'kurumsalTalep' })} />;
     return (
       <View style={styles.kap}>
         <View style={{ flex: 1 }}>{icerik}</View>

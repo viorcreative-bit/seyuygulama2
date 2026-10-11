@@ -13,12 +13,12 @@ import { EN_AZ_YORUM, Vitrin, enSevilenAscilar, vitrindenKarta, yeniAscilar } fr
 import { colors, fontSize, radius, spacing } from '../theme';
 import { sebep } from '../lib/hata';
 
-type Props = { asciAc: (id: string) => void; talepEt: () => void; kurumsalTalepEt: () => void };
+type Props = { asciAc: (id: string) => void; talepEt: () => void; asciTalepEt: () => void; kurumsalTalepEt: () => void };
 
 const KENAR = spacing.l;
 const bosluk = (s: string) => s.trim().toLocaleLowerCase('tr-TR');
 
-export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
+export default function AnaSayfa({ asciAc, talepEt, asciTalepEt, kurumsalTalepEt }: Props) {
   const { profil, oturum } = useAuth();
   const { favoriMi, degistir: favoriDegistir } = useFavoriler();
   const musteri = profil?.rol === 'musteri';
@@ -120,6 +120,21 @@ export default function AnaSayfa({ asciAc, talepEt, kurumsalTalepEt }: Props) {
               <Text style={styles.talepAlt}>İstediğin yemekleri yaz, aşçılar teklif versin</Text>
             </View>
             <Ionicons name="arrow-forward-circle" size={32} color={colors.koyuMetin} />
+          </Pressable>
+        ) : null}
+
+        {profil?.rol === 'musteri' ? (
+          <Pressable
+            onPress={asciTalepEt}
+            style={({ pressed }) => [styles.asciTalep, pressed && { opacity: 0.85 }]}
+            accessibilityRole="button"
+          >
+            <Ionicons name="person" size={24} color={colors.sari} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.kurumsalBaslik}>Aşçı Talep Et</Text>
+              <Text style={styles.kurumsalAlt}>Beğendiğin bir aşçıyı seç, doğrudan talep gönder</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={22} color={colors.sari} />
           </Pressable>
         ) : null}
 
@@ -253,6 +268,18 @@ const styles = StyleSheet.create({
   talepBaslik: { fontSize: fontSize.normal + 4, fontWeight: '800', color: colors.koyuMetin },
   talepAlt: { fontSize: 13, color: colors.koyuMetin, opacity: 0.8, marginTop: 2 },
   kurumsal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.m,
+    marginHorizontal: KENAR,
+    marginTop: spacing.s + 4,
+    backgroundColor: colors.yuzey,
+    borderRadius: radius.l,
+    borderWidth: 1.5,
+    borderColor: colors.sari,
+    padding: spacing.m,
+  },
+  asciTalep: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.m,
