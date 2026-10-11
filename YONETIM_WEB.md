@@ -14,6 +14,7 @@ Sonra tarayıcıda şu adresi aç: http://localhost:5174
 Giriş: yönetici yaptığın hesabın telefon numarası ve şifresi. (Yönetici olmayan bir hesapla giriş yapılamaz.)
 
 ## Panelde neler yapılır
+- **Fotoğraflar:** Aşçı ve üye kartlarında profil fotoğrafı (yoksa baş harf) ve aşçıların yemek fotoğrafları görünür. Büyütmek için tıkla, kapatmak için tekrar tıkla.
 - **Aşçılar:** Onayla, Reddet (sebep yazılır, aşçıya gösterilir), Onayı Kaldır, Profili Sil.
 - **Üyeler:** Tüm müşteri ve aşçılar. Askıya Al / Aktif Et (askıdaki kişi giriş yapamaz) ve Hesabı Sil.
 - **Şikayetler:** Durumu "İnceleniyor" veya "Çözüldü" yapma ve not yazma.

@@ -39,6 +39,26 @@ function telefonDuzenle(girdi) {
   return s.length === 10 && s.startsWith('5') ? `+90${s}` : null;
 }
 
+// Yalnızca http(s) adreslerini resim olarak kullan.
+const guvenliUrl = (u) => typeof u === 'string' && /^https?:\/\//i.test(u);
+
+function buyut(adres) {
+  const perde = el('div', { class: 'perde', onclick: () => perde.remove() }, el('img', { src: adres, alt: '' }));
+  document.body.append(perde);
+}
+
+function avatar(ad, foto) {
+  if (guvenliUrl(foto)) return el('img', { class: 'avatar', src: foto, alt: ad, title: 'Büyütmek için tıkla', onclick: () => buyut(foto) });
+  return el('div', { class: 'avatar harf' }, (ad ?? '?').trim().charAt(0).toLocaleUpperCase('tr-TR'));
+}
+
+function galeri(adresler) {
+  const liste = (adresler ?? []).filter(guvenliUrl);
+  if (!liste.length) return null;
+  return el('div', { class: 'galeri' },
+    liste.map((a) => el('img', { src: a, alt: 'Yemek fotoğrafı', loading: 'lazy', onclick: () => buyut(a) })));
+}
+
 const SIKAYET_ADI = { acik: 'Açık', inceleniyor: 'İnceleniyor', cozuldu: 'Çözüldü' };
 const SIKAYET_SIRA = { acik: 0, inceleniyor: 1, cozuldu: 2 };
 
@@ -47,6 +67,7 @@ let sekme = 'ascilar';
 let ascilar = [];
 let sikayetler = [];
 let uyeler = [];
+let galeriler = {}; // aşçı id -> yemek fotoğrafı adresleri
 let filtre = { asci: 'bekleyen', uye: 'hepsi', sikayet: 'acik', arama: '' };
 
 // ---------- Giriş ----------
@@ -99,10 +120,11 @@ $('cikis').addEventListener('click', async () => {
 // ---------- Veri ----------
 async function yukle() {
   $('liste').replaceChildren(el('p', { class: 'bos' }, 'Yükleniyor...'));
-  const [a, s, u] = await Promise.all([
+  const [a, s, u, g] = await Promise.all([
     supabase.from('yonetici_ascilar').select('*'),
     supabase.from('yonetici_sikayetleri').select('*'),
     supabase.from('yonetici_uyeler').select('*'),
+    supabase.from('asci_fotograflari').select('asci_id, adres').order('sira'),
   ]);
   if (a.error || s.error || u.error) {
     $('liste').replaceChildren(el('p', { class: 'hata bos' }, 'Veriler yüklenemedi. Oturumun kapanmış olabilir, sayfayı yenileyip tekrar gir.'));
@@ -111,6 +133,8 @@ async function yukle() {
   ascilar = a.data ?? [];
   sikayetler = s.data ?? [];
   uyeler = u.data ?? [];
+  galeriler = {};
+  for (const f of g.data ?? []) (galeriler[f.asci_id] ||= []).push(f.adres);
   ciz();
 }
 
@@ -221,7 +245,7 @@ function asciKarti(a) {
   const rozet = a.onayli_mi ? ['onayli', 'Onaylı'] : a.reddedildi_mi ? ['red', 'Reddedildi'] : ['bekliyor', 'Onay bekliyor'];
   return el('div', { class: 'kart' },
     el('div', { class: 'ust' },
-      el('h3', {}, a.ad),
+      el('div', { class: 'kimlik' }, avatar(a.ad, a.fotograf), el('h3', {}, a.ad)),
       el('span', { class: `rozet ${rozet[0]}` }, rozet[1])),
     satir('Telefon', a.telefon),
     satir('Uzmanlık', (a.uzmanliklar ?? []).join(', ')),
@@ -230,6 +254,7 @@ function asciKarti(a) {
     satir('Talep / yorum', `${a.talep_sayisi} talep, ${a.yorum_sayisi} yorum`),
     a.reddedildi_mi && a.red_nedeni ? satir('Red nedeni', a.red_nedeni) : null,
     a.tanitim ? el('p', {}, a.tanitim) : el('p', { class: 'soluk' }, 'Tanıtım yazısı yok.'),
+    galeri(galeriler[a.id]),
     el('div', { class: 'eylemler' },
       a.onayli_mi
         ? el('button', { class: 'cerceveli kucuk', onclick: () => asciOnayla(a, false) }, 'Onayı Kaldır')
@@ -244,7 +269,7 @@ function uyeKarti(u) {
   const satir = (etiket, deger) => (deger ? el('p', {}, el('b', {}, `${etiket}: `), deger) : null);
   return el('div', { class: 'kart' },
     el('div', { class: 'ust' },
-      el('h3', {}, u.ad),
+      el('div', { class: 'kimlik' }, avatar(u.ad, u.fotograf), el('h3', {}, u.ad)),
       el('span', {},
         u.yonetici ? el('span', { class: 'rozet onayli' }, 'Yönetici ') : null,
         u.askida ? el('span', { class: 'rozet red' }, 'Askıda ') : null,
@@ -252,6 +277,7 @@ function uyeKarti(u) {
     satir('Telefon', u.telefon),
     satir('Kayıt tarihi', tarihSaat(u.kayit_tarihi)),
     satir('Talep sayısı', String(u.talep_sayisi)),
+    u.rol === 'asci' ? galeri(galeriler[u.id]) : null,
     u.yonetici
       ? el('p', { class: 'soluk' }, 'Yönetici hesapları buradan askıya alınamaz veya silinemez.')
       : el('div', { class: 'eylemler' },
