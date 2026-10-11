@@ -1,5 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Asci } from '../data/ornekAscilar';
+import { Asci } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 function basHarfler(ad: string) {

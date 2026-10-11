@@ -1,5 +1,17 @@
-import { Asci } from '../data/ornekAscilar';
 import { supabase } from './supabase';
+
+// Ana sayfada ve listelerde gösterilen aşçı kartı bilgisi.
+export type Asci = {
+  id: string;
+  ad: string;
+  uzmanlik: string;
+  puan: number | null;
+  yorumSayisi: number;
+  foto?: string | null;
+};
+
+// "En Sevilen Aşçılar" listesine girmek için gereken en az yorum sayısı.
+export const EN_AZ_YORUM = 3;
 
 export type Vitrin = {
   id: string;
@@ -33,6 +45,19 @@ export async function yeniAscilar(): Promise<Vitrin[]> {
     .select('*')
     .order('guncelleme_tarihi', { ascending: false })
     .limit(20);
+  if (error) throw error;
+  return (data as Vitrin[]) ?? [];
+}
+
+// Ortalama puana göre en sevilen aşçılar (en az EN_AZ_YORUM yorumu olanlar).
+export async function enSevilenAscilar(): Promise<Vitrin[]> {
+  const { data, error } = await supabase
+    .from('asci_vitrini')
+    .select('*')
+    .gte('yorum_sayisi', EN_AZ_YORUM)
+    .order('ortalama_puan', { ascending: false })
+    .order('yorum_sayisi', { ascending: false })
+    .limit(10);
   if (error) throw error;
   return (data as Vitrin[]) ?? [];
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { vitrindenKarta, yeniAscilar } from '../lib/vitrin';
-import { Asci } from '../data/ornekAscilar';
+import { Asci, vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 // "Hemen Aşçı Talep Et" butonundan sonra, talep için aşçı seçilen ekran.

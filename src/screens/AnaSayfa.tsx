@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import AsciKarti from '../components/AsciKarti';
 import { useAuth } from '../auth/AuthContext';
-import { Asci, enSevilenAscilar, ornekAscilar } from '../data/ornekAscilar';
 import { bekleyenTalepSayisi } from '../lib/talepler';
-import { vitrindenKarta, yeniAscilar } from '../lib/vitrin';
+import { Asci, EN_AZ_YORUM, enSevilenAscilar, vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 type Props = {
@@ -18,9 +17,9 @@ type Props = {
 };
 
 export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler, sifreDegistir, yorumlarim }: Props) {
-  const ascilar = enSevilenAscilar(ornekAscilar);
   const { profil, cikisYap } = useAuth();
   const [yeniler, setYeniler] = useState<Asci[]>([]);
+  const [sevilenler, setSevilenler] = useState<Asci[]>([]);
 
   const [listeDurumu, setListeDurumu] = useState('');
   const [bekleyen, setBekleyen] = useState(0);
@@ -30,10 +29,11 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
   }, [profil?.rol]);
 
   useEffect(() => {
-    yeniAscilar()
-      .then((l) => {
-        setYeniler(l.map(vitrindenKarta));
-        setListeDurumu(l.length === 0 ? 'Henüz profili kaydedilmiş aşçı yok.' : '');
+    Promise.all([yeniAscilar(), enSevilenAscilar()])
+      .then(([tumu, sevilen]) => {
+        setYeniler(tumu.map(vitrindenKarta));
+        setSevilenler(sevilen.map(vitrindenKarta));
+        setListeDurumu(tumu.length === 0 ? 'Henüz profili kaydedilmiş aşçı yok.' : '');
       })
       .catch((e: { message?: string }) => setListeDurumu(`Aşçı listesi yüklenemedi. (Sebep: ${e.message ?? 'bilinmiyor'})`));
   }, []);
@@ -99,15 +99,21 @@ export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, g
       ) : null}
 
       <Text style={styles.bolum}>En Sevilen Aşçılar</Text>
-      <FlatList
-        horizontal
-        data={ascilar}
-        keyExtractor={(a) => a.id}
-        renderItem={({ item }) => <AsciKarti asci={item} />}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.liste}
-        ItemSeparatorComponent={() => <View style={{ width: spacing.m }} />}
-      />
+      {sevilenler.length > 0 ? (
+        <FlatList
+          horizontal
+          data={sevilenler}
+          keyExtractor={(a) => a.id}
+          renderItem={({ item }) => <AsciKarti asci={item} onPress={() => asciAc(item.id)} />}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.liste}
+          ItemSeparatorComponent={() => <View style={{ width: spacing.m }} />}
+        />
+      ) : (
+        <Text style={styles.durum}>
+          Aşçılar en az {EN_AZ_YORUM} yorum aldığında en yüksek puanlılar burada listelenecek.
+        </Text>
+      )}
 
       {yeniler.length > 0 ? (
         <>
