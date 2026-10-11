@@ -26,10 +26,11 @@ export function vitrindenKarta(v: Vitrin): Asci {
 }
 
 export async function yeniAscilar(): Promise<Vitrin[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('asci_vitrini')
     .select('*')
     .order('guncelleme_tarihi', { ascending: false })
     .limit(20);
+  if (error) throw error;
   return (data as Vitrin[]) ?? [];
 }

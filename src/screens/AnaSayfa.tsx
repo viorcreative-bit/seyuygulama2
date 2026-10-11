@@ -13,8 +13,15 @@ export default function AnaSayfa({ profilDuzenle, asciAc }: Props) {
   const { profil, cikisYap } = useAuth();
   const [yeniler, setYeniler] = useState<Asci[]>([]);
 
+  const [listeDurumu, setListeDurumu] = useState('');
+
   useEffect(() => {
-    yeniAscilar().then((l) => setYeniler(l.map(vitrindenKarta)));
+    yeniAscilar()
+      .then((l) => {
+        setYeniler(l.map(vitrindenKarta));
+        setListeDurumu(l.length === 0 ? 'Henüz profili kaydedilmiş aşçı yok.' : '');
+      })
+      .catch((e: { message?: string }) => setListeDurumu(`Aşçı listesi yüklenemedi. (Sebep: ${e.message ?? 'bilinmiyor'})`));
   }, []);
 
   const talepEt = () =>
@@ -75,6 +82,11 @@ export default function AnaSayfa({ profilDuzenle, asciAc }: Props) {
             ItemSeparatorComponent={() => <View style={{ width: spacing.m }} />}
           />
         </>
+      ) : listeDurumu ? (
+        <>
+          <Text style={styles.bolum}>Aşçılarımız</Text>
+          <Text style={styles.durum}>{listeDurumu}</Text>
+        </>
       ) : null}
     </ScrollView>
   );
@@ -113,6 +125,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profilButonYazi: { color: colors.kirmizi, fontSize: fontSize.normal + 2, fontWeight: '800' },
+  durum: { marginHorizontal: spacing.l, fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.7 },
   bolum: {
     fontSize: fontSize.baslik,
     fontWeight: '700',
