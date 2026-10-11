@@ -7,6 +7,7 @@ import GirisKabuk from '../components/GirisKabuk';
 import { supabase } from '../lib/supabase';
 import { telefonuDuzenle } from '../lib/telefon';
 import { colors, fontSize, spacing } from '../theme';
+import { sebep } from '../lib/hata';
 
 export type KodAmaci = 'kaydol' | 'sifirla';
 
@@ -37,7 +38,7 @@ export default function KodGirisi({ amac, geri }: { amac: KodAmaci; geri: () => 
     setYukleniyor(true);
     const { error } = await supabase.auth.signInWithOtp({ phone: duzgun });
     setYukleniyor(false);
-    if (error) setHata(`Kod gönderilemedi. (Sebep: ${error.message})`);
+    if (error) setHata(`Kod gönderilemedi. Lütfen biraz sonra tekrar dene.${sebep(error)}`);
     else setNumara(duzgun);
   };
 
@@ -50,7 +51,7 @@ export default function KodGirisi({ amac, geri }: { amac: KodAmaci; geri: () => 
     setYukleniyor(false);
     if (error) {
       setSifreSifirlaniyor(false);
-      setHata(`Kod hatalı veya süresi dolmuş. (Sebep: ${error.message})`);
+      setHata(`Kod hatalı veya süresi dolmuş.${sebep(error)}`);
     }
     // Başarılıysa oturum açılır ve App sıradaki ekranı gösterir.
   };

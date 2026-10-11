@@ -168,12 +168,28 @@ function asciReddet(asci) {
   return rpc('asci_reddet', { p_asci_id: asci.id, p_neden: neden });
 }
 
-function asciProfiliSil(asci) {
+// Fotoğraf adresinden depodaki dosya yolunu çıkarır: .../fotograflar/<kullanıcı>/<dosya>
+const dosyaYolu = (adres) => {
+  const i = typeof adres === 'string' ? adres.indexOf('/fotograflar/') : -1;
+  return i >= 0 ? decodeURIComponent(adres.slice(i + '/fotograflar/'.length).split('?')[0]) : null;
+};
+
+// Veri tabanı kaydı silindikten sonra dosyaları depodan da temizler (başarısız olursa uyarır).
+async function dosyalariSil(yollar) {
+  const liste = yollar.filter(Boolean);
+  if (!liste.length) return;
+  const { error } = await supabase.storage.from('fotograflar').remove(liste);
+  if (error) alert('Kayıtlar silindi ama bazı fotoğraf dosyaları depodan silinemedi. Lütfen Supabase Storage bölümünden kontrol et.');
+}
+
+async function asciProfiliSil(asci) {
   const mesaj =
     `${asci.ad} adlı aşçının profili SİLİNECEK.\n\n` +
-    `Bu aşçıya ait ${asci.talep_sayisi} talep ve ${asci.yorum_sayisi} yorum da kalıcı olarak silinir. ` +
+    `Bu aşçıya ait ${asci.talep_sayisi} talep, ${asci.yorum_sayisi} yorum ve yemek fotoğrafları da kalıcı olarak silinir. ` +
     `Aşçının hesabı kalır, isterse yeni profil oluşturabilir.\n\nBu işlem geri alınamaz.`;
-  if (silmeOnayi(mesaj)) return rpc('asci_profili_sil', { p_asci_id: asci.id });
+  if (!silmeOnayi(mesaj)) return;
+  const yollar = (galeriler[asci.id] ?? []).map(dosyaYolu);
+  if (await rpc('asci_profili_sil', { p_asci_id: asci.id })) await dosyalariSil(yollar);
 }
 
 function uyeAskiya(uye, askida) {
@@ -183,11 +199,14 @@ function uyeAskiya(uye, askida) {
   if (confirm(soru)) return rpc('uye_askiya_al', { p_id: uye.id, p_askida: askida });
 }
 
-function uyeSil(uye) {
+async function uyeSil(uye) {
   const mesaj =
     `${uye.ad} (${uye.rol === 'asci' ? 'aşçı' : 'müşteri'}) hesabı SİLİNECEK.\n\n` +
-    `Profili, ${uye.talep_sayisi} talebi, yorumları ve şikayetleri kalıcı olarak silinir.\n\nBu işlem geri alınamaz.`;
-  if (silmeOnayi(mesaj)) return rpc('uye_sil', { p_id: uye.id });
+    `Profili, ${uye.talep_sayisi} talebi, yorumları, şikayetleri ve yüklediği fotoğraflar kalıcı olarak silinir.\n\nBu işlem geri alınamaz.`;
+  if (!silmeOnayi(mesaj)) return;
+  const { data } = await supabase.storage.from('fotograflar').list(uye.id, { limit: 1000 });
+  const yollar = (data ?? []).map((d) => `${uye.id}/${d.name}`);
+  if (await rpc('uye_sil', { p_id: uye.id })) await dosyalariSil(yollar);
 }
 
 async function sikayetGuncelle(s, durum, not) {

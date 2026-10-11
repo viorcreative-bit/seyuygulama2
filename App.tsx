@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
+import HataSinirlayici from './src/components/HataSinirlayici';
 import AltMenu, { Sekme } from './src/components/AltMenu';
 import { supabaseHazir } from './src/lib/supabase';
 import { tarihSaatYaz } from './src/lib/talepler';
@@ -19,7 +20,11 @@ import SifreDegistir from './src/screens/SifreDegistir';
 import SikayetYaz from './src/screens/SikayetYaz';
 import TalepOlustur from './src/screens/TalepOlustur';
 import Taleplerim from './src/screens/Taleplerim';
+import YasalMetin from './src/screens/YasalMetin';
+import YasalOnay from './src/screens/YasalOnay';
+import HesabiSil from './src/screens/HesabiSil';
 import YorumYaz from './src/screens/YorumYaz';
+import { YASAL_SURUMU, YasalAnahtar } from './src/yasal';
 import { colors, fontSize, spacing } from './src/theme';
 
 type Ekran =
@@ -29,6 +34,8 @@ type Ekran =
   | { ad: 'asciSec' }
   | { ad: 'talep'; asciId: string }
   | { ad: 'sifreDegistir' }
+  | { ad: 'hesapSil' }
+  | { ad: 'yasal'; anahtar: YasalAnahtar }
   | { ad: 'yorumYaz'; talepId: string; asciId: string; asciAdi: string }
   | { ad: 'sikayet'; talepId: string; ozet: string; geriye: 'taleplerim' | 'gelenTalepler' };
 
@@ -49,6 +56,8 @@ function Ekranlar() {
   }
   if (!oturum) return <GirisAkisi />;
   if (!profil) return <Kayit />;
+  // Yasal metinler yenilendiyse (veya eski hesapsa) önce kabul alınır.
+  if (profil.kvkk_onay_surumu !== YASAL_SURUMU) return <YasalOnay />;
   // Şifresi olmayan (eski) hesaplar ve "şifremi unuttum" ile girenler yeni şifre belirlemeden ilerleyemez.
   if (!sifreVar || sifreSifirlaniyor) return <SifreBelirle />;
 
@@ -86,6 +95,8 @@ function Ekranlar() {
           <Hesabim
             profilDuzenle={() => setEkran({ ad: 'profilDuzenle' })}
             sifreDegistir={() => setEkran({ ad: 'sifreDegistir' })}
+            yasal={(anahtar) => setEkran({ ad: 'yasal', anahtar })}
+            hesabiSil={() => setEkran({ ad: 'hesapSil' })}
           />
         );
         break;
@@ -105,9 +116,13 @@ function Ekranlar() {
   // Tam ekran sayfalar (alt menü yok, geri düğmesi var)
   switch (ekran.ad) {
     case 'profilDuzenle':
-      return asci ? <AsciProfilDuzenle geri={git('hesap')} /> : <Hesabim profilDuzenle={() => {}} sifreDegistir={() => {}} />;
+      return asci ? <AsciProfilDuzenle geri={git('hesap')} /> : <Hesabim profilDuzenle={() => {}} sifreDegistir={() => {}} yasal={() => {}} hesabiSil={() => {}} />;
     case 'sifreDegistir':
       return <SifreDegistir geri={git('hesap')} />;
+    case 'hesapSil':
+      return <HesabiSil geri={git('hesap')} />;
+    case 'yasal':
+      return <YasalMetin anahtar={ekran.anahtar} geri={git('hesap')} />;
     case 'asci':
       return (
         <AsciProfil
@@ -150,12 +165,14 @@ export default function App() {
     );
   }
   return (
-    <AuthProvider>
-      <View style={styles.kap}>
-        <Ekranlar />
-      </View>
-      <StatusBar style="light" />
-    </AuthProvider>
+    <HataSinirlayici>
+      <AuthProvider>
+        <View style={styles.kap}>
+          <Ekranlar />
+        </View>
+        <StatusBar style="light" />
+      </AuthProvider>
+    </HataSinirlayici>
   );
 }
 

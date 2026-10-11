@@ -108,6 +108,12 @@ Her aşamayı bitir, proje sahibine test ettir, sonra bir sonrakine geç:
 9. Ana sayfada gerçek "En Sevilen Aşçılar" listesi
 10. (İleride) Ödeme, kimlik doğrulama, yönetici paneli
 
+## Yayın ve yasal
+
+- Yasal metinler (KVKK, gizlilik, kullanım koşulları) tek kaynaktan gelir: `src/yasal/metinler.json`. Uygulama ve `yasal-web/` sayfaları buradan beslenir (`npm run yasal`). Metin değişince `surum` güncellenir; kullanıcılardan yeniden onay istenir.
+- Hesap silme uygulama içindedir (Hesabım > Hesabımı Sil); devam eden talebi olan hesap silinemez.
+- Yayın adımları: `YAYIN_HAZIRLIK.md`.
+
 ## Önemli kurallar
 
 - Kişisel veriler (telefon, adres) **KVKK** kapsamındadır. Adres sadece talebi kabul eden aşçıya gösterilir.

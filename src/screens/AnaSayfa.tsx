@@ -10,6 +10,7 @@ import { UZMANLIKLAR } from '../data/secenekler';
 import { supabase } from '../lib/supabase';
 import { EN_AZ_YORUM, Vitrin, enSevilenAscilar, vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
+import { sebep } from '../lib/hata';
 
 type Props = { asciAc: (id: string) => void; talepEt: () => void };
 
@@ -35,7 +36,7 @@ export default function AnaSayfa({ asciAc, talepEt }: Props) {
         setSevilenler(sevilen);
         setDurum(hepsi.length === 0 ? 'Henüz profili kaydedilmiş aşçı yok.' : '');
       })
-      .catch((e: { message?: string }) => setDurum(`Aşçı listesi yüklenemedi. (Sebep: ${e.message ?? 'bilinmiyor'})`));
+      .catch((e: unknown) => setDurum(`Aşçı listesi yüklenemedi. İnternetini kontrol edip tekrar dene.${sebep(e)}`));
   }, []);
 
   useEffect(() => {

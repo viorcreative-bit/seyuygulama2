@@ -3,9 +3,12 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { Rol, useAuth } from '../auth/AuthContext';
 import Dugme from '../components/Dugme';
 import { supabase } from '../lib/supabase';
+import { YASAL_ADLARI, YASAL_SURUMU, YasalAnahtar } from '../yasal';
+import YasalMetin from './YasalMetin';
 import { colors, fontSize, radius, spacing } from '../theme';
 import Girdi from '../components/Girdi';
 import GirisKabuk from '../components/GirisKabuk';
+import Onay from '../components/Onay';
 import SifreGirdisi from '../components/SifreGirdisi';
 import { sifreKontrol } from '../lib/sifre';
 
@@ -21,6 +24,8 @@ export default function Kayit() {
   const [rol, setRol] = useState<Rol | null>(null);
   const [sifre, setSifre] = useState('');
   const [tekrar, setTekrar] = useState('');
+  const [kabul, setKabul] = useState(false);
+  const [acik, setAcik] = useState<YasalAnahtar | null>(null);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState('');
 
@@ -35,6 +40,7 @@ export default function Kayit() {
       rol,
       ad: ad.trim(),
       telefon: oturum.user.phone ? `+${oturum.user.phone.replace(/^\+/, '')}` : null,
+      kvkk_onay_surumu: YASAL_SURUMU,
     });
     if (error) {
       setYukleniyor(false);
@@ -46,6 +52,12 @@ export default function Kayit() {
     await profilYenile();
     setYukleniyor(false);
   };
+
+  if (acik) return <YasalMetin anahtar={acik} geri={() => setAcik(null)} />;
+
+  const baglanti = (a: YasalAnahtar) => (
+    <Text style={styles.baglanti} onPress={() => setAcik(a)}>{YASAL_ADLARI[a]}</Text>
+  );
 
   return (
     <GirisKabuk baslik="Hoş geldin!" aciklama="Seni tanıyalım." logoBoyu={100}>
@@ -62,8 +74,13 @@ export default function Kayit() {
       <SifreGirdisi deger={sifre} degisti={setSifre} placeholder="Şifre belirle" otomatik="new-password" />
       <SifreGirdisi deger={tekrar} degisti={setTekrar} placeholder="Şifre (tekrar)" otomatik="new-password" />
       <Text style={styles.ipucu}>Şifre en az 8 karakter, en az bir harf ve bir rakam içermeli.</Text>
+      <Onay secili={kabul} degisti={setKabul}>
+        <Text style={styles.onayYazi}>
+          {baglanti('kosullar')}, {baglanti('gizlilik')} ve {baglanti('kvkk')}'ni okudum, kabul ediyorum.
+        </Text>
+      </Onay>
       {hata ? <Text style={styles.hata}>{hata}</Text> : null}
-      <Dugme yazi="Kaydı Tamamla" onPress={kaydet} yukleniyor={yukleniyor} pasif={ad.trim().length < 2 || !rol || !sifre || !tekrar} />
+      <Dugme yazi="Kaydı Tamamla" onPress={kaydet} yukleniyor={yukleniyor} pasif={ad.trim().length < 2 || !rol || !sifre || !tekrar || !kabul} />
     </GirisKabuk>
   );
 }
@@ -73,6 +90,8 @@ const styles = StyleSheet.create({
   rolSecili: { backgroundColor: colors.sari, borderColor: colors.sari },
   rolBaslik: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.metin },
   rolAlt: { fontSize: fontSize.kucuk, color: colors.metinSoluk, marginTop: 2 },
+  onayYazi: { color: colors.metin, fontSize: fontSize.kucuk + 1, lineHeight: 22 },
+  baglanti: { color: colors.sari, fontWeight: '700', textDecorationLine: 'underline' },
   ipucu: { fontSize: 13, color: colors.metinSoluk },
   hata: { color: colors.kirmiziAcik, fontSize: fontSize.kucuk + 1, fontWeight: '600' },
 });

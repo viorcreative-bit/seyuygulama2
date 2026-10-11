@@ -1,0 +1,151 @@
+{
+  "surum": "2026-10-11",
+  "taslak": true,
+  "bilgiler": {
+    "sirketUnvani": "[ŞİRKET ÜNVANI]",
+    "adres": "[ŞİRKET ADRESİ]",
+    "eposta": "[İLETİŞİM E-POSTA ADRESİ]",
+    "mersisNo": "[MERSİS NO]",
+    "internetSitesi": "[İNTERNET SİTESİ ADRESİ]"
+  },
+  "belgeler": {
+    "kvkk": {
+      "baslik": "KVKK Aydınlatma Metni",
+      "guncelleme": "11.10.2026",
+      "bolumler": [
+        {
+          "baslik": "1. Veri sorumlusu",
+          "metin": "Kişisel verileriniz, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca veri sorumlusu sıfatıyla {{sirketUnvani}} ({{adres}}, MERSİS: {{mersisNo}}) tarafından işlenmektedir. İletişim: {{eposta}}"
+        },
+        {
+          "baslik": "2. İşlenen kişisel veriler",
+          "metin": "• Kimlik ve iletişim: ad soyad, telefon numarası.\n• Hesap: şifre (yalnızca şifrelenmiş olarak saklanır), rol (müşteri/aşçı), kayıt tarihi.\n• Hizmet talebi: semt, açık adres, tarih ve saat, kişi sayısı, mutfak tercihi, istenen yemekler, alerji ve özel notlar.\n• Görsel: profil fotoğrafı ve aşçıların yüklediği yemek fotoğrafları.\n• İçerik: yorumlar, yıldız puanları, aşçı cevapları, şikayetler.\n• Aşçılar için: tanıtım yazısı, uzmanlık alanları, hizmet semtleri, ücret bilgisi, müsait günler.\n• İşlem güvenliği: giriş kayıtları ve teknik kayıtlar."
+        },
+        {
+          "baslik": "3. İşleme amaçları",
+          "metin": "Verileriniz; hesabınızın oluşturulması ve doğrulanması, müşteri ile aşçıyı buluşturma hizmetinin sunulması, taleplerin iletilmesi ve yönetilmesi, yorum ve puanlama sisteminin işletilmesi, şikayetlerin incelenmesi, platform güvenliğinin ve sahte hesapların önlenmesi, hukuki yükümlülüklerin yerine getirilmesi amaçlarıyla işlenir."
+        },
+        {
+          "baslik": "4. Hukuki sebepler",
+          "metin": "Verileriniz KVKK m.5/2 uyarınca; sözleşmenin kurulması ve ifası için gerekli olması, hukuki yükümlülüğün yerine getirilmesi, bir hakkın tesisi, kullanılması veya korunması ve temel hak ve özgürlüklerinize zarar vermemek kaydıyla meşru menfaatlerimiz hukuki sebeplerine dayanılarak işlenir."
+        },
+        {
+          "baslik": "5. Verilerin aktarılması",
+          "metin": "• Açık adresiniz yalnızca talebinizi kabul eden aşçıyla paylaşılır; talep kabul edilmeden aşçı açık adresi göremez.\n• Aşçının profil bilgileri (ad, fotoğraf, tanıtım vb.) yönetici onayından sonra tüm kullanıcılara görünür. Yorumlarda adınız kısaltılarak (örn. \"Ayşe K.\") gösterilir.\n• Altyapı hizmeti (veri tabanı, kimlik doğrulama, dosya depolama) ve SMS doğrulama hizmeti için hizmet sağlayıcılarımızla veri paylaşılır. Bu sağlayıcıların sunucuları yurt dışında bulunabilir; yurt dışına aktarım KVKK m.9 hükümlerine uygun olarak yapılır.\n• Yasal bir talep olması hâlinde yetkili kamu kurum ve kuruluşlarıyla paylaşım yapılabilir."
+        },
+        {
+          "baslik": "6. Saklama süresi",
+          "metin": "Verileriniz hesabınız açık olduğu sürece saklanır. Hesabınızı sildiğinizde profiliniz, talepleriniz, yorumlarınız ve fotoğraflarınız silinir; yasal saklama yükümlülüğü bulunan kayıtlar ilgili süre boyunca saklanıp sonrasında silinir veya anonim hâle getirilir."
+        },
+        {
+          "baslik": "7. Haklarınız (KVKK m.11)",
+          "metin": "Veri sorumlusuna başvurarak; verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme, aktarıldığı kişileri bilme, eksik veya yanlış işlenmişse düzeltilmesini isteme, silinmesini veya yok edilmesini isteme, bu işlemlerin aktarıldığı üçüncü kişilere bildirilmesini isteme, otomatik sistemlerle analiz sonucu aleyhinize bir sonuç çıkmasına itiraz etme ve kanuna aykırı işlenmesi nedeniyle zarara uğramanız hâlinde zararın giderilmesini talep etme haklarına sahipsiniz. Başvurularınızı {{eposta}} adresine iletebilirsiniz. Hesabınızı ve verilerinizi uygulamadaki Hesabım > Hesabımı Sil bölümünden de silebilirsiniz."
+        }
+      ]
+    },
+    "gizlilik": {
+      "baslik": "Gizlilik Politikası",
+      "guncelleme": "11.10.2026",
+      "bolumler": [
+        {
+          "baslik": "1. Genel",
+          "metin": "Bu politika, {{sirketUnvani}} tarafından işletilen Aşçım Gelsin mobil uygulamasını kullanırken verilerinizin nasıl toplandığını, kullanıldığını ve korunduğunu açıklar. Ayrıntılı bilgi KVKK Aydınlatma Metni'nde yer alır."
+        },
+        {
+          "baslik": "2. Topladığımız bilgiler",
+          "metin": "Telefon numaranız, adınız, şifreniz (şifrelenmiş), hizmet talebi bilgileriniz (semt, açık adres, tarih, kişi sayısı, tercihler, alerji ve notlar), yüklediğiniz fotoğraflar, yorum ve şikayetleriniz."
+        },
+        {
+          "baslik": "3. Bilgileri nasıl kullanıyoruz",
+          "metin": "Hesabınızı yönetmek, sizi aşçılarla buluşturmak, talepleri iletmek, yorum sistemini işletmek, destek vermek ve platformu güvenli tutmak için kullanırız. Verilerinizi reklam amacıyla üçüncü kişilere satmayız."
+        },
+        {
+          "baslik": "4. Açık adresiniz",
+          "metin": "Açık adresiniz yalnızca talebinizi kabul eden aşçıya gösterilir. Talep kabul edilmeden, reddedilirse veya iptal edilirse aşçı açık adresinizi göremez."
+        },
+        {
+          "baslik": "5. Fotoğraf ve galeri izni",
+          "metin": "Aşçılar profil ve yemek fotoğrafı yüklemek için galeriye erişim izni verir. Uygulama yalnızca sizin seçtiğiniz fotoğrafları yükler; galerinizin geri kalanına erişmez."
+        },
+        {
+          "baslik": "6. Güvenlik",
+          "metin": "Verileriniz şifreli bağlantı üzerinden iletilir, şifreniz yalnızca şifrelenmiş olarak saklanır ve erişim kuralları veri tabanı seviyesinde uygulanır. Hiçbir sistem tamamen risksiz değildir; şüpheli bir durum fark ederseniz bize bildirin."
+        },
+        {
+          "baslik": "7. Çocuklar",
+          "metin": "Uygulama 18 yaşından küçükler için tasarlanmamıştır; 18 yaş altındaki kişilerin hesap oluşturması yasaktır."
+        },
+        {
+          "baslik": "8. Hesabınızı silme",
+          "metin": "Hesabım > Hesabımı Sil bölümünden hesabınızı ve ona bağlı verileri istediğiniz zaman silebilirsiniz. Devam eden (bekleyen veya kabul edilmiş) talebiniz varsa önce onu sonuçlandırmanız veya iptal etmeniz gerekir."
+        },
+        {
+          "baslik": "9. Değişiklikler",
+          "metin": "Bu politika güncellenebilir. Önemli değişikliklerde uygulama içinde sizi bilgilendirir ve onayınızı isteriz."
+        },
+        {
+          "baslik": "10. İletişim",
+          "metin": "{{sirketUnvani}} · {{adres}} · {{eposta}}"
+        }
+      ]
+    },
+    "kosullar": {
+      "baslik": "Kullanım Koşulları",
+      "guncelleme": "11.10.2026",
+      "bolumler": [
+        {
+          "baslik": "1. Taraflar ve kapsam",
+          "metin": "Bu koşullar, Aşçım Gelsin uygulamasını kullanan herkes ile {{sirketUnvani}} arasındadır. Uygulamayı kullanarak bu koşulları kabul etmiş olursunuz."
+        },
+        {
+          "baslik": "2. Hizmetin tanımı",
+          "metin": "Aşçım Gelsin, evde yemek yapılmasını isteyen müşterilerle yemek pişirme hizmeti veren aşçıları buluşturan bir aracı platformdur. Bir paket servis uygulaması değildir. Yemek hizmeti, müşteri ile aşçı arasında doğrulanan talep üzerine müşterinin kendi mutfağında verilir. Aşçılar bağımsız hizmet sağlayıcılardır; {{sirketUnvani}} aşçıların çalışanı veya temsilcisi değildir."
+        },
+        {
+          "baslik": "3. Hesap",
+          "metin": "Hesap oluşturmak için 18 yaşını doldurmuş olmanız ve doğru bilgi vermeniz gerekir. Telefon numaranız ve şifrenizin güvenliğinden siz sorumlusunuz. Şifrenizi kimseyle paylaşmayın."
+        },
+        {
+          "baslik": "4. Aşçılar",
+          "metin": "Aşçı profilleri yayınlanmadan önce yönetici onayına tabidir. Aşçılar profillerinde doğru ve güncel bilgi vermekle, hizmeti özenle, hijyen kurallarına uygun şekilde ve gerekli yasal mevzuata uyarak sunmakla yükümlüdür."
+        },
+        {
+          "baslik": "5. Müşteriler",
+          "metin": "Müşteriler talepte doğru adres, tarih, alerji ve diğer bilgileri vermekle yükümlüdür. Alerji ve sağlık durumuyla ilgili bilgiyi eksiksiz ve zamanında iletmek müşterinin sorumluluğundadır."
+        },
+        {
+          "baslik": "6. Talepler ve iptal",
+          "metin": "Talepler aşçının kabulüyle kesinleşir. Müşteri bekleyen veya kabul edilmiş talebini uygulamadan iptal edebilir. Aşçı kabul ettiği hizmeti özürsüz şekilde yerine getirmezse şikayet konusu olabilir. Ücret ve ödeme müşteri ile aşçı arasında belirlenir; uygulama şu an ödeme aracılığı yapmamaktadır."
+        },
+        {
+          "baslik": "7. Yorumlar",
+          "metin": "Yalnızca tamamlanmış bir hizmetin müşterisi, o hizmet için bir kez yorum yazabilir. Yorumlar gerçek deneyime dayanmalıdır; hakaret, tehdit, yanıltıcı veya hukuka aykırı içerik yasaktır. Bu tür içerikler kaldırılabilir."
+        },
+        {
+          "baslik": "8. Yasak davranışlar",
+          "metin": "Sahte hesap açmak, başkasının kimliğini kullanmak, diğer kullanıcıları rahatsız etmek, platformu kötüye kullanmak, hukuka aykırı veya zararlı içerik yüklemek yasaktır. Bu davranışlarda hesap askıya alınabilir veya silinebilir."
+        },
+        {
+          "baslik": "9. Sorumluluğun sınırı",
+          "metin": "{{sirketUnvani}}, aracı platform olarak, müşteri ile aşçı arasındaki hizmetin niteliğinden, gıda güvenliğinden ve taraflar arasındaki uyuşmazlıklardan, yasaların izin verdiği ölçüde sorumlu değildir. Uygulamanın kesintisiz veya hatasız çalışacağı garanti edilmez."
+        },
+        {
+          "baslik": "10. Şikayet ve fesih",
+          "metin": "Şikayetlerinizi uygulamadaki \"Şikayet et\" bağlantısından iletebilirsiniz. Hesabınızı istediğiniz zaman silebilirsiniz. Koşulların ihlali hâlinde hesabınız askıya alınabilir veya kapatılabilir."
+        },
+        {
+          "baslik": "11. Değişiklikler",
+          "metin": "Bu koşullar güncellenebilir; önemli değişikliklerde onayınız yeniden istenir."
+        },
+        {
+          "baslik": "12. Uygulanacak hukuk",
+          "metin": "Bu koşullara Türk hukuku uygulanır. Uyuşmazlıklarda tüketici mevzuatındaki yetkili mercilerle birlikte İstanbul mahkemeleri ve icra daireleri yetkilidir."
+        },
+        {
+          "baslik": "13. İletişim",
+          "metin": "{{sirketUnvani}} · {{adres}} · {{eposta}}"
+        }
+      ]
+    }
+  }
+}

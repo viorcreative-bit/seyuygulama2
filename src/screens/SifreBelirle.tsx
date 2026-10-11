@@ -7,6 +7,7 @@ import SifreGirdisi from '../components/SifreGirdisi';
 import { sifreKontrol } from '../lib/sifre';
 import { supabase } from '../lib/supabase';
 import { colors, fontSize, spacing } from '../theme';
+import { sebep } from '../lib/hata';
 
 // SMS koduyla girildikten sonra zorunlu olarak yeni şifre belirlenen ekran.
 export default function SifreBelirle() {
@@ -27,7 +28,7 @@ export default function SifreBelirle() {
       setHata(
         /different from the old|same/i.test(error.message)
           ? 'Yeni şifren eskisinden farklı olmalı.'
-          : `Şifre kaydedilemedi. (Sebep: ${error.message})`,
+          : `Şifre kaydedilemedi. Lütfen tekrar dene.${sebep(error)}`,
       );
       return;
     }

@@ -8,6 +8,7 @@ import SifreGirdisi from '../components/SifreGirdisi';
 import { supabase } from '../lib/supabase';
 import { telefonuDuzenle } from '../lib/telefon';
 import { colors, fontSize, spacing } from '../theme';
+import { sebep } from '../lib/hata';
 
 type Props = { rol: Rol; geri: () => void; sifremiUnuttum: () => void };
 
@@ -38,7 +39,7 @@ export default function SifreGiris({ rol, geri, sifremiUnuttum }: Props) {
       setHata(
         /invalid login|credentials/i.test(error.message)
           ? 'Telefon numarası veya şifre hatalı. Şifren yoksa ya da unuttuysan aşağıdaki bağlantıyı kullan.'
-          : `Giriş yapılamadı. (Sebep: ${error.message})`,
+          : `Giriş yapılamadı. Lütfen tekrar dene.${sebep(error)}`,
       );
     }
     // Başarılıysa oturum açılır; rol uyuşmazsa AuthContext oturumu kapatıp girisHatasi'ni doldurur.

@@ -13,7 +13,7 @@ export default function Ust({ baslik, geri, sag }: Props) {
           <Ionicons name="chevron-back" size={22} color={colors.metin} />
         </Pressable>
       ) : null}
-      <Text style={styles.baslik} numberOfLines={1}>{baslik}</Text>
+      <Text style={styles.baslik} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{baslik}</Text>
       {sag}
     </View>
   );

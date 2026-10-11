@@ -5,16 +5,22 @@ import { useAuth } from '../auth/AuthContext';
 import Ekran from '../components/Ekran';
 import { supabase } from '../lib/supabase';
 import { telefonuGoster } from '../lib/telefon';
+import { YASAL_ADLARI, YasalAnahtar } from '../yasal';
 import { colors, fontSize, radius, spacing } from '../theme';
 
-type Props = { profilDuzenle: () => void; sifreDegistir: () => void };
+type Props = {
+  profilDuzenle: () => void;
+  sifreDegistir: () => void;
+  yasal: (a: YasalAnahtar) => void;
+  hesabiSil: () => void;
+};
 
-type SatirProps = { simge: keyof typeof Ionicons.glyphMap; yazi: string; onPress: () => void; tehlike?: boolean };
+type SatirProps = { simge: keyof typeof Ionicons.glyphMap; yazi: string; onPress: () => void; tehlike?: boolean; ayirac?: boolean };
 
-function Satir({ simge, yazi, onPress, tehlike }: SatirProps) {
+function Satir({ simge, yazi, onPress, tehlike, ayirac }: SatirProps) {
   const renk = tehlike ? colors.kirmiziAcik : colors.metin;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.satir, pressed && { opacity: 0.8 }]} accessibilityRole="button">
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.satir, ayirac && styles.ayirac, pressed && { opacity: 0.8 }]} accessibilityRole="button">
       <View style={styles.simge}>
         <Ionicons name={simge} size={20} color={tehlike ? colors.kirmiziAcik : colors.sari} />
       </View>
@@ -24,7 +30,7 @@ function Satir({ simge, yazi, onPress, tehlike }: SatirProps) {
   );
 }
 
-export default function Hesabim({ profilDuzenle, sifreDegistir }: Props) {
+export default function Hesabim({ profilDuzenle, sifreDegistir, yasal, hesabiSil }: Props) {
   const { profil, oturum, cikisYap } = useAuth();
   const [foto, setFoto] = useState<string | null>(null);
 
@@ -66,11 +72,18 @@ export default function Hesabim({ profilDuzenle, sifreDegistir }: Props) {
 
         <View style={styles.grup}>
           {profil?.rol === 'asci' ? <Satir simge="create-outline" yazi="Aşçı Profilimi Düzenle" onPress={profilDuzenle} /> : null}
-          <Satir simge="lock-closed-outline" yazi="Şifremi Değiştir" onPress={sifreDegistir} />
+          <Satir simge="lock-closed-outline" yazi="Şifremi Değiştir" onPress={sifreDegistir} ayirac={profil?.rol === 'asci'} />
+        </View>
+
+        <View style={styles.grup}>
+          <Satir simge="shield-checkmark-outline" yazi={YASAL_ADLARI.kvkk} onPress={() => yasal('kvkk')} />
+          <Satir simge="lock-open-outline" yazi={YASAL_ADLARI.gizlilik} onPress={() => yasal('gizlilik')} ayirac />
+          <Satir simge="document-text-outline" yazi={YASAL_ADLARI.kosullar} onPress={() => yasal('kosullar')} ayirac />
         </View>
 
         <View style={styles.grup}>
           <Satir simge="log-out-outline" yazi="Çıkış Yap" onPress={cikis} tehlike />
+          <Satir simge="trash-outline" yazi="Hesabımı Sil" onPress={hesabiSil} tehlike ayirac />
         </View>
       </ScrollView>
     </Ekran>
@@ -89,6 +102,7 @@ const styles = StyleSheet.create({
   rolYazi: { color: colors.koyuMetin, fontWeight: '800', fontSize: fontSize.kucuk },
   grup: { backgroundColor: colors.yuzey, borderRadius: radius.m, borderWidth: 1, borderColor: colors.cizgi, overflow: 'hidden' },
   satir: { flexDirection: 'row', alignItems: 'center', gap: spacing.m, padding: spacing.m },
+  ayirac: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.cizgi },
   simge: { width: 38, height: 38, borderRadius: radius.tam, backgroundColor: colors.yuzeyUst, alignItems: 'center', justifyContent: 'center' },
   satirYazi: { flex: 1, fontSize: fontSize.normal + 1, fontWeight: '600' },
 });

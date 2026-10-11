@@ -3,7 +3,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, u
 import { supabase } from '../lib/supabase';
 
 export type Rol = 'musteri' | 'asci';
-export type Profil = { id: string; rol: Rol; ad: string; telefon: string | null };
+export type Profil = { id: string; rol: Rol; ad: string; telefon: string | null; kvkk_onay_surumu: string | null };
 
 type Deger = {
   yukleniyor: boolean;
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const { data } = await supabase
       .from('profiles')
-      .select('id, rol, ad, telefon')
+      .select('id, rol, ad, telefon, kvkk_onay_surumu')
       .eq('id', s.user.id)
       .maybeSingle();
     const p = (data as Profil | null) ?? null;

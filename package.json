@@ -25,7 +25,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "yonetim": "node scripts/yonetim.mjs"
+    "yonetim": "node scripts/yonetim.mjs",
+    "yasal": "node scripts/yasal-uret.mjs"
   },
   "private": true
 }

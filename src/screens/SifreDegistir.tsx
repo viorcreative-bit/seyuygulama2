@@ -7,6 +7,7 @@ import SifreGirdisi from '../components/SifreGirdisi';
 import { sifreKontrol } from '../lib/sifre';
 import { supabase } from '../lib/supabase';
 import { colors, fontSize, spacing } from '../theme';
+import { sebep } from '../lib/hata';
 
 // Profilden şifre değiştirme: önce mevcut şifre doğrulanır.
 export default function SifreDegistir({ geri }: { geri: () => void }) {
@@ -35,7 +36,7 @@ export default function SifreDegistir({ geri }: { geri: () => void }) {
     // 2) Yeni şifreyi kaydet.
     const { error } = await supabase.auth.updateUser({ password: yeni, data: { sifre_var: true } });
     setYukleniyor(false);
-    if (error) return setHata(`Şifre değiştirilemedi. (Sebep: ${error.message})`);
+    if (error) return setHata(`Şifre değiştirilemedi. Lütfen tekrar dene.${sebep(error)}`);
     Alert.alert('Şifren değişti', 'Bundan sonra yeni şifrenle giriş yapabilirsin.', [{ text: 'Tamam', onPress: geri }]);
   };
 

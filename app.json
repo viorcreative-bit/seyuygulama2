@@ -2,33 +2,48 @@
   "expo": {
     "name": "Aşçım Gelsin",
     "slug": "ascim-gelsin",
+    "scheme": "ascimgelsin",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#160606",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#160606"
+    },
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.ascimgelsin.app",
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.ascimgelsin.app",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#A30909",
-        "foregroundImage": "./assets/logo.png"
+        "backgroundColor": "#160606",
+        "foregroundImage": "./assets/adaptive-icon.png"
       },
+      "blockedPermissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/logo.png"
-    },
-    "splash": {
-      "image": "./assets/logo.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FFF8E7"
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
         "expo-image-picker",
         {
-          "photosPermission": "Aşçı profilinde yemek fotoğraflarını göstermek için galerine erişmemiz gerekiyor."
+          "photosPermission": "Aşçı profilinde yemek fotoğraflarını göstermek için galerine erişmemiz gerekiyor.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ]
     ]

@@ -21,7 +21,7 @@ Giriş: yönetici yaptığın hesabın telefon numarası ve şifresi. (Yönetici
 
 Silme işlemleri geri alınamaz; panel önce uyarır ve "SİL" yazmanı ister. Yönetici hesapları askıya alınamaz ve silinemez.
 
-Not: Silinen kişilerin yüklediği fotoğraf dosyaları depolamada kalır (veritabanı kayıtları silinir). KVKK kapsamında tam temizlik için bu dosyaların ayrıca temizlenmesi gerekir; yayına yaklaşırken birlikte ele alınmalı.
+Silme sırasında kişinin yüklediği fotoğraf dosyaları da depodan temizlenir (schema_12.sql gerekir).
 
 ## Yönetici ekleme
 Yalnızca Supabase → SQL Editor'den yapılır (numarayı değiştir):
