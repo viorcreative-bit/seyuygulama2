@@ -22,7 +22,7 @@ export default function Giris() {
     setYukleniyor(true);
     const { error } = await supabase.auth.signInWithOtp({ phone: duzgun });
     setYukleniyor(false);
-    if (error) setHata('Kod gönderilemedi. Lütfen biraz sonra tekrar dene.');
+    if (error) setHata(`Kod gönderilemedi. (Sebep: ${error.message})`);
     else setNumara(duzgun);
   };
 
@@ -32,7 +32,7 @@ export default function Giris() {
     setYukleniyor(true);
     const { error } = await supabase.auth.verifyOtp({ phone: numara, token: kod.trim(), type: 'sms' });
     setYukleniyor(false);
-    if (error) setHata('Kod hatalı veya süresi dolmuş.');
+    if (error) setHata(`Kod hatalı veya süresi dolmuş. (Sebep: ${error.message})`);
     // Başarılıysa AuthContext oturumu algılar ve App ekranı değiştirir.
   };
 
