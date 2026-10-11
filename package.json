@@ -18,7 +18,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "@electric-sql/pglite": "^0.5.8"
   },
   "scripts": {
     "start": "expo start",
@@ -26,7 +27,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "yonetim": "node scripts/yonetim.mjs",
-    "yasal": "node scripts/yasal-uret.mjs"
+    "yasal": "node scripts/yasal-uret.mjs",
+    "test:sql": "node supabase/test/hepsi.mjs"
   },
   "private": true
 }

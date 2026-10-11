@@ -81,6 +81,7 @@ eas submit --platform all --profile production
 - [ ] Yasal sayfalar internette ve adresleri mağaza formunda
 - [ ] Supabase: test numarası kapalı, SMS sağlayıcısı kurulu, Pro plan, şifre uzunluğu 8
 - [ ] İnceleme hesapları hazır
+- [ ] Demo verisi silindi (`DEMO_VERI.md`)
 - [ ] Gerçek telefonda baştan sona deneme: kayıt, aşçı onayı, talep, kabul, tamamlama, yorum, şikayet, hesap silme
 - [ ] Yönetici panelini internete koymaya karar ver (şimdilik yalnızca kendi bilgisayarında çalışıyor)
 
