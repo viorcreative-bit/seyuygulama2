@@ -87,3 +87,20 @@ eas submit --platform all --profile production
 ## 8. Karar bekleyen konular
 - Ödeme (iyzico): şimdilik uygulama ödeme aracılığı yapmıyor; Kullanım Koşulları bunu belirtiyor. Ödeme eklenirse metinler de güncellenmeli.
 - Aşçı ile müşterinin iletişimi: şu an telefon numarası paylaşılmıyor. Gerekirse uygulama içi mesajlaşma veya kabul sonrası telefon paylaşımı eklenebilir (KVKK açısından ayrıca değerlendirilmeli).
+
+## 9. SMS sağlayıcısı kararı (Ekim 2026 araştırması)
+**Durum:** Şimdilik Supabase'deki test numarasıyla devam ediyoruz. Gerçek kullanıcı alınmadan önce mutlaka bir sağlayıcı kurulmalı. Şirket belgeleri hazır.
+
+| Seçenek | Artısı | Eksisi |
+|---|---|---|
+| Yerel Türk sağlayıcı (Netgsm, İleti Merkezi, Verimor...) + Supabase "Send SMS Hook" | Türkiye'ye özel, TL ile fatura, genelde daha uygun | Bağlantı fonksiyonu yazılması gerekir (ben yazarım) |
+| Twilio Verify | Kod gerekmez, Supabase'de hazır | Türkiye için gönderici adı kaydı (5 iş günü - 2 hafta), dolar bazlı ücret, kayıtsız gönderici adları **18 Kasım 2026'dan itibaren engelleniyor** |
+
+**Önerilen yol:** Yerel Türk sağlayıcı. Kaynaklar: [Supabase Send SMS Hook](https://supabase.com/docs/guides/auth/auth-hooks/send-sms-hook.md), [Twilio Türkiye SMS kuralları](https://twilio.com/guidelines/tr/sms).
+
+**Şimdi yapılabilecek (paralel, ücretsiz araştırma):**
+1. 2-3 sağlayıcıdan **OTP SMS birim fiyatı ve SMS başlığı (gönderici adı) onay süresi** için teklif iste.
+2. Seçtiğin sağlayıcıda hesap açıp şirket evraklarınla başlık onayı başvurusunu başlat (Türkiye'de başlık onayı birkaç gün sürebilir).
+3. Başlık onaylanınca ve API bilgilerin hazır olunca bana haber ver: Supabase'te çalışacak bağlantı fonksiyonunu yazıp test ederiz.
+
+**Test numarası hatırlatması:** Supabase > Authentication > Providers > Phone sayfasındaki "Test OTPs Valid Until" tarihi dolunca test numarası çalışmaz. Süre dolmadan tarihi ileri çek.
