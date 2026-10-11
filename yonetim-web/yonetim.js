@@ -70,6 +70,7 @@ let uyeler = [];
 let reklamlar = [];
 let kurumsal = [];
 let reklamFormuAcik = false;
+let reklamDuzenlenen = null; // düzenlenen reklamın id'si
 let galeriler = {}; // aşçı id -> yemek fotoğrafı adresleri
 let filtre = { asci: 'bekleyen', uye: 'hepsi', sikayet: 'acik', arama: '' };
 
@@ -260,7 +261,7 @@ function filtreCiz() {
       secimKutusu([['bekleyen', 'Onay bekleyenler'], ['onayli', 'Onaylılar'], ['red', 'Reddedilenler'], ['hepsi', 'Hepsi']], filtre.asci, (v) => { filtre.asci = v; ciz(); }),
       aramaKutusu());
   } else if (sekme === 'reklamlar') {
-    alan.replaceChildren(el('button', { class: 'kucuk', onclick: () => { reklamFormuAcik = !reklamFormuAcik; listeCiz(); } }, 'Yeni reklam ekle'));
+    alan.replaceChildren(el('button', { class: 'kucuk', onclick: () => { reklamDuzenlenen = null; reklamFormuAcik = !reklamFormuAcik; listeCiz(); } }, 'Yeni reklam ekle'));
   } else if (sekme === 'uyeler') {
     alan.replaceChildren(
       secimKutusu([['hepsi', 'Tüm üyeler'], ['musteri', 'Müşteriler'], ['asci', 'Aşçılar'], ['askida', 'Askıdakiler']], filtre.uye, (v) => { filtre.uye = v; ciz(); }),
@@ -334,12 +335,16 @@ async function reklamAktifDegistir(r) {
   await yukle();
 }
 
+async function reklamGorseliniSil(gorselAdres) {
+  const i = gorselAdres.indexOf('/reklamlar/');
+  if (i >= 0) await supabase.storage.from('reklamlar').remove([decodeURIComponent(gorselAdres.slice(i + '/reklamlar/'.length))]);
+}
+
 async function reklamSil(r) {
   if (!confirm(`"${r.baslik}" reklamı silinsin mi? Bu işlem geri alınamaz.`)) return;
   const { error } = await supabase.from('reklamlar').delete().eq('id', r.id);
   if (error) return alert('İşlem yapılamadı. Lütfen tekrar dene.');
-  const i = r.gorsel_adres.indexOf('/reklamlar/');
-  if (i >= 0) await supabase.storage.from('reklamlar').remove([decodeURIComponent(r.gorsel_adres.slice(i + '/reklamlar/'.length))]);
+  await reklamGorseliniSil(r.gorsel_adres);
   await yukle();
 }
 
@@ -355,6 +360,7 @@ function reklamKarti(r) {
     satir('Yayın', `${tarihSaat(r.baslangic)} → ${r.bitis ? tarihSaat(r.bitis) : 'süresiz'}`),
     satir('İstatistik', `${r.gosterim_sayisi} gösterim · ${r.tiklama_sayisi} tıklama · %${ctr} tıklanma oranı`),
     el('div', { class: 'eylemler' },
+      el('button', { class: 'kucuk', onclick: () => { reklamFormuAcik = false; reklamDuzenlenen = r.id; listeCiz(); } }, 'Düzenle'),
       el('button', { class: 'cerceveli kucuk', onclick: () => reklamAktifDegistir(r) }, r.aktif ? 'Kapat' : 'Aç'),
       el('button', { class: 'tehlike kucuk', onclick: () => reklamSil(r) }, 'Sil')));
 }
@@ -378,57 +384,73 @@ function kurumsalKarti(t) {
     satir('Oluşturma', tarihSaat(t.olusturma_tarihi)));
 }
 
-function reklamFormu() {
+function reklamFormu(r = null) {
   const yerel = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  const baslik = el('input', { placeholder: 'Reklam adı (yalnızca sende görünür)', maxLength: 80 });
-  const veren = el('input', { placeholder: 'Reklamveren (isteğe bağlı)', maxLength: 80 });
-  const hedef = el('input', { placeholder: 'https://... (dokununca açılacak adres, isteğe bağlı)', type: 'url' });
-  const bas = el('input', { type: 'datetime-local', value: yerel(new Date()) });
-  const bit = el('input', { type: 'datetime-local' });
+  const baslik = el('input', { placeholder: 'Reklam adı (yalnızca sende görünür)', maxLength: 80, value: r?.baslik ?? '' });
+  const veren = el('input', { placeholder: 'Reklamveren (isteğe bağlı)', maxLength: 80, value: r?.reklamveren ?? '' });
+  const hedef = el('input', { placeholder: 'https://... (dokununca açılacak adres, isteğe bağlı)', type: 'url', value: r?.hedef_adres ?? '' });
+  const bas = el('input', { type: 'datetime-local', value: yerel(r ? new Date(r.baslangic) : new Date()) });
+  const bit = el('input', { type: 'datetime-local', value: r?.bitis ? yerel(new Date(r.bitis)) : '' });
   const dosya = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp' });
   const mesaj = el('div', { class: 'hata gizli' });
-  const kaydet = el('button', {}, 'Reklamı Kaydet');
+  const kaydet = el('button', {}, r ? 'Değişiklikleri Kaydet' : 'Reklamı Kaydet');
   const hata = (m) => { mesaj.textContent = m; mesaj.classList.toggle('gizli', !m); };
 
   kaydet.addEventListener('click', async () => {
     hata('');
     const f = dosya.files[0];
     if (baslik.value.trim().length < 2) return hata('Reklam adı en az 2 karakter olmalı.');
-    if (!f) return hata('Lütfen bir banner görseli seç.');
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) return hata('Görsel JPG, PNG veya WebP olmalı.');
-    if (f.size > 1024 * 1024) return hata('Görsel en fazla 1 MB olmalı.');
+    if (!f && !r) return hata('Lütfen bir banner görseli seç.');
+    if (f && !['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) return hata('Görsel JPG, PNG veya WebP olmalı.');
+    if (f && f.size > 1024 * 1024) return hata('Görsel en fazla 1 MB olmalı.');
     if (hedef.value && !/^https:\/\//i.test(hedef.value)) return hata('Bağlantı https:// ile başlamalı.');
     if (bit.value && new Date(bit.value) <= new Date(bas.value)) return hata('Bitiş, başlangıçtan sonra olmalı.');
-    const boyut = await new Promise((tamam) => { const i = new Image(); i.onload = () => tamam([i.naturalWidth, i.naturalHeight]); i.onerror = () => tamam(null); i.src = URL.createObjectURL(f); });
-    if (!boyut) return hata('Görsel okunamadı.');
-    const oran = boyut[0] / boyut[1];
-    if ((oran < 3.2 || oran > 4.8) && !confirm(`Görselin oranı (${boyut[0]}×${boyut[1]}) önerilen 4:1'den farklı; uygulamada kırpılabilir. Yine de devam edilsin mi?`)) return;
+    if (f) {
+      const boyut = await new Promise((tamam) => { const i = new Image(); i.onload = () => tamam([i.naturalWidth, i.naturalHeight]); i.onerror = () => tamam(null); i.src = URL.createObjectURL(f); });
+      if (!boyut) return hata('Görsel okunamadı.');
+      const oran = boyut[0] / boyut[1];
+      if ((oran < 3.2 || oran > 4.8) && !confirm(`Görselin oranı (${boyut[0]}×${boyut[1]}) önerilen 4:1'den farklı; uygulamada kırpılabilir. Yine de devam edilsin mi?`)) return;
+    }
 
     kaydet.disabled = true;
-    const uzanti = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[f.type];
-    const yol = `${crypto.randomUUID()}.${uzanti}`;
-    const yukleme = await supabase.storage.from('reklamlar').upload(yol, f, { contentType: f.type });
-    if (yukleme.error) { kaydet.disabled = false; return hata('Görsel yüklenemedi. Lütfen tekrar dene.'); }
-    const adres = supabase.storage.from('reklamlar').getPublicUrl(yol).data.publicUrl;
-    const { error } = await supabase.from('reklamlar').insert({
+    let yol = null;
+    let adres = r?.gorsel_adres;
+    if (f) {
+      const uzanti = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[f.type];
+      yol = `${crypto.randomUUID()}.${uzanti}`;
+      const yukleme = await supabase.storage.from('reklamlar').upload(yol, f, { contentType: f.type });
+      if (yukleme.error) { kaydet.disabled = false; return hata('Görsel yüklenemedi. Lütfen tekrar dene.'); }
+      adres = supabase.storage.from('reklamlar').getPublicUrl(yol).data.publicUrl;
+    }
+    const alanlar = {
       baslik: baslik.value.trim(), reklamveren: veren.value.trim(), gorsel_adres: adres,
       hedef_adres: hedef.value.trim() || null,
       baslangic: new Date(bas.value).toISOString(), bitis: bit.value ? new Date(bit.value).toISOString() : null,
-    });
+    };
+    const { error } = r
+      ? await supabase.from('reklamlar').update(alanlar).eq('id', r.id)
+      : await supabase.from('reklamlar').insert(alanlar);
     kaydet.disabled = false;
-    if (error) { await supabase.storage.from('reklamlar').remove([yol]); return hata('Reklam kaydedilemedi. Lütfen tekrar dene.'); }
+    if (error) {
+      if (yol) await supabase.storage.from('reklamlar').remove([yol]);
+      return hata('Reklam kaydedilemedi. Lütfen tekrar dene.');
+    }
+    // Görsel değiştiyse eski dosya depolamadan silinir.
+    if (r && yol) await reklamGorseliniSil(r.gorsel_adres);
+    reklamDuzenlenen = null;
     reklamFormuAcik = false;
     await yukle();
   });
 
   const alan = (e, k) => el('div', {}, el('label', {}, e), k);
   return el('div', { class: 'form' },
-    el('h3', { style: 'margin:0 0 6px' }, 'Yeni reklam'),
+    el('h3', { style: 'margin:0 0 6px' }, r ? 'Reklamı düzenle' : 'Yeni reklam'),
     alan('Reklam adı', baslik), alan('Reklamveren', veren), alan('Bağlantı (dokununca açılır)', hedef),
     el('div', { class: 'iki' }, alan('Yayın başlangıcı', bas), alan('Yayın bitişi (boşsa süresiz)', bit)),
-    alan('Banner görseli', dosya),
+    r && guvenliUrl(r.gorsel_adres) ? el('img', { class: 'reklamGorsel', src: r.gorsel_adres, alt: r.baslik }) : null,
+    alan(r ? 'Görseli değiştir (boş bırakırsan mevcut görsel kalır)' : 'Banner görseli', dosya),
     el('small', {}, 'Önerilen boyut: 1200×300 piksel (4:1), JPG/PNG/WebP, en fazla 1 MB. Uygulamada alt menünün üstünde, "Reklam" etiketiyle görünür.'),
-    mesaj, el('div', { class: 'eylemler' }, kaydet, el('button', { class: 'cerceveli', onclick: () => { reklamFormuAcik = false; listeCiz(); } }, 'Vazgeç')));
+    mesaj, el('div', { class: 'eylemler' }, kaydet, el('button', { class: 'cerceveli', onclick: () => { reklamFormuAcik = false; reklamDuzenlenen = null; listeCiz(); } }, 'Vazgeç')));
 }
 
 function sikayetKarti(s) {
@@ -464,7 +486,7 @@ function listeCiz() {
   } else if (sekme === 'kurumsal') {
     liste.replaceChildren(...(kurumsal.length ? kurumsal.map(kurumsalKarti) : bos('Henüz kurumsal talep yok.')));
   } else if (sekme === 'reklamlar') {
-    liste.replaceChildren(...[reklamFormuAcik ? reklamFormu() : null, ...(reklamlar.length ? reklamlar.map(reklamKarti) : bos('Henüz reklam yok. "Yeni reklam ekle" ile başlayabilirsin.'))].filter(Boolean));
+    liste.replaceChildren(...[reklamFormuAcik ? reklamFormu() : null, ...(reklamlar.length ? reklamlar.map((r) => (r.id === reklamDuzenlenen ? reklamFormu(r) : reklamKarti(r))) : bos('Henüz reklam yok. "Yeni reklam ekle" ile başlayabilirsin.'))].filter(Boolean));
   } else if (sekme === 'uyeler') {
     const gorunen = uyeler
       .filter((u) => filtre.uye === 'hepsi' || (filtre.uye === 'askida' ? u.askida : u.rol === filtre.uye))
