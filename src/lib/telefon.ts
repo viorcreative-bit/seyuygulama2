@@ -7,3 +7,10 @@ export function telefonuDuzenle(girdi: string): string | null {
   if (s.length !== 10 || !s.startsWith('5')) return null;
   return `+90${s}`;
 }
+
+// "+905551112233" -> "+90 555 111 22 33" (gösterim için).
+export function telefonuGoster(t: string): string {
+  const s = t.replace(/\D/g, '');
+  if (s.length !== 12 || !s.startsWith('90')) return t;
+  return `+90 ${s.slice(2, 5)} ${s.slice(5, 8)} ${s.slice(8, 10)} ${s.slice(10)}`;
+}

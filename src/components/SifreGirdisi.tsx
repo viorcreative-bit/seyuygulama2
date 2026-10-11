@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fontSize, spacing } from '../theme';
-import { girdiStili } from './girdi';
+import Girdi from './Girdi';
 
 type Props = { deger: string; degisti: (t: string) => void; placeholder: string; otomatik?: 'password' | 'new-password' };
 
@@ -10,8 +10,8 @@ export default function SifreGirdisi({ deger, degisti, placeholder, otomatik = '
   const [acik, setAcik] = useState(false);
   return (
     <View style={styles.kap}>
-      <TextInput
-        style={[girdiStili, { flex: 1, paddingRight: 80 }]}
+      <Girdi
+        style={{ flex: 1, paddingRight: 84 }}
         value={deger}
         onChangeText={degisti}
         placeholder={placeholder}
@@ -30,5 +30,5 @@ export default function SifreGirdisi({ deger, degisti, placeholder, otomatik = '
 const styles = StyleSheet.create({
   kap: { flexDirection: 'row', alignItems: 'center' },
   goster: { position: 'absolute', right: spacing.m, paddingVertical: spacing.s },
-  gosterYazi: { color: colors.kirmizi, fontWeight: '700', fontSize: fontSize.kucuk + 1 },
+  gosterYazi: { color: colors.sari, fontWeight: '700', fontSize: fontSize.kucuk + 1 },
 });

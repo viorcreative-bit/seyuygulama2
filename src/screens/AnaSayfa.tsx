@@ -1,209 +1,227 @@
-import { useEffect, useState } from 'react';
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import AsciKarti from '../components/AsciKarti';
+import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View,
+} from 'react-native';
 import { useAuth } from '../auth/AuthContext';
+import AsciKarti from '../components/AsciKarti';
+import Ekran from '../components/Ekran';
+import { UZMANLIKLAR } from '../data/secenekler';
 import { supabase } from '../lib/supabase';
-import { bekleyenTalepSayisi } from '../lib/talepler';
-import { Asci, EN_AZ_YORUM, enSevilenAscilar, vitrindenKarta, yeniAscilar } from '../lib/vitrin';
+import { EN_AZ_YORUM, Vitrin, enSevilenAscilar, vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
-type Props = {
-  profilDuzenle: () => void;
-  asciAc: (id: string) => void;
-  talepEt: () => void;
-  taleplerim: () => void;
-  gelenTalepler: () => void;
-  sifreDegistir: () => void;
-  yorumlarim: () => void;
-};
+type Props = { asciAc: (id: string) => void; talepEt: () => void };
 
-export default function AnaSayfa({ profilDuzenle, asciAc, talepEt, taleplerim, gelenTalepler, sifreDegistir, yorumlarim }: Props) {
-  const { profil, cikisYap, oturum } = useAuth();
-  const [yeniler, setYeniler] = useState<Asci[]>([]);
-  const [sevilenler, setSevilenler] = useState<Asci[]>([]);
+const KENAR = spacing.l;
+const bosluk = (s: string) => s.trim().toLocaleLowerCase('tr-TR');
 
-  const [listeDurumu, setListeDurumu] = useState('');
-  const [bekleyen, setBekleyen] = useState(0);
+export default function AnaSayfa({ asciAc, talepEt }: Props) {
+  const { profil, oturum } = useAuth();
+  const { width } = useWindowDimensions();
+  const ikiliGenislik = (width - KENAR * 2 - spacing.m) / 2;
+
+  const [tumu, setTumu] = useState<Vitrin[]>([]);
+  const [sevilenler, setSevilenler] = useState<Vitrin[]>([]);
+  const [durum, setDurum] = useState('');
+  const [arama, setArama] = useState('');
+  const [kategori, setKategori] = useState<string | null>(null);
   const [asciDurumu, setAsciDurumu] = useState<{ onayli: boolean; reddedildi: boolean; neden: string | null } | null>(null);
 
   useEffect(() => {
-    if (profil?.rol === 'asci') {
-      bekleyenTalepSayisi().then(setBekleyen);
-      supabase
-        .from('asci_profilleri')
-        .select('onayli_mi, reddedildi_mi, red_nedeni')
-        .eq('profil_id', oturum?.user.id ?? '')
-        .maybeSingle()
-        .then(({ data }) =>
-          setAsciDurumu(data ? { onayli: data.onayli_mi, reddedildi: data.reddedildi_mi, neden: data.red_nedeni } : null),
-        );
-    }
-  }, [profil?.rol, oturum?.user.id]);
-
-  useEffect(() => {
     Promise.all([yeniAscilar(), enSevilenAscilar()])
-      .then(([tumu, sevilen]) => {
-        setYeniler(tumu.map(vitrindenKarta));
-        setSevilenler(sevilen.map(vitrindenKarta));
-        setListeDurumu(tumu.length === 0 ? 'Henüz profili kaydedilmiş aşçı yok.' : '');
+      .then(([hepsi, sevilen]) => {
+        setTumu(hepsi);
+        setSevilenler(sevilen);
+        setDurum(hepsi.length === 0 ? 'Henüz profili kaydedilmiş aşçı yok.' : '');
       })
-      .catch((e: { message?: string }) => setListeDurumu(`Aşçı listesi yüklenemedi. (Sebep: ${e.message ?? 'bilinmiyor'})`));
+      .catch((e: { message?: string }) => setDurum(`Aşçı listesi yüklenemedi. (Sebep: ${e.message ?? 'bilinmiyor'})`));
   }, []);
 
+  useEffect(() => {
+    if (profil?.rol !== 'asci') return;
+    supabase
+      .from('asci_profilleri')
+      .select('onayli_mi, reddedildi_mi, red_nedeni')
+      .eq('profil_id', oturum?.user.id ?? '')
+      .maybeSingle()
+      .then(({ data }) =>
+        setAsciDurumu(data ? { onayli: data.onayli_mi, reddedildi: data.reddedildi_mi, neden: data.red_nedeni } : null),
+      );
+  }, [profil?.rol, oturum?.user.id]);
+
+  const suzulen = useMemo(() => {
+    const a = bosluk(arama);
+    return tumu.filter(
+      (v) =>
+        (!kategori || v.uzmanliklar.includes(kategori)) &&
+        (!a || bosluk(`${v.ad} ${v.uzmanliklar.join(' ')} ${v.semtler.join(' ')}`).includes(a)),
+    );
+  }, [tumu, arama, kategori]);
+
+  const filtreVar = arama.trim() !== '' || kategori !== null;
+  const ilkAd = profil?.ad.split(' ')[0] ?? '';
+
   return (
-    <ScrollView style={styles.kap} contentContainerStyle={{ paddingBottom: spacing.xl }}>
-      <View style={styles.ustSatir}>
-        <Text style={styles.merhaba}>Merhaba, {profil?.ad}</Text>
-        <View style={styles.ustLinkler}>
-          <Pressable onPress={sifreDegistir} accessibilityRole="button">
-            <Text style={styles.cikis}>Şifre</Text>
-          </Pressable>
-          <Pressable onPress={cikisYap} accessibilityRole="button">
-            <Text style={styles.cikis}>Çıkış</Text>
-          </Pressable>
+    <Ekran>
+      <ScrollView contentContainerStyle={{ paddingBottom: spacing.l }} keyboardShouldPersistTaps="handled">
+        <View style={styles.ust}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.merhaba}>Merhaba, {ilkAd}</Text>
+            <Text style={styles.slogan}>Ev yemeği, şef elinden.</Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.ust}>
-        <Image source={require('../../assets/logo.png')} style={styles.logo} />
-        <Text style={styles.slogan}>Ev yemeği, şef elinden.</Text>
-      </View>
 
-      {profil?.rol === 'asci' && asciDurumu && !asciDurumu.onayli ? (
-        <View style={styles.uyari}>
-          <Text style={styles.uyariYazi}>
-            {asciDurumu.reddedildi
-              ? `Profilin onaylanmadı.${asciDurumu.neden ? ` Neden: ${asciDurumu.neden}` : ''} Profilini düzenleyip kaydedersen yeniden incelenir.`
-              : 'Profilin yönetici onayı bekliyor. Onaylanana kadar müşteriler seni göremez ve talep gönderemez.'}
-          </Text>
+        <View style={styles.arama}>
+          <Ionicons name="search" size={20} color={colors.metinSoluk} />
+          <TextInput
+            style={styles.aramaGirdi}
+            value={arama}
+            onChangeText={setArama}
+            placeholder="Aşçı, mutfak veya semt ara"
+            placeholderTextColor={colors.metinSoluk}
+            selectionColor={colors.sari}
+            returnKeyType="search"
+          />
+          {arama ? (
+            <Pressable onPress={() => setArama('')} accessibilityLabel="Aramayı temizle" hitSlop={8}>
+              <Ionicons name="close-circle" size={20} color={colors.metinSoluk} />
+            </Pressable>
+          ) : null}
         </View>
-      ) : null}
 
-      {profil?.rol === 'musteri' ? (
-        <>
+        {profil?.rol === 'asci' && asciDurumu && !asciDurumu.onayli ? (
+          <View style={styles.uyari}>
+            <Ionicons name="information-circle" size={22} color={colors.koyuMetin} />
+            <Text style={styles.uyariYazi}>
+              {asciDurumu.reddedildi
+                ? `Profilin onaylanmadı.${asciDurumu.neden ? ` Neden: ${asciDurumu.neden}` : ''} Profilini düzenleyip kaydedersen yeniden incelenir.`
+                : 'Profilin yönetici onayı bekliyor. Onaylanana kadar müşteriler seni göremez ve talep gönderemez.'}
+            </Text>
+          </View>
+        ) : null}
+
+        {profil?.rol === 'musteri' ? (
           <Pressable
             onPress={talepEt}
-            style={({ pressed }) => [styles.buton, pressed && styles.butonBasili]}
+            style={({ pressed }) => [styles.talep, pressed && { opacity: 0.85 }]}
             accessibilityRole="button"
           >
-            <Text style={styles.butonYazi}>Hemen Aşçı Talep Et</Text>
+            <Ionicons name="restaurant" size={26} color={colors.koyuMetin} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.talepBaslik}>Hemen Aşçı Talep Et</Text>
+              <Text style={styles.talepAlt}>Aşçı evinize gelsin, yemekler orada pişsin</Text>
+            </View>
+            <Ionicons name="arrow-forward-circle" size={32} color={colors.koyuMetin} />
           </Pressable>
-          <Pressable onPress={taleplerim} style={styles.profilButon} accessibilityRole="button">
-            <Text style={styles.profilButonYazi}>Taleplerim</Text>
-          </Pressable>
-        </>
-      ) : null}
+        ) : null}
 
-      {profil?.rol === 'asci' ? (
-        <Pressable
-          onPress={gelenTalepler}
-          style={({ pressed }) => [styles.buton, pressed && styles.butonBasili]}
-          accessibilityRole="button"
-        >
-          <Text style={styles.butonYazi}>
-            Gelen Talepler{bekleyen > 0 ? ` (${bekleyen})` : ''}
-          </Text>
-        </Pressable>
-      ) : null}
-
-      {profil?.rol === 'asci' ? (
-        <Pressable
-          onPress={profilDuzenle}
-          style={styles.profilButon}
-          accessibilityRole="button"
-        >
-          <Text style={styles.profilButonYazi}>Aşçı Profilimi Düzenle</Text>
-        </Pressable>
-      ) : null}
-      {profil?.rol === 'asci' ? (
-        <Pressable onPress={yorumlarim} style={styles.profilButon} accessibilityRole="button">
-          <Text style={styles.profilButonYazi}>Yorumlarım</Text>
-        </Pressable>
-      ) : null}
-
-      <Text style={styles.bolum}>En Sevilen Aşçılar</Text>
-      {sevilenler.length > 0 ? (
         <FlatList
           horizontal
-          data={sevilenler}
-          keyExtractor={(a) => a.id}
-          renderItem={({ item }) => <AsciKarti asci={item} onPress={() => asciAc(item.id)} />}
+          data={[null, ...UZMANLIKLAR]}
+          keyExtractor={(k) => k ?? 'tumu'}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.liste}
-          ItemSeparatorComponent={() => <View style={{ width: spacing.m }} />}
+          style={{ flexGrow: 0 }}
+          contentContainerStyle={styles.kategoriler}
+          renderItem={({ item }) => {
+            const acik = item === kategori;
+            return (
+              <Pressable onPress={() => setKategori(item)} style={[styles.kategori, acik && styles.kategoriAcik]}>
+                <Text style={[styles.kategoriYazi, acik && { color: colors.koyuMetin }]}>{item ?? 'Tümü'}</Text>
+              </Pressable>
+            );
+          }}
         />
-      ) : (
-        <Text style={styles.durum}>
-          Aşçılar en az {EN_AZ_YORUM} yorum aldığında en yüksek puanlılar burada listelenecek.
-        </Text>
-      )}
 
-      {yeniler.length > 0 ? (
-        <>
-          <Text style={styles.bolum}>Aşçılarımız</Text>
-          <FlatList
-            horizontal
-            data={yeniler}
-            keyExtractor={(a) => a.id}
-            renderItem={({ item }) => <AsciKarti asci={item} onPress={() => asciAc(item.id)} />}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.liste}
-            ItemSeparatorComponent={() => <View style={{ width: spacing.m }} />}
-          />
-        </>
-      ) : listeDurumu ? (
-        <>
-          <Text style={styles.bolum}>Aşçılarımız</Text>
-          <Text style={styles.durum}>{listeDurumu}</Text>
-        </>
-      ) : null}
-    </ScrollView>
+        {!filtreVar ? (
+          <>
+            <Text style={styles.bolum}>En Sevilen Aşçılar</Text>
+            {sevilenler.length > 0 ? (
+              <FlatList
+                horizontal
+                data={sevilenler}
+                keyExtractor={(a) => a.id}
+                renderItem={({ item }) => (
+                  <AsciKarti asci={vitrindenKarta(item)} genislik={170} onPress={() => asciAc(item.id)} />
+                )}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: KENAR }}
+                ItemSeparatorComponent={() => <View style={{ width: spacing.m }} />}
+              />
+            ) : (
+              <Text style={styles.durum}>
+                Aşçılar en az {EN_AZ_YORUM} yorum aldığında en yüksek puanlılar burada listelenecek.
+              </Text>
+            )}
+          </>
+        ) : null}
+
+        <Text style={styles.bolum}>{filtreVar ? 'Sonuçlar' : 'Aşçılarımız'}</Text>
+        {durum ? <Text style={styles.durum}>{durum}</Text> : null}
+        {!durum && suzulen.length === 0 ? <Text style={styles.durum}>Aramana uyan aşçı bulunamadı.</Text> : null}
+        <View style={styles.izgara}>
+          {suzulen.map((v) => (
+            <AsciKarti key={v.id} asci={vitrindenKarta(v)} genislik={ikiliGenislik} onPress={() => asciAc(v.id)} />
+          ))}
+        </View>
+      </ScrollView>
+    </Ekran>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem },
-  ustSatir: { paddingTop: 56, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.l },
-  ustLinkler: { flexDirection: 'row', gap: spacing.l },
-  merhaba: { fontSize: fontSize.normal, color: colors.metin, fontWeight: '600' },
-  cikis: { fontSize: fontSize.normal, color: colors.kirmizi, fontWeight: '700' },
-  ust: { alignItems: 'center', paddingHorizontal: spacing.l },
-  logo: { width: 140, height: 140, resizeMode: 'contain' },
-  slogan: { marginTop: spacing.s, fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '600' },
-  buton: {
-    marginHorizontal: spacing.l,
-    marginTop: spacing.l,
-    paddingVertical: 22,
-    borderRadius: radius.l,
-    backgroundColor: colors.kirmizi,
+  ust: { flexDirection: 'row', alignItems: 'center', gap: spacing.m, paddingHorizontal: KENAR, paddingBottom: spacing.m },
+  logo: { width: 56, height: 56, borderRadius: radius.tam },
+  merhaba: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.metin },
+  slogan: { fontSize: fontSize.kucuk, color: colors.metinSoluk, marginTop: 2 },
+  arama: {
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: colors.kirmizi,
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+    gap: spacing.s,
+    marginHorizontal: KENAR,
+    backgroundColor: colors.yuzey,
+    borderRadius: radius.tam,
+    borderWidth: 1,
+    borderColor: colors.cizgi,
+    paddingHorizontal: spacing.m,
   },
-  butonBasili: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  butonYazi: { color: colors.sari, fontSize: fontSize.buyuk, fontWeight: '800' },
-  profilButon: {
-    marginHorizontal: spacing.l,
+  aramaGirdi: { flex: 1, paddingVertical: 14, fontSize: fontSize.normal, color: colors.metin },
+  uyari: {
+    flexDirection: 'row',
+    gap: spacing.s,
+    alignItems: 'flex-start',
+    marginHorizontal: KENAR,
     marginTop: spacing.m,
-    paddingVertical: 14,
-    borderRadius: radius.l,
-    borderWidth: 2,
-    borderColor: colors.kirmizi,
+    backgroundColor: colors.sari,
+    borderRadius: radius.m,
+    padding: spacing.m,
+  },
+  uyariYazi: { flex: 1, fontSize: fontSize.kucuk + 1, fontWeight: '600', color: colors.koyuMetin },
+  talep: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing.m,
+    marginHorizontal: KENAR,
+    marginTop: spacing.m,
+    backgroundColor: colors.sari,
+    borderRadius: radius.l,
+    padding: spacing.m + 4,
   },
-  profilButonYazi: { color: colors.kirmizi, fontSize: fontSize.normal + 2, fontWeight: '800' },
-  uyari: { marginHorizontal: spacing.l, marginTop: spacing.m, backgroundColor: colors.sari, borderRadius: radius.m, padding: spacing.m },
-  uyariYazi: { fontSize: fontSize.kucuk + 1, fontWeight: '600', color: colors.metin },
-  durum: { marginHorizontal: spacing.l, fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.7 },
-  bolum: {
-    fontSize: fontSize.baslik,
-    fontWeight: '700',
-    color: colors.kirmizi,
-    marginTop: spacing.xl,
-    marginBottom: spacing.m,
-    marginHorizontal: spacing.l,
+  talepBaslik: { fontSize: fontSize.normal + 4, fontWeight: '800', color: colors.koyuMetin },
+  talepAlt: { fontSize: 13, color: colors.koyuMetin, opacity: 0.8, marginTop: 2 },
+  kategoriler: { paddingHorizontal: KENAR, gap: spacing.s, paddingVertical: spacing.m },
+  kategori: {
+    paddingVertical: 9,
+    paddingHorizontal: 18,
+    borderRadius: radius.tam,
+    backgroundColor: colors.yuzey,
+    borderWidth: 1,
+    borderColor: colors.cizgi,
   },
-  liste: { paddingHorizontal: spacing.l, paddingBottom: spacing.l },
+  kategoriAcik: { backgroundColor: colors.sari, borderColor: colors.sari },
+  kategoriYazi: { fontSize: fontSize.kucuk, fontWeight: '700', color: colors.metin },
+  bolum: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.metin, marginTop: spacing.m, marginBottom: spacing.m, marginHorizontal: KENAR },
+  durum: { marginHorizontal: KENAR, fontSize: fontSize.kucuk, color: colors.metinSoluk },
+  izgara: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.m, paddingHorizontal: KENAR },
 });

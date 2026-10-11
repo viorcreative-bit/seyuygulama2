@@ -1,10 +1,23 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 import { colors, fontSize, radius } from '../theme';
 
-type Props = { yazi: string; onPress: () => void; yukleniyor?: boolean; pasif?: boolean; ikincil?: boolean; cerceveli?: boolean };
+type Props = {
+  yazi: string;
+  onPress: () => void;
+  yukleniyor?: boolean;
+  pasif?: boolean;
+  /** Yazı gibi görünen, zemini olmayan düğme */
+  ikincil?: boolean;
+  /** Sarı çerçeveli düğme */
+  cerceveli?: boolean;
+  /** Dikkat çeken kırmızı çerçeveli düğme (silme, iptal gibi) */
+  tehlike?: boolean;
+};
 
-export default function Dugme({ yazi, onPress, yukleniyor, pasif, ikincil, cerceveli }: Props) {
+export default function Dugme({ yazi, onPress, yukleniyor, pasif, ikincil, cerceveli, tehlike }: Props) {
   const kapali = pasif || yukleniyor;
+  const doldur = !ikincil && !cerceveli && !tehlike;
+  const yaziRengi = doldur ? colors.koyuMetin : tehlike ? colors.kirmiziAcik : colors.sari;
   return (
     <Pressable
       onPress={onPress}
@@ -12,29 +25,26 @@ export default function Dugme({ yazi, onPress, yukleniyor, pasif, ikincil, cerce
       accessibilityRole="button"
       style={({ pressed }) => [
         styles.buton,
-        ikincil && styles.ikincil,
+        doldur && styles.dolu,
         cerceveli && styles.cerceveli,
+        tehlike && styles.tehlike,
         kapali && { opacity: 0.5 },
         pressed && { opacity: 0.8 },
       ]}
     >
       {yukleniyor ? (
-        <ActivityIndicator color={ikincil || cerceveli ? colors.kirmizi : colors.sari} />
+        <ActivityIndicator color={yaziRengi} />
       ) : (
-        <Text style={[styles.yazi, (ikincil || cerceveli) && { color: colors.kirmizi }]}>{yazi}</Text>
+        <Text style={[styles.yazi, { color: yaziRengi }]}>{yazi}</Text>
       )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  buton: {
-    paddingVertical: 16,
-    borderRadius: radius.l,
-    backgroundColor: colors.kirmizi,
-    alignItems: 'center',
-  },
-  ikincil: { backgroundColor: 'transparent' },
-  cerceveli: { backgroundColor: 'transparent', borderWidth: 2, borderColor: colors.kirmizi },
-  yazi: { color: colors.sari, fontSize: fontSize.normal + 2, fontWeight: '800' },
+  buton: { paddingVertical: 16, paddingHorizontal: 20, borderRadius: radius.tam, alignItems: 'center', justifyContent: 'center' },
+  dolu: { backgroundColor: colors.sari },
+  cerceveli: { borderWidth: 2, borderColor: colors.sari },
+  tehlike: { borderWidth: 2, borderColor: colors.kirmiziAcik },
+  yazi: { fontSize: fontSize.normal + 2, fontWeight: '800' },
 });

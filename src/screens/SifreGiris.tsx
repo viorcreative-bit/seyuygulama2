@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Rol, useAuth } from '../auth/AuthContext';
 import Dugme from '../components/Dugme';
-import { girdiStili } from '../components/girdi';
+import Girdi from '../components/Girdi';
+import GirisKabuk from '../components/GirisKabuk';
 import SifreGirdisi from '../components/SifreGirdisi';
 import { supabase } from '../lib/supabase';
 import { telefonuDuzenle } from '../lib/telefon';
@@ -45,46 +46,30 @@ export default function SifreGiris({ rol, geri, sifremiUnuttum }: Props) {
 
   const baslik = rol === 'asci' ? 'Aşçı Girişi' : 'Müşteri Girişi';
   return (
-    <KeyboardAvoidingView style={styles.kap} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.icerik} keyboardShouldPersistTaps="handled">
-        <Pressable onPress={geri} accessibilityRole="button">
-          <Text style={styles.geri}>‹ Geri</Text>
-        </Pressable>
-        <Image source={require('../../assets/logo.png')} style={styles.logo} />
-        <Text style={styles.baslik}>{baslik}</Text>
-
-        <View style={styles.form}>
-          <View style={styles.telSatir}>
-            <Text style={styles.onEk}>+90</Text>
-            <TextInput
-              style={[girdiStili, { flex: 1 }]}
-              value={telefon}
-              onChangeText={setTelefon}
-              placeholder="5XX XXX XX XX"
-              keyboardType="phone-pad"
-            />
-          </View>
-          <SifreGirdisi deger={sifre} degisti={setSifre} placeholder="Şifre" />
-          {hata || girisHatasi ? <Text style={styles.hata}>{hata || girisHatasi}</Text> : null}
-          <Dugme yazi="Giriş Yap" onPress={giris} yukleniyor={yukleniyor} pasif={telefon.length < 10 || sifre.length < 1} />
-          <Pressable onPress={sifremiUnuttum} accessibilityRole="button">
-            <Text style={styles.link}>İlk kez mi giriyorsun veya şifreni mi unuttun?</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    <GirisKabuk geri={geri} baslik={baslik} aciklama="Telefon numaran ve şifrenle giriş yap." logoBoyu={110}>
+      <View style={styles.telSatir}>
+        <Text style={styles.onEk}>+90</Text>
+        <Girdi
+          style={{ flex: 1 }}
+          value={telefon}
+          onChangeText={setTelefon}
+          placeholder="5XX XXX XX XX"
+          keyboardType="phone-pad"
+        />
+      </View>
+      <SifreGirdisi deger={sifre} degisti={setSifre} placeholder="Şifre" />
+      {hata || girisHatasi ? <Text style={styles.hata}>{hata || girisHatasi}</Text> : null}
+      <Dugme yazi="Giriş Yap" onPress={giris} yukleniyor={yukleniyor} pasif={telefon.length < 10 || sifre.length < 1} />
+      <Pressable onPress={sifremiUnuttum} accessibilityRole="button">
+        <Text style={styles.link}>İlk kez mi giriyorsun veya şifreni mi unuttun?</Text>
+      </Pressable>
+    </GirisKabuk>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem },
-  icerik: { padding: spacing.l, paddingTop: 56, flexGrow: 1 },
-  geri: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '700' },
-  logo: { width: 120, height: 120, alignSelf: 'center', marginTop: spacing.m },
-  baslik: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.kirmizi, textAlign: 'center', marginVertical: spacing.m },
-  form: { gap: spacing.m },
   telSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.s },
   onEk: { fontSize: fontSize.baslik, fontWeight: '700', color: colors.metin },
-  hata: { color: colors.kirmizi, fontSize: fontSize.kucuk + 1, fontWeight: '600' },
-  link: { color: colors.kirmizi, fontWeight: '700', textAlign: 'center', fontSize: fontSize.kucuk + 1, marginTop: spacing.s },
+  hata: { color: colors.kirmiziAcik, fontSize: fontSize.kucuk + 1, fontWeight: '600' },
+  link: { color: colors.sari, fontWeight: '700', textAlign: 'center', fontSize: fontSize.kucuk + 1, marginTop: spacing.s },
 });

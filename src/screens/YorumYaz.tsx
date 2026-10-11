@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import Dugme from '../components/Dugme';
+import Ekran from '../components/Ekran';
+import Girdi from '../components/Girdi';
 import { YildizSec } from '../components/Yildizlar';
 import { yorumEkle } from '../lib/yorumlar';
-import { colors, fontSize, radius, spacing } from '../theme';
+import { colors, fontSize, spacing } from '../theme';
 
 type Props = { talepId: string; asciId: string; asciAdi: string; geri: () => void; tamam: () => void };
 
@@ -34,50 +36,32 @@ export default function YorumYaz({ talepId, asciId, asciAdi, geri, tamam }: Prop
   };
 
   return (
-    <KeyboardAvoidingView style={styles.kap} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.ust}>
-        <Pressable onPress={geri} accessibilityRole="button">
-          <Text style={styles.geri}>‹ Geri</Text>
-        </Pressable>
-      </View>
-      <ScrollView contentContainerStyle={styles.icerik} keyboardShouldPersistTaps="handled">
-        <Text style={styles.baslik}>Hizmeti değerlendir</Text>
-        <Text style={styles.asci}>{asciAdi}</Text>
-        <YildizSec deger={yildiz} degisti={setYildiz} />
-        <TextInput
-          style={styles.girdi}
-          value={yorum}
-          onChangeText={setYorum}
-          placeholder="Deneyimini kısaca anlat (isteğe bağlı)"
-          multiline
-          maxLength={1000}
-        />
-        <Text style={styles.ipucu}>Yorumun herkese açık olarak, adının kısaltılmış haliyle (örn. "Ayşe K.") görünür.</Text>
-        {hata ? <Text style={styles.hata}>{hata}</Text> : null}
-        <Dugme yazi="Yorumu Gönder" onPress={gonder} yukleniyor={gonderiliyor} pasif={yildiz < 1} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+    <Ekran baslik="Hizmeti değerlendir" geri={geri}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.icerik} keyboardShouldPersistTaps="handled">
+          <Text style={styles.asci}>{asciAdi}</Text>
+          <YildizSec deger={yildiz} degisti={setYildiz} />
+          <Girdi
+            style={styles.girdi}
+            value={yorum}
+            onChangeText={setYorum}
+            placeholder="Deneyimini kısaca anlat (isteğe bağlı)"
+            multiline
+            maxLength={1000}
+          />
+          <Text style={styles.ipucu}>Yorumun herkese açık olarak, adının kısaltılmış haliyle (örn. "Ayşe K.") görünür.</Text>
+          {hata ? <Text style={styles.hata}>{hata}</Text> : null}
+          <Dugme yazi="Yorumu Gönder" onPress={gonder} yukleniyor={gonderiliyor} pasif={yildiz < 1} />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Ekran>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, paddingTop: 56 },
-  ust: { paddingHorizontal: spacing.l },
-  geri: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '700' },
-  icerik: { padding: spacing.l, gap: spacing.m },
-  baslik: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.kirmizi, textAlign: 'center' },
-  asci: { fontSize: fontSize.baslik, fontWeight: '600', color: colors.metin, textAlign: 'center' },
-  girdi: {
-    backgroundColor: colors.beyaz,
-    borderRadius: radius.m,
-    borderWidth: 1,
-    borderColor: colors.cizgi,
-    padding: spacing.m,
-    fontSize: fontSize.normal,
-    color: colors.metin,
-    height: 130,
-    textAlignVertical: 'top',
-  },
-  ipucu: { fontSize: 13, color: colors.metin, opacity: 0.6 },
-  hata: { color: colors.kirmizi, fontWeight: '600' },
+  icerik: { padding: spacing.l, paddingTop: spacing.s, gap: spacing.l },
+  asci: { fontSize: fontSize.baslik, fontWeight: '700', color: colors.sari, textAlign: 'center' },
+  girdi: { height: 140 },
+  ipucu: { fontSize: 13, color: colors.metinSoluk },
+  hata: { color: colors.kirmiziAcik, fontWeight: '600' },
 });

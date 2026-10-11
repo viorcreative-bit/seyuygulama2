@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
-} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import Dugme from '../components/Dugme';
+import Ekran from '../components/Ekran';
+import Girdi from '../components/Girdi';
 import Secimler from '../components/Secimler';
 import { GUNLER, UZMANLIKLAR } from '../data/secenekler';
 import { fotografSecVeYukle } from '../lib/fotograf';
@@ -11,17 +13,6 @@ import { supabase } from '../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 type Foto = { id: string; adres: string };
-
-const girdi = {
-  backgroundColor: colors.beyaz,
-  borderRadius: radius.m,
-  borderWidth: 1,
-  borderColor: colors.cizgi,
-  paddingHorizontal: spacing.m,
-  paddingVertical: 12,
-  fontSize: fontSize.normal,
-  color: colors.metin,
-} as const;
 
 export default function AsciProfilDuzenle({ geri }: { geri: () => void }) {
   const { oturum, profil, profilYenile } = useAuth();
@@ -157,103 +148,86 @@ export default function AsciProfilDuzenle({ geri }: { geri: () => void }) {
 
   if (yukleniyor) {
     return (
-      <View style={[styles.kap, { justifyContent: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.kirmizi} />
-      </View>
+      <Ekran baslik="Profilim" geri={geri}>
+        <ActivityIndicator size="large" color={colors.sari} style={{ marginTop: 60 }} />
+      </Ekran>
     );
   }
 
   return (
-    <KeyboardAvoidingView style={styles.kap} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.ust}>
-        <Pressable onPress={geri} accessibilityRole="button">
-          <Text style={styles.geri}>‹ Geri</Text>
-        </Pressable>
-        <Text style={styles.baslik}>Profilim</Text>
-        <View style={{ width: 50 }} />
-      </View>
-
-      <ScrollView contentContainerStyle={styles.icerik} keyboardShouldPersistTaps="handled">
-        <Pressable onPress={profilFotoDegistir} style={styles.fotoAlan}>
-          {profilFoto ? (
-            <Image source={{ uri: profilFoto }} style={styles.profilFoto} />
-          ) : (
-            <View style={[styles.profilFoto, styles.fotoBos]}>
-              <Text style={styles.fotoBosYazi}>Fotoğraf{'\n'}ekle</Text>
-            </View>
-          )}
-          <Text style={styles.fotoLink}>{profilFoto ? 'Fotoğrafı değiştir' : 'Profil fotoğrafı seç'}</Text>
-        </Pressable>
-
-        <Text style={styles.etiket}>Ad soyad</Text>
-        <TextInput style={girdi} value={ad} onChangeText={setAd} autoCapitalize="words" />
-
-        <Text style={styles.etiket}>Kısa tanıtım</Text>
-        <TextInput
-          style={[girdi, { height: 110, textAlignVertical: 'top' }]}
-          value={tanitim}
-          onChangeText={setTanitim}
-          placeholder="Kendini ve mutfağını kısaca anlat"
-          multiline
-          maxLength={1000}
-        />
-
-        <Text style={styles.etiket}>Uzmanlık alanları</Text>
-        <Secimler secenekler={UZMANLIKLAR} secili={uzmanliklar} degisti={setUzmanliklar} />
-
-        <Text style={styles.etiket}>Hizmet verdiğin semtler</Text>
-        <TextInput
-          style={girdi}
-          value={semtler}
-          onChangeText={setSemtler}
-          placeholder="Örn: Kadıköy, Beşiktaş, Ataşehir"
-        />
-        <Text style={styles.ipucu}>Semtleri virgülle ayır.</Text>
-
-        <Text style={styles.etiket}>Başlangıç fiyatı (bir haftalık hizmet, TL)</Text>
-        <TextInput style={girdi} value={fiyat} onChangeText={setFiyat} placeholder="Örn: 5000" keyboardType="number-pad" />
-
-        <Text style={styles.etiket}>Müsait olduğun günler</Text>
-        <Secimler secenekler={GUNLER} secili={gunler} degisti={setGunler} />
-
-        <Text style={styles.etiket}>Yemek fotoğraflarım</Text>
-        <View style={styles.galeri}>
-          {galeri.map((f) => (
-            <Pressable key={f.id} onLongPress={() => fotoSil(f)} onPress={() => fotoSil(f)}>
-              <Image source={{ uri: f.adres }} style={styles.galeriFoto} />
-            </Pressable>
-          ))}
-          <Pressable onPress={galeriyeEkle} disabled={fotoYukleniyor} style={[styles.galeriFoto, styles.ekle]}>
-            {fotoYukleniyor ? <ActivityIndicator color={colors.kirmizi} /> : <Text style={styles.arti}>+</Text>}
+    <Ekran baslik="Profilim" geri={geri}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.icerik} keyboardShouldPersistTaps="handled">
+          <Pressable onPress={profilFotoDegistir} style={styles.fotoAlan}>
+            {profilFoto ? (
+              <Image source={{ uri: profilFoto }} style={styles.profilFoto} />
+            ) : (
+              <View style={[styles.profilFoto, styles.fotoBos]}>
+                <Ionicons name="camera" size={34} color={colors.sari} />
+              </View>
+            )}
+            <Text style={styles.fotoLink}>{profilFoto ? 'Fotoğrafı değiştir' : 'Profil fotoğrafı seç'}</Text>
           </Pressable>
-        </View>
-        <Text style={styles.ipucu}>Silmek için fotoğrafa dokun.</Text>
 
-        {hata ? <Text style={styles.hata}>{hata}</Text> : null}
-        <View style={{ marginTop: spacing.l }}>
-          <Dugme yazi="Kaydet" onPress={kaydet} yukleniyor={kaydediliyor} />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <Text style={styles.etiket}>Ad soyad</Text>
+          <Girdi value={ad} onChangeText={setAd} autoCapitalize="words" />
+
+          <Text style={styles.etiket}>Kısa tanıtım</Text>
+          <Girdi
+            style={{ height: 110 }}
+            value={tanitim}
+            onChangeText={setTanitim}
+            placeholder="Kendini ve mutfağını kısaca anlat"
+            multiline
+            maxLength={1000}
+          />
+
+          <Text style={styles.etiket}>Uzmanlık alanları</Text>
+          <Secimler secenekler={UZMANLIKLAR} secili={uzmanliklar} degisti={setUzmanliklar} />
+
+          <Text style={styles.etiket}>Hizmet verdiğin semtler</Text>
+          <Girdi value={semtler} onChangeText={setSemtler} placeholder="Örn: Kadıköy, Beşiktaş, Ataşehir" />
+          <Text style={styles.ipucu}>Semtleri virgülle ayır.</Text>
+
+          <Text style={styles.etiket}>Başlangıç fiyatı (bir haftalık hizmet, TL)</Text>
+          <Girdi value={fiyat} onChangeText={setFiyat} placeholder="Örn: 5000" keyboardType="number-pad" />
+
+          <Text style={styles.etiket}>Müsait olduğun günler</Text>
+          <Secimler secenekler={GUNLER} secili={gunler} degisti={setGunler} />
+
+          <Text style={styles.etiket}>Yemek fotoğraflarım</Text>
+          <View style={styles.galeri}>
+            {galeri.map((f) => (
+              <Pressable key={f.id} onPress={() => fotoSil(f)}>
+                <Image source={{ uri: f.adres }} style={styles.galeriFoto} />
+              </Pressable>
+            ))}
+            <Pressable onPress={galeriyeEkle} disabled={fotoYukleniyor} style={[styles.galeriFoto, styles.ekle]}>
+              {fotoYukleniyor ? <ActivityIndicator color={colors.sari} /> : <Ionicons name="add" size={36} color={colors.sari} />}
+            </Pressable>
+          </View>
+          <Text style={styles.ipucu}>Silmek için fotoğrafa dokun.</Text>
+
+          {hata ? <Text style={styles.hata}>{hata}</Text> : null}
+          <View style={{ marginTop: spacing.l }}>
+            <Dugme yazi="Kaydet" onPress={kaydet} yukleniyor={kaydediliyor} />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Ekran>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, paddingTop: 56 },
-  ust: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.l },
-  geri: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '700', width: 50 },
-  baslik: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.kirmizi },
-  icerik: { padding: spacing.l, paddingBottom: 60, gap: spacing.s },
+  icerik: { padding: spacing.l, paddingTop: spacing.s, paddingBottom: 60, gap: spacing.s },
   fotoAlan: { alignItems: 'center', marginBottom: spacing.m },
   profilFoto: { width: 110, height: 110, borderRadius: radius.tam },
-  fotoBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
-  fotoBosYazi: { color: colors.sari, fontWeight: '700', textAlign: 'center' },
-  fotoLink: { marginTop: spacing.s, color: colors.kirmizi, fontWeight: '700', fontSize: fontSize.normal },
+  fotoBos: { backgroundColor: colors.yuzey, borderWidth: 2, borderStyle: 'dashed', borderColor: colors.sari, alignItems: 'center', justifyContent: 'center' },
+  fotoLink: { marginTop: spacing.s, color: colors.sari, fontWeight: '700', fontSize: fontSize.normal },
   etiket: { fontSize: fontSize.normal, fontWeight: '700', color: colors.metin, marginTop: spacing.m },
-  ipucu: { fontSize: 13, color: colors.metin, opacity: 0.6 },
+  ipucu: { fontSize: 13, color: colors.metinSoluk },
   galeri: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.s },
   galeriFoto: { width: 100, height: 100, borderRadius: radius.s },
-  ekle: { backgroundColor: colors.beyaz, borderWidth: 2, borderStyle: 'dashed', borderColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
-  arti: { fontSize: 40, color: colors.kirmizi, fontWeight: '300' },
-  hata: { color: colors.kirmizi, fontWeight: '600', marginTop: spacing.m },
+  ekle: { backgroundColor: colors.yuzey, borderWidth: 2, borderStyle: 'dashed', borderColor: colors.sari, alignItems: 'center', justifyContent: 'center' },
+  hata: { color: colors.kirmiziAcik, fontWeight: '600', marginTop: spacing.m },
 });

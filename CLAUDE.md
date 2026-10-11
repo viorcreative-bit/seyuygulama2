@@ -26,13 +26,14 @@ Proje sahibi yazılımcı değildir. Bu yüzden:
 ## Marka ve tasarım
 
 - **Logo:** `assets/logo.png` (kırmızı daire içinde sarı şef şapkası, bıyık ve el yazısıyla "Aşçım Gelsin").
-- **Renkler:**
-  - Kırmızı (ana renk): `#A30909` — üst bar, başlıklar, ana butonlar
-  - Koyu sarı (vurgu): `#FEC010` — yıldızlar, buton yazıları, vurgular
-  - Krem (arka plan): `#FFF8E7`
-  - Koyu metin: `#2B1A12`
-- **His:** Sıcak, samimi ama özenli ve premium. Bol boşluk, yuvarlak köşeler, büyük ve net yazılar.
-- Renkleri tek bir tema dosyasında tanımla (`src/theme.ts`), hiçbir ekranda renk kodunu elle yazma.
+- **Tasarım dili: koyu tema.** Koyu bordo degrade zemin, yuvarlak köşeli koyu kartlar, sarı vurgu, fotoğraf ağırlıklı aşçı kartları, altta yüzen gezinme çubuğu. Referans: yemek siparişi uygulaması UI kit'i; renkler yeşil yerine marka renkleridir.
+- **Renkler** (hepsi `src/theme.ts` içinde, ekranlarda renk kodu elle yazılmaz):
+  - Zemin: `zemin` `#160606` (degrade tepesi `zeminUst` `#2B0B0B`); kartlar: `yuzey` `#2A1010`, `yuzeyUst` `#3A1818`; çizgiler: `cizgi` `#4D2626`
+  - Sarı (ana vurgu, ana butonlar, seçili öğeler): `sari` `#FEC010`; sarı zemin üzerindeki yazı: `koyuMetin` `#2B1A12`
+  - Kırmızı (marka rengi, rozetler, fotoğraf yoksa zemin): `kirmizi` `#A30909`; koyu zeminde hata/uyarı metni: `kirmiziAcik` `#FF6B5E`
+  - Metin: `metin` `#FFF8E7` (krem), ikincil metin: `metinSoluk` `#BFA99A`
+- **His:** Sıcak, samimi ama özenli ve premium. Bol boşluk, çok yuvarlak köşeler, büyük ve net yazılar.
+- **Ortak bileşenler** (`src/components/`): `Ekran` (arka plan + üst çubuk), `Ust`, `AltMenu` (müşteri: Ana Sayfa / Taleplerim / Hesabım; aşçı: Ana Sayfa / Talepler / Yorumlar / Hesabım), `Dugme`, `Girdi`, `AsciKarti`, `GirisKabuk`, `DurumRozeti`, `Bos`. Yeni ekranlar bunları kullanır.
 
 ## Kullanıcı tipleri
 

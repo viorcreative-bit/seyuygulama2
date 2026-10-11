@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import Dugme from '../components/Dugme';
-import { girdiStili } from '../components/girdi';
+import Girdi from '../components/Girdi';
+import GirisKabuk from '../components/GirisKabuk';
 import { supabase } from '../lib/supabase';
 import { telefonuDuzenle } from '../lib/telefon';
 import { colors, fontSize, spacing } from '../theme';
@@ -55,65 +56,52 @@ export default function KodGirisi({ amac, geri }: { amac: KodAmaci; geri: () => 
   };
 
   return (
-    <KeyboardAvoidingView style={styles.kap} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Pressable onPress={geri} style={styles.geri} accessibilityRole="button">
-        <Text style={styles.geriYazi}>‹ Geri</Text>
-      </Pressable>
-      <Image source={require('../../assets/logo.png')} style={styles.logo} />
-      <Text style={styles.baslik}>{numara ? 'Doğrulama kodu' : METIN[amac].baslik}</Text>
-      <Text style={styles.aciklama}>
-        {numara ? `${numara} numarasına gönderilen kodu gir.` : METIN[amac].aciklama}
-      </Text>
-
-      <View style={styles.form}>
-        {numara ? (
-          <TextInput
-            style={girdiStili}
-            value={kod}
-            onChangeText={setKod}
-            placeholder="123456"
-            keyboardType="number-pad"
-            maxLength={6}
-            textContentType="oneTimeCode"
+    <GirisKabuk
+      geri={geri}
+      baslik={numara ? 'Doğrulama kodu' : METIN[amac].baslik}
+      aciklama={numara ? `${numara} numarasına gönderilen kodu gir.` : METIN[amac].aciklama}
+    >
+      {numara ? (
+        <Girdi
+          value={kod}
+          onChangeText={setKod}
+          placeholder="123456"
+          keyboardType="number-pad"
+          maxLength={6}
+          textContentType="oneTimeCode"
+          autoFocus
+          style={styles.kod}
+        />
+      ) : (
+        <View style={styles.telSatir}>
+          <Text style={styles.onEk}>+90</Text>
+          <Girdi
+            style={{ flex: 1 }}
+            value={telefon}
+            onChangeText={setTelefon}
+            placeholder="5XX XXX XX XX"
+            keyboardType="phone-pad"
             autoFocus
           />
-        ) : (
-          <View style={styles.telSatir}>
-            <Text style={styles.onEk}>+90</Text>
-            <TextInput
-              style={[girdiStili, { flex: 1 }]}
-              value={telefon}
-              onChangeText={setTelefon}
-              placeholder="5XX XXX XX XX"
-              keyboardType="phone-pad"
-              autoFocus
-            />
-          </View>
-        )}
-        {hata ? <Text style={styles.hata}>{hata}</Text> : null}
-        <Dugme
-          yazi={numara ? 'Doğrula' : 'Kod Gönder'}
-          onPress={numara ? kodDogrula : kodGonder}
-          yukleniyor={yukleniyor}
-          pasif={numara ? kod.trim().length < 6 : telefon.length < 10}
-        />
-        {numara ? (
-          <Dugme yazi="Numarayı değiştir" ikincil onPress={() => { setNumara(null); setKod(''); setHata(''); }} />
-        ) : null}
-      </View>
-    </KeyboardAvoidingView>
+        </View>
+      )}
+      {hata ? <Text style={styles.hata}>{hata}</Text> : null}
+      <Dugme
+        yazi={numara ? 'Doğrula' : 'Kod Gönder'}
+        onPress={numara ? kodDogrula : kodGonder}
+        yukleniyor={yukleniyor}
+        pasif={numara ? kod.trim().length < 6 : telefon.length < 10}
+      />
+      {numara ? (
+        <Dugme yazi="Numarayı değiştir" ikincil onPress={() => { setNumara(null); setKod(''); setHata(''); }} />
+      ) : null}
+    </GirisKabuk>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, padding: spacing.l, justifyContent: 'center' },
-  geri: { position: 'absolute', top: 56, left: spacing.l },
-  geriYazi: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '700' },
-  logo: { width: 130, height: 130, alignSelf: 'center' },
-  baslik: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.kirmizi, textAlign: 'center', marginTop: spacing.m },
-  aciklama: { fontSize: fontSize.normal, color: colors.metin, textAlign: 'center', marginTop: spacing.s, marginBottom: spacing.l },
-  form: { gap: spacing.m },
   telSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.s },
   onEk: { fontSize: fontSize.baslik, fontWeight: '700', color: colors.metin },
-  hata: { color: colors.kirmizi, fontSize: fontSize.kucuk, fontWeight: '600' },
+  kod: { textAlign: 'center', fontSize: fontSize.buyuk, letterSpacing: 8 },
+  hata: { color: colors.kirmiziAcik, fontSize: fontSize.kucuk + 1, fontWeight: '600' },
 });

@@ -13,7 +13,7 @@ export default function Secimler({ secenekler, secili, degisti }: Props) {
         const acik = secili.includes(s);
         return (
           <Pressable key={s} onPress={() => degistir(s)} style={[styles.etiket, acik && styles.acik]}>
-            <Text style={[styles.yazi, acik && { color: colors.sari }]}>{s}</Text>
+            <Text style={[styles.yazi, acik && { color: colors.koyuMetin }]}>{s}</Text>
           </Pressable>
         );
       })}
@@ -24,13 +24,13 @@ export default function Secimler({ secenekler, secili, degisti }: Props) {
 const styles = StyleSheet.create({
   sar: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.s },
   etiket: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    paddingVertical: 9,
+    paddingHorizontal: 16,
     borderRadius: radius.tam,
-    backgroundColor: colors.beyaz,
+    backgroundColor: colors.yuzey,
     borderWidth: 1,
     borderColor: colors.cizgi,
   },
-  acik: { backgroundColor: colors.kirmizi, borderColor: colors.kirmizi },
+  acik: { backgroundColor: colors.sari, borderColor: colors.sari },
   yazi: { fontSize: fontSize.kucuk, fontWeight: '600', color: colors.metin },
 });

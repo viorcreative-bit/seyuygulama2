@@ -1,7 +1,8 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../auth/AuthContext';
 import Dugme from '../components/Dugme';
-import { colors, fontSize, spacing } from '../theme';
+import { colors, fontSize, radius, spacing } from '../theme';
 
 type Props = { musteriGirisi: () => void; asciGirisi: () => void; kaydol: () => void };
 
@@ -14,10 +15,14 @@ export default function Karsilama({ musteriGirisi, asciGirisi, kaydol }: Props) 
   };
   return (
     <View style={styles.kap}>
-      <Image source={require('../../assets/logo.png')} style={styles.logo} />
-      <Text style={styles.slogan}>Ev yemeği, şef elinden.</Text>
-      {girisHatasi ? <Text style={styles.hata}>{girisHatasi}</Text> : null}
-      <View style={styles.butonlar}>
+      <LinearGradient colors={[colors.zeminUst, colors.zemin]} style={StyleSheet.absoluteFill} />
+      <View style={styles.ust}>
+        <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        <Text style={styles.baslik}>Aşçım Gelsin</Text>
+        <Text style={styles.slogan}>Ev yemeği, şef elinden.</Text>
+      </View>
+      <View style={styles.alt}>
+        {girisHatasi ? <Text style={styles.hata}>{girisHatasi}</Text> : null}
         <Dugme yazi="Müşteri Girişi" onPress={git(musteriGirisi)} />
         <Dugme yazi="Aşçı Girişi" onPress={git(asciGirisi)} />
         <Dugme yazi="Kaydol" cerceveli onPress={git(kaydol)} />
@@ -27,9 +32,11 @@ export default function Karsilama({ musteriGirisi, asciGirisi, kaydol }: Props) 
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, padding: spacing.l, justifyContent: 'center' },
-  logo: { width: 220, height: 220, alignSelf: 'center' },
-  slogan: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '600', textAlign: 'center', marginTop: spacing.m },
-  hata: { color: colors.kirmizi, fontWeight: '600', textAlign: 'center', marginTop: spacing.m, fontSize: fontSize.kucuk + 1 },
-  butonlar: { gap: spacing.m, marginTop: spacing.xl },
+  kap: { flex: 1, backgroundColor: colors.zemin, padding: spacing.l, justifyContent: 'space-between' },
+  ust: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  logo: { width: 230, height: 230, borderRadius: radius.tam },
+  baslik: { fontSize: 36, fontWeight: '800', color: colors.metin, marginTop: spacing.l },
+  slogan: { fontSize: fontSize.baslik, color: colors.sari, fontWeight: '600', marginTop: spacing.s },
+  alt: { gap: spacing.m, paddingBottom: spacing.l },
+  hata: { color: colors.kirmiziAcik, fontWeight: '600', textAlign: 'center', fontSize: fontSize.kucuk + 1 },
 });

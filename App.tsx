@@ -2,46 +2,48 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
+import AltMenu, { Sekme } from './src/components/AltMenu';
 import { supabaseHazir } from './src/lib/supabase';
 import { tarihSaatYaz } from './src/lib/talepler';
 import AnaSayfa from './src/screens/AnaSayfa';
 import AsciProfil from './src/screens/AsciProfil';
 import AsciProfilDuzenle from './src/screens/AsciProfilDuzenle';
-import AsciYorumlari from './src/screens/AsciYorumlari';
 import AsciSec from './src/screens/AsciSec';
+import AsciYorumlari from './src/screens/AsciYorumlari';
 import GelenTalepler from './src/screens/GelenTalepler';
 import GirisAkisi from './src/screens/GirisAkisi';
+import Hesabim from './src/screens/Hesabim';
 import Kayit from './src/screens/Kayit';
 import SifreBelirle from './src/screens/SifreBelirle';
 import SifreDegistir from './src/screens/SifreDegistir';
-import YorumYaz from './src/screens/YorumYaz';
 import SikayetYaz from './src/screens/SikayetYaz';
 import TalepOlustur from './src/screens/TalepOlustur';
 import Taleplerim from './src/screens/Taleplerim';
+import YorumYaz from './src/screens/YorumYaz';
 import { colors, fontSize, spacing } from './src/theme';
 
 type Ekran =
-  | { ad: 'ana' }
+  | { ad: Sekme }
   | { ad: 'profilDuzenle' }
   | { ad: 'asci'; id: string }
   | { ad: 'asciSec' }
   | { ad: 'talep'; asciId: string }
-  | { ad: 'taleplerim' }
-  | { ad: 'gelenTalepler' }
   | { ad: 'sifreDegistir' }
-  | { ad: 'asciYorumlari' }
-  | { ad: 'sikayet'; talepId: string; ozet: string; geriye: 'taleplerim' | 'gelenTalepler' }
-  | { ad: 'yorumYaz'; talepId: string; asciId: string; asciAdi: string };
+  | { ad: 'yorumYaz'; talepId: string; asciId: string; asciAdi: string }
+  | { ad: 'sikayet'; talepId: string; ozet: string; geriye: 'taleplerim' | 'gelenTalepler' };
+
+const SEKMELER: Sekme[] = ['ana', 'taleplerim', 'gelenTalepler', 'asciYorumlari', 'hesap'];
 
 function Ekranlar() {
   const { yukleniyor, oturum, profil, sifreVar, sifreSifirlaniyor } = useAuth();
   const [ekran, setEkran] = useState<Ekran>({ ad: 'ana' });
-  const ana = () => setEkran({ ad: 'ana' });
+  const git = (ad: Sekme) => () => setEkran({ ad });
+  const ana = git('ana');
 
   if (yukleniyor) {
     return (
       <View style={styles.orta}>
-        <ActivityIndicator size="large" color={colors.kirmizi} />
+        <ActivityIndicator size="large" color={colors.sari} />
       </View>
     );
   }
@@ -51,9 +53,61 @@ function Ekranlar() {
   if (!sifreVar || sifreSifirlaniyor) return <SifreBelirle />;
 
   const musteri = profil.rol === 'musteri';
+  const asci = profil.rol === 'asci';
+
+  // Ana gezinme sekmeleri (alt menü görünür)
+  if (SEKMELER.includes(ekran.ad as Sekme)) {
+    let icerik: React.ReactNode;
+    switch (ekran.ad) {
+      case 'taleplerim':
+        icerik = musteri ? (
+          <Taleplerim
+            yorumYap={(t, asciAdi) => setEkran({ ad: 'yorumYaz', talepId: t.id, asciId: t.asci_id, asciAdi })}
+            sikayetEt={(t, asciAdi) =>
+              setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${asciAdi} · ${tarihSaatYaz(t.tarih)}`, geriye: 'taleplerim' })
+            }
+          />
+        ) : null;
+        break;
+      case 'gelenTalepler':
+        icerik = asci ? (
+          <GelenTalepler
+            sikayetEt={(t) =>
+              setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${t.musteri_ad} · ${tarihSaatYaz(t.tarih)}`, geriye: 'gelenTalepler' })
+            }
+          />
+        ) : null;
+        break;
+      case 'asciYorumlari':
+        icerik = asci ? <AsciYorumlari /> : null;
+        break;
+      case 'hesap':
+        icerik = (
+          <Hesabim
+            profilDuzenle={() => setEkran({ ad: 'profilDuzenle' })}
+            sifreDegistir={() => setEkran({ ad: 'sifreDegistir' })}
+          />
+        );
+        break;
+      default:
+        icerik = <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'asciSec' })} />;
+    }
+    // Rolüne uymayan bir sekmeye düşülürse ana sayfaya dön.
+    if (!icerik) return <AnaSayfa asciAc={(id) => setEkran({ ad: 'asci', id })} talepEt={() => setEkran({ ad: 'asciSec' })} />;
+    return (
+      <View style={styles.kap}>
+        <View style={{ flex: 1 }}>{icerik}</View>
+        <AltMenu rol={profil.rol} aktif={ekran.ad as Sekme} sec={(s) => setEkran({ ad: s })} />
+      </View>
+    );
+  }
+
+  // Tam ekran sayfalar (alt menü yok, geri düğmesi var)
   switch (ekran.ad) {
     case 'profilDuzenle':
-      return profil.rol === 'asci' ? <AsciProfilDuzenle geri={ana} /> : <AnaSayfa {...anaProps(setEkran)} />;
+      return asci ? <AsciProfilDuzenle geri={git('hesap')} /> : <Hesabim profilDuzenle={() => {}} sifreDegistir={() => {}} />;
+    case 'sifreDegistir':
+      return <SifreDegistir geri={git('hesap')} />;
     case 'asci':
       return (
         <AsciProfil
@@ -65,59 +119,22 @@ function Ekranlar() {
     case 'asciSec':
       return <AsciSec sec={(id) => setEkran({ ad: 'talep', asciId: id })} geri={ana} />;
     case 'talep':
-      return <TalepOlustur asciId={ekran.asciId} geri={ana} gonderildi={() => setEkran({ ad: 'taleplerim' })} />;
-    case 'taleplerim':
-      return (
-        <Taleplerim
-          geri={ana}
-          sikayetEt={(t, asciAdi) =>
-            setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${asciAdi} · ${tarihSaatYaz(t.tarih)}`, geriye: 'taleplerim' })
-          }
-          yorumYap={(t, asciAdi) => setEkran({ ad: 'yorumYaz', talepId: t.id, asciId: t.asci_id, asciAdi })}
-        />
-      );
+      return <TalepOlustur asciId={ekran.asciId} geri={ana} gonderildi={git('taleplerim')} />;
     case 'yorumYaz':
       return (
         <YorumYaz
           talepId={ekran.talepId}
           asciId={ekran.asciId}
           asciAdi={ekran.asciAdi}
-          geri={() => setEkran({ ad: 'taleplerim' })}
-          tamam={() => setEkran({ ad: 'taleplerim' })}
+          geri={git('taleplerim')}
+          tamam={git('taleplerim')}
         />
-      );
-    case 'asciYorumlari':
-      return profil.rol === 'asci' ? <AsciYorumlari geri={ana} /> : <AnaSayfa {...anaProps(setEkran)} />;
-    case 'sifreDegistir':
-      return <SifreDegistir geri={ana} />;
-    case 'gelenTalepler':
-      return profil.rol === 'asci' ? (
-        <GelenTalepler
-          geri={ana}
-          sikayetEt={(t) =>
-            setEkran({ ad: 'sikayet', talepId: t.id, ozet: `${t.musteri_ad} · ${tarihSaatYaz(t.tarih)}`, geriye: 'gelenTalepler' })
-          }
-        />
-      ) : (
-        <AnaSayfa {...anaProps(setEkran)} />
       );
     case 'sikayet':
-      return <SikayetYaz talepId={ekran.talepId} ozet={ekran.ozet} geri={() => setEkran({ ad: ekran.geriye })} />;
+      return <SikayetYaz talepId={ekran.talepId} ozet={ekran.ozet} geri={git(ekran.geriye)} />;
     default:
-      return <AnaSayfa {...anaProps(setEkran)} />;
+      return null;
   }
-}
-
-function anaProps(setEkran: (e: Ekran) => void) {
-  return {
-    profilDuzenle: () => setEkran({ ad: 'profilDuzenle' }),
-    asciAc: (id: string) => setEkran({ ad: 'asci', id }),
-    talepEt: () => setEkran({ ad: 'asciSec' }),
-    taleplerim: () => setEkran({ ad: 'taleplerim' }),
-    gelenTalepler: () => setEkran({ ad: 'gelenTalepler' }),
-    sifreDegistir: () => setEkran({ ad: 'sifreDegistir' }),
-    yorumlarim: () => setEkran({ ad: 'asciYorumlari' }),
-  };
 }
 
 export default function App() {
@@ -134,14 +151,17 @@ export default function App() {
   }
   return (
     <AuthProvider>
-      <Ekranlar />
-      <StatusBar style="dark" />
+      <View style={styles.kap}>
+        <Ekranlar />
+      </View>
+      <StatusBar style="light" />
     </AuthProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  orta: { flex: 1, backgroundColor: colors.krem, alignItems: 'center', justifyContent: 'center', padding: spacing.l },
-  baslik: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.kirmizi, marginBottom: spacing.m },
+  kap: { flex: 1, backgroundColor: colors.zemin },
+  orta: { flex: 1, backgroundColor: colors.zemin, alignItems: 'center', justifyContent: 'center', padding: spacing.l },
+  baslik: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.sari, marginBottom: spacing.m },
   yazi: { fontSize: fontSize.normal, color: colors.metin, textAlign: 'center' },
 });

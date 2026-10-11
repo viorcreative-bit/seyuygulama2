@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
+import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
+import Ekran from '../components/Ekran';
+import Girdi from '../components/Girdi';
 import { Yildizlar } from '../components/Yildizlar';
 import YorumKarti from '../components/YorumKarti';
 import { supabase } from '../lib/supabase';
@@ -9,7 +12,7 @@ import { Yorum, asciYorumlari, cevapYaz } from '../lib/yorumlar';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 // Aşçının aldığı yorumları gördüğü ve (bir kez) cevap yazdığı ekran.
-export default function AsciYorumlari({ geri }: { geri: () => void }) {
+export default function AsciYorumlari() {
   const { oturum } = useAuth();
   const uid = oturum!.user.id;
   const [liste, setListe] = useState<Yorum[] | null>(null);
@@ -60,35 +63,38 @@ export default function AsciYorumlari({ geri }: { geri: () => void }) {
   };
 
   return (
-    <View style={styles.kap}>
-      <View style={styles.ust}>
-        <Pressable onPress={geri} accessibilityRole="button">
-          <Text style={styles.geri}>‹ Geri</Text>
-        </Pressable>
-      </View>
-      <Text style={styles.baslik}>Yorumlarım</Text>
-      {ozet.puan != null ? (
-        <View style={styles.ozet}>
-          <Yildizlar puan={ozet.puan} boyut={22} />
-          <Text style={styles.ozetYazi}>
-            {ozet.puan.toLocaleString('tr-TR', { minimumFractionDigits: 1 })} · {ozet.sayi} yorum
-          </Text>
-        </View>
-      ) : null}
-      {hata ? <Text style={styles.bos}>{hata}</Text> : null}
-      {!liste && !hata ? <ActivityIndicator size="large" color={colors.kirmizi} style={{ marginTop: 40 }} /> : null}
-      {liste && liste.length === 0 ? <Text style={styles.bos}>Henüz yorum almadın.</Text> : null}
+    <Ekran baslik="Yorumlarım">
       <FlatList
         data={liste ?? []}
         keyExtractor={(y) => y.id}
-        contentContainerStyle={{ padding: spacing.l, gap: spacing.m }}
+        contentContainerStyle={{ padding: spacing.l, paddingTop: 0, gap: spacing.m }}
+        ListHeaderComponent={
+          ozet.puan != null ? (
+            <View style={styles.ozet}>
+              <Text style={styles.puan}>{ozet.puan.toLocaleString('tr-TR', { minimumFractionDigits: 1 })}</Text>
+              <View style={{ gap: 2 }}>
+                <Yildizlar puan={ozet.puan} boyut={22} />
+                <Text style={styles.ozetYazi}>{ozet.sayi} yorum</Text>
+              </View>
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={
+          hata ? (
+            <Bos mesaj={hata} simge="cloud-offline-outline" />
+          ) : !liste ? (
+            <Bos yukleniyor />
+          ) : (
+            <Bos mesaj="Henüz yorum almadın." simge="star-outline" />
+          )
+        }
         renderItem={({ item }) => (
           <YorumKarti
             yorum={item}
             altinda={
               item.asci_cevabi ? null : (
                 <View style={{ gap: spacing.s, marginTop: spacing.s }}>
-                  <TextInput
+                  <Girdi
                     style={styles.girdi}
                     value={yazilan[item.id] ?? ''}
                     onChangeText={(t) => setYazilan((o) => ({ ...o, [item.id]: t }))}
@@ -108,27 +114,23 @@ export default function AsciYorumlari({ geri }: { geri: () => void }) {
           />
         )}
       />
-    </View>
+    </Ekran>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, paddingTop: 56 },
-  ust: { paddingHorizontal: spacing.l },
-  geri: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '700' },
-  baslik: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.kirmizi, marginTop: spacing.m, marginHorizontal: spacing.l },
-  ozet: { flexDirection: 'row', alignItems: 'center', gap: spacing.s, marginHorizontal: spacing.l, marginTop: spacing.s },
-  ozetYazi: { fontSize: fontSize.normal, fontWeight: '700', color: colors.metin },
-  bos: { textAlign: 'center', marginTop: 40, color: colors.metin, fontSize: fontSize.normal, paddingHorizontal: spacing.l },
-  girdi: {
-    backgroundColor: colors.krem,
-    borderRadius: radius.s,
+  ozet: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.m,
+    backgroundColor: colors.yuzey,
+    borderRadius: radius.m,
     borderWidth: 1,
     borderColor: colors.cizgi,
-    padding: spacing.s + 4,
-    fontSize: fontSize.normal,
-    color: colors.metin,
-    minHeight: 70,
-    textAlignVertical: 'top',
+    padding: spacing.m,
+    marginBottom: spacing.m,
   },
+  puan: { fontSize: 44, fontWeight: '800', color: colors.sari },
+  ozetYazi: { fontSize: fontSize.kucuk, color: colors.metinSoluk },
+  girdi: { minHeight: 70, fontSize: fontSize.normal, borderRadius: radius.s },
 });

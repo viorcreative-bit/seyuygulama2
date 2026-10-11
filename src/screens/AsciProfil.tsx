@@ -1,11 +1,15 @@
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
+import Ekran from '../components/Ekran';
 import { Yildizlar } from '../components/Yildizlar';
 import YorumKarti from '../components/YorumKarti';
 import { supabase } from '../lib/supabase';
-import { Yorum, asciYorumlari } from '../lib/yorumlar';
 import { tl, Vitrin } from '../lib/vitrin';
+import { Yorum, asciYorumlari } from '../lib/yorumlar';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 function Etiketler({ liste }: { liste: string[] }) {
@@ -43,159 +47,185 @@ export default function AsciProfil({ asciId, geri, talepEt }: Props) {
     })();
   }, [asciId]);
 
-  const ustBar = (
-    <View style={styles.ust}>
-      <Pressable onPress={geri} accessibilityRole="button">
-        <Text style={styles.geri}>‹ Geri</Text>
-      </Pressable>
-    </View>
-  );
-
-  if (yukleniyor) {
+  if (yukleniyor || !asci) {
     return (
-      <View style={styles.kap}>
-        {ustBar}
-        <ActivityIndicator size="large" color={colors.kirmizi} style={{ marginTop: 80 }} />
-      </View>
-    );
-  }
-  if (!asci) {
-    return (
-      <View style={styles.kap}>
-        {ustBar}
-        <Text style={styles.bos}>Bu aşçının profili bulunamadı.</Text>
-      </View>
+      <Ekran baslik="Aşçı" geri={geri}>
+        <Bos yukleniyor={yukleniyor} mesaj="Bu aşçının profili bulunamadı." />
+      </Ekran>
     );
   }
 
+  const kapak = asci.fotograf ?? galeri[0] ?? null;
   const bas = asci.ad.split(' ').map((p) => p[0]).slice(0, 2).join('').toLocaleUpperCase('tr-TR');
+  const puanVar = asci.ortalama_puan != null && asci.yorum_sayisi > 0;
 
   return (
     <View style={styles.kap}>
-      {ustBar}
-      <ScrollView contentContainerStyle={styles.icerik}>
-        <View style={styles.baslikAlan}>
-          {asci.fotograf ? (
-            <Image source={{ uri: asci.fotograf }} style={styles.foto} />
+      <ScrollView contentContainerStyle={{ paddingBottom: talepEt ? 110 : spacing.xl }} showsVerticalScrollIndicator={false}>
+        <View style={styles.kapak}>
+          {kapak ? (
+            <Image source={{ uri: kapak }} style={styles.kapakFoto} />
           ) : (
-            <View style={[styles.foto, styles.fotoBos]}>
-              <Text style={styles.fotoBosYazi}>{bas}</Text>
+            <View style={[styles.kapakFoto, styles.kapakBos]}>
+              <Text style={styles.kapakYazi}>{bas}</Text>
             </View>
           )}
-          <Text style={styles.ad}>{asci.ad}</Text>
-          {asci.uzmanliklar.length > 0 ? (
-            <Text style={styles.uzmanlik}>{asci.uzmanliklar.slice(0, 3).join(' · ')}</Text>
-          ) : null}
-          {asci.ortalama_puan != null && asci.yorum_sayisi > 0 ? (
-            <View style={styles.puanSatir}>
-              <Yildizlar puan={Number(asci.ortalama_puan)} />
-              <Text style={styles.puanYazi}>
-                {Number(asci.ortalama_puan).toLocaleString('tr-TR', { minimumFractionDigits: 1 })} · {asci.yorum_sayisi} yorum
-              </Text>
-            </View>
-          ) : (
-            <Text style={styles.puan}>Yeni aşçı · henüz yorum yok</Text>
-          )}
+          <LinearGradient colors={['transparent', colors.zemin]} style={styles.kapakGolge} />
+          <Pressable onPress={geri} style={styles.geri} accessibilityRole="button" accessibilityLabel="Geri">
+            <Ionicons name="chevron-back" size={22} color={colors.metin} />
+          </Pressable>
         </View>
 
-        {asci.baslangic_fiyati != null ? (
-          <View style={styles.fiyatKutu}>
-            <Text style={styles.fiyatEtiket}>Bir haftalık hizmet için başlangıç</Text>
-            <Text style={styles.fiyat}>{tl(asci.baslangic_fiyati)}</Text>
+        <View style={styles.panel}>
+          <Text style={styles.ad}>{asci.ad}</Text>
+          {asci.uzmanliklar.length > 0 ? <Text style={styles.uzmanlik}>{asci.uzmanliklar.slice(0, 3).join(' · ')}</Text> : null}
+
+          <View style={styles.ozetSatir}>
+            <View style={styles.ozet}>
+              <Ionicons name="star" size={16} color={colors.sari} />
+              <Text style={styles.ozetYazi}>
+                {puanVar ? `${Number(asci.ortalama_puan).toLocaleString('tr-TR', { minimumFractionDigits: 1 })} (${asci.yorum_sayisi})` : 'Yeni aşçı'}
+              </Text>
+            </View>
+            {asci.semtler.length > 0 ? (
+              <View style={styles.ozet}>
+                <Ionicons name="location" size={16} color={colors.sari} />
+                <Text style={styles.ozetYazi} numberOfLines={1}>{asci.semtler.slice(0, 2).join(', ')}</Text>
+              </View>
+            ) : null}
           </View>
-        ) : null}
 
-        {asci.tanitim ? (
-          <>
-            <Text style={styles.bolum}>Hakkında</Text>
-            <Text style={styles.metin}>{asci.tanitim}</Text>
-          </>
-        ) : null}
+          {asci.baslangic_fiyati != null ? (
+            <View style={styles.fiyatKutu}>
+              <Text style={styles.fiyatEtiket}>Bir haftalık hizmet için başlangıç</Text>
+              <Text style={styles.fiyat}>{tl(asci.baslangic_fiyati)}</Text>
+            </View>
+          ) : null}
 
-        {asci.uzmanliklar.length > 0 ? (
-          <>
-            <Text style={styles.bolum}>Uzmanlık alanları</Text>
-            <Etiketler liste={asci.uzmanliklar} />
-          </>
-        ) : null}
+          {asci.tanitim ? (
+            <>
+              <Text style={styles.bolum}>Hakkında</Text>
+              <Text style={styles.metin}>{asci.tanitim}</Text>
+            </>
+          ) : null}
 
-        {asci.semtler.length > 0 ? (
-          <>
-            <Text style={styles.bolum}>Hizmet verdiği semtler</Text>
-            <Etiketler liste={asci.semtler} />
-          </>
-        ) : null}
+          {asci.uzmanliklar.length > 0 ? (
+            <>
+              <Text style={styles.bolum}>Uzmanlık alanları</Text>
+              <Etiketler liste={asci.uzmanliklar} />
+            </>
+          ) : null}
 
-        {asci.musait_gunler.length > 0 ? (
-          <>
-            <Text style={styles.bolum}>Müsait günler</Text>
-            <Etiketler liste={asci.musait_gunler} />
-          </>
-        ) : null}
+          {asci.semtler.length > 0 ? (
+            <>
+              <Text style={styles.bolum}>Hizmet verdiği semtler</Text>
+              <Etiketler liste={asci.semtler} />
+            </>
+          ) : null}
 
-        {galeri.length > 0 ? (
-          <>
-            <Text style={styles.bolum}>Yemeklerinden</Text>
-            <FlatList
-              horizontal
-              data={galeri}
-              keyExtractor={(g) => g}
-              renderItem={({ item }) => <Image source={{ uri: item }} style={styles.galeriFoto} />}
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => <View style={{ width: spacing.s }} />}
-            />
-          </>
-        ) : null}
+          {asci.musait_gunler.length > 0 ? (
+            <>
+              <Text style={styles.bolum}>Müsait günler</Text>
+              <Etiketler liste={asci.musait_gunler} />
+            </>
+          ) : null}
 
-        <Text style={styles.bolum}>Yorumlar</Text>
-        {yorumlar.length === 0 ? (
-          <Text style={styles.metin}>Henüz yorum yok. İlk hizmetten sonra yorumlar burada görünecek.</Text>
-        ) : (
-          <View style={{ gap: spacing.s }}>
-            {yorumlar.map((y) => (
-              <YorumKarti key={y.id} yorum={y} />
-            ))}
-          </View>
-        )}
+          {galeri.length > 0 ? (
+            <>
+              <Text style={styles.bolum}>Yemeklerinden</Text>
+              <FlatList
+                horizontal
+                data={galeri}
+                keyExtractor={(g) => g}
+                renderItem={({ item }) => <Image source={{ uri: item }} style={styles.galeriFoto} />}
+                showsHorizontalScrollIndicator={false}
+                ItemSeparatorComponent={() => <View style={{ width: spacing.s }} />}
+              />
+            </>
+          ) : null}
 
-        {talepEt ? (
-          <View style={{ marginTop: spacing.xl }}>
-            <Dugme yazi="Bu Aşçıdan Talep Et" onPress={talepEt} />
-          </View>
-        ) : null}
+          <Text style={styles.bolum}>Yorumlar</Text>
+          {puanVar ? (
+            <View style={styles.yorumOzet}>
+              <Yildizlar puan={Number(asci.ortalama_puan)} boyut={20} />
+            </View>
+          ) : null}
+          {yorumlar.length === 0 ? (
+            <Text style={styles.metin}>Henüz yorum yok. İlk hizmetten sonra yorumlar burada görünecek.</Text>
+          ) : (
+            <View style={{ gap: spacing.s }}>
+              {yorumlar.map((y) => (
+                <YorumKarti key={y.id} yorum={y} />
+              ))}
+            </View>
+          )}
+        </View>
       </ScrollView>
+
+      {talepEt ? (
+        <View style={styles.alt}>
+          <Dugme yazi="Bu Aşçıdan Talep Et" onPress={talepEt} />
+        </View>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, paddingTop: 56 },
-  ust: { paddingHorizontal: spacing.l },
-  geri: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '700' },
-  icerik: { padding: spacing.l, paddingBottom: 60 },
-  bos: { textAlign: 'center', marginTop: 80, fontSize: fontSize.normal, color: colors.metin },
-  baslikAlan: { alignItems: 'center' },
-  foto: { width: 130, height: 130, borderRadius: radius.tam },
-  fotoBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
-  fotoBosYazi: { color: colors.sari, fontSize: 44, fontWeight: '700' },
-  ad: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.metin, marginTop: spacing.m },
-  uzmanlik: { fontSize: fontSize.normal, color: colors.metin, opacity: 0.7, marginTop: 4, textAlign: 'center' },
-  puanSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.s, marginTop: spacing.s },
-  puanYazi: { fontSize: fontSize.normal, fontWeight: '700', color: colors.metin },
-  puan: { marginTop: spacing.s, fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.6 },
-  fiyatKutu: {
-    marginTop: spacing.l,
-    backgroundColor: colors.kirmizi,
-    borderRadius: radius.m,
-    padding: spacing.m,
+  kap: { flex: 1, backgroundColor: colors.zemin },
+  kapak: { height: 330 },
+  kapakFoto: { width: '100%', height: '100%' },
+  kapakBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
+  kapakYazi: { color: colors.sari, fontSize: 72, fontWeight: '800' },
+  kapakGolge: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 140 },
+  geri: {
+    position: 'absolute',
+    top: 56,
+    left: spacing.l,
+    width: 42,
+    height: 42,
+    borderRadius: radius.tam,
+    backgroundColor: colors.zemin,
+    opacity: 0.9,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  fiyatEtiket: { color: colors.krem, fontSize: fontSize.kucuk },
-  fiyat: { color: colors.sari, fontSize: fontSize.buyuk, fontWeight: '800', marginTop: 2 },
-  bolum: { fontSize: fontSize.baslik, fontWeight: '700', color: colors.kirmizi, marginTop: spacing.l, marginBottom: spacing.s },
-  metin: { fontSize: fontSize.normal, color: colors.metin, lineHeight: 24 },
+  panel: { paddingHorizontal: spacing.l, marginTop: -spacing.l },
+  ad: { fontSize: 32, fontWeight: '800', color: colors.metin },
+  uzmanlik: { fontSize: fontSize.normal, color: colors.metinSoluk, marginTop: 2 },
+  ozetSatir: { flexDirection: 'row', gap: spacing.s, marginTop: spacing.m, flexWrap: 'wrap' },
+  ozet: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.yuzey,
+    borderRadius: radius.tam,
+    borderWidth: 1,
+    borderColor: colors.cizgi,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    maxWidth: '70%',
+  },
+  ozetYazi: { color: colors.metin, fontWeight: '700', fontSize: fontSize.kucuk },
+  fiyatKutu: { marginTop: spacing.l, backgroundColor: colors.sari, borderRadius: radius.m, padding: spacing.m, alignItems: 'center' },
+  fiyatEtiket: { color: colors.koyuMetin, fontSize: fontSize.kucuk, opacity: 0.8 },
+  fiyat: { color: colors.koyuMetin, fontSize: fontSize.buyuk + 4, fontWeight: '800', marginTop: 2 },
+  bolum: { fontSize: fontSize.baslik, fontWeight: '800', color: colors.metin, marginTop: spacing.l, marginBottom: spacing.s },
+  metin: { fontSize: fontSize.normal, color: colors.metinSoluk, lineHeight: 24 },
   etiketler: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.s },
-  etiket: { backgroundColor: colors.beyaz, borderWidth: 1, borderColor: colors.cizgi, borderRadius: radius.tam, paddingVertical: 6, paddingHorizontal: 14 },
+  etiket: { backgroundColor: colors.yuzey, borderWidth: 1, borderColor: colors.cizgi, borderRadius: radius.tam, paddingVertical: 7, paddingHorizontal: 14 },
   etiketYazi: { fontSize: fontSize.kucuk, color: colors.metin, fontWeight: '600' },
-  galeriFoto: { width: 150, height: 150, borderRadius: radius.m },
+  galeriFoto: { width: 160, height: 160, borderRadius: radius.m },
+  yorumOzet: { marginBottom: spacing.s },
+  alt: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: spacing.l,
+    paddingBottom: spacing.xl,
+    backgroundColor: colors.zemin,
+    borderTopWidth: 1,
+    borderTopColor: colors.cizgi,
+  },
 });

@@ -1,27 +1,31 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import Bos from '../components/Bos';
 import Dugme from '../components/Dugme';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import DurumRozeti from '../components/DurumRozeti';
+import Ekran from '../components/Ekran';
 import { Yildizlar } from '../components/Yildizlar';
 import { supabase } from '../lib/supabase';
+import { Talep, talebiIptalEt, taleplerim, tarihSaatYaz } from '../lib/talepler';
 import { yorumYazilanTalepler } from '../lib/yorumlar';
-import { DURUM_ADI, Durum, Talep, talebiIptalEt, taleplerim, tarihSaatYaz } from '../lib/talepler';
 import { colors, fontSize, radius, spacing } from '../theme';
 
-const rozet: Record<Durum, { zemin: string; yazi: string }> = {
-  bekliyor: { zemin: colors.sari, yazi: colors.metin },
-  kabul: { zemin: colors.kirmizi, yazi: colors.sari },
-  red: { zemin: colors.beyaz, yazi: colors.kirmizi },
-  tamamlandi: { zemin: colors.metin, yazi: colors.krem },
-  iptal: { zemin: colors.beyaz, yazi: colors.metin },
-};
-
 type Props = {
-  geri: () => void;
   yorumYap: (t: Talep, asciAdi: string) => void;
   sikayetEt: (t: Talep, asciAdi: string) => void;
 };
 
-export default function Taleplerim({ geri, yorumYap, sikayetEt }: Props) {
+function Bilgi({ simge, yazi }: { simge: keyof typeof Ionicons.glyphMap; yazi: string }) {
+  return (
+    <View style={styles.bilgi}>
+      <Ionicons name={simge} size={16} color={colors.metinSoluk} />
+      <Text style={styles.bilgiYazi}>{yazi}</Text>
+    </View>
+  );
+}
+
+export default function Taleplerim({ yorumYap, sikayetEt }: Props) {
   const [liste, setListe] = useState<Talep[] | null>(null);
   const [adlar, setAdlar] = useState<Record<string, string>>({});
   const [hata, setHata] = useState('');
@@ -65,72 +69,73 @@ export default function Taleplerim({ geri, yorumYap, sikayetEt }: Props) {
     ]);
 
   return (
-    <View style={styles.kap}>
-      <View style={styles.ust}>
-        <Pressable onPress={geri} accessibilityRole="button">
-          <Text style={styles.geri}>‹ Geri</Text>
-        </Pressable>
-      </View>
-      <Text style={styles.baslik}>Taleplerim</Text>
-      {hata ? <Text style={styles.bos}>{hata}</Text> : null}
-      {!liste && !hata ? <ActivityIndicator size="large" color={colors.kirmizi} style={{ marginTop: 40 }} /> : null}
-      {liste && liste.length === 0 ? <Text style={styles.bos}>Henüz bir talebin yok.</Text> : null}
+    <Ekran baslik="Taleplerim">
       <FlatList
         data={liste ?? []}
         keyExtractor={(t) => t.id}
-        contentContainerStyle={{ padding: spacing.l, gap: spacing.m }}
-        renderItem={({ item }) => (
-          <View style={styles.kart}>
-            <View style={styles.kartUst}>
-              <Text style={styles.ad}>{adlar[item.asci_id] ?? 'Aşçı'}</Text>
-              <View style={[styles.rozet, { backgroundColor: rozet[item.durum].zemin }]}>
-                <Text style={[styles.rozetYazi, { color: rozet[item.durum].yazi }]}>{DURUM_ADI[item.durum]}</Text>
+        contentContainerStyle={{ padding: spacing.l, paddingTop: 0, gap: spacing.m }}
+        ListEmptyComponent={
+          hata ? (
+            <Bos mesaj={hata} simge="cloud-offline-outline" />
+          ) : !liste ? (
+            <Bos yukleniyor />
+          ) : (
+            <Bos mesaj="Henüz bir talebin yok. Ana sayfadan bir aşçı talep edebilirsin." simge="receipt-outline" />
+          )
+        }
+        renderItem={({ item }) => {
+          const asciAdi = adlar[item.asci_id] ?? 'Aşçı';
+          return (
+            <View style={styles.kart}>
+              <View style={styles.kartUst}>
+                <Text style={styles.ad} numberOfLines={1}>{asciAdi}</Text>
+                <DurumRozeti durum={item.durum} />
+              </View>
+              <Bilgi simge="calendar-outline" yazi={tarihSaatYaz(item.tarih)} />
+              <Bilgi simge="people-outline" yazi={`${item.kisi_sayisi} kişilik`} />
+              <Bilgi simge="location-outline" yazi={item.semt} />
+
+              {item.durum === 'tamamlandi' ? (
+                yorumlar[item.id] ? (
+                  <View style={styles.yorumSatir}>
+                    <Text style={styles.bilgiYazi}>Yorumun:</Text>
+                    <Yildizlar puan={yorumlar[item.id]} boyut={16} />
+                  </View>
+                ) : (
+                  <View style={{ marginTop: spacing.s }}>
+                    <Dugme yazi="Yorum Yap" onPress={() => yorumYap(item, asciAdi)} />
+                  </View>
+                )
+              ) : null}
+
+              <View style={styles.baglantilar}>
+                {item.durum === 'kabul' || item.durum === 'tamamlandi' ? (
+                  <Pressable onPress={() => sikayetEt(item, asciAdi)} accessibilityRole="button">
+                    <Text style={styles.sikayet}>Şikayet et</Text>
+                  </Pressable>
+                ) : null}
+                {item.durum === 'bekliyor' || item.durum === 'kabul' ? (
+                  <Pressable onPress={() => iptal(item)} accessibilityRole="button">
+                    <Text style={styles.iptal}>Talebi iptal et</Text>
+                  </Pressable>
+                ) : null}
               </View>
             </View>
-            <Text style={styles.bilgi}>{tarihSaatYaz(item.tarih)} · {item.kisi_sayisi} kişi</Text>
-            <Text style={styles.bilgi}>{item.semt}</Text>
-            {item.durum === 'tamamlandi' ? (
-              yorumlar[item.id] ? (
-                <View style={styles.yorumSatir}>
-                  <Text style={styles.bilgi}>Yorumun:</Text>
-                  <Yildizlar puan={yorumlar[item.id]} boyut={16} />
-                </View>
-              ) : (
-                <View style={{ marginTop: spacing.s }}>
-                  <Dugme yazi="Yorum Yap" onPress={() => yorumYap(item, adlar[item.asci_id] ?? 'Aşçı')} />
-                </View>
-              )
-            ) : null}
-            {item.durum === 'kabul' || item.durum === 'tamamlandi' ? (
-              <Pressable onPress={() => sikayetEt(item, adlar[item.asci_id] ?? 'Aşçı')} accessibilityRole="button">
-                <Text style={styles.sikayet}>Şikayet et</Text>
-              </Pressable>
-            ) : null}
-            {item.durum === 'bekliyor' || item.durum === 'kabul' ? (
-              <Pressable onPress={() => iptal(item)} accessibilityRole="button">
-                <Text style={styles.iptal}>Talebi iptal et</Text>
-              </Pressable>
-            ) : null}
-          </View>
-        )}
+          );
+        }}
       />
-    </View>
+    </Ekran>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, paddingTop: 56 },
-  ust: { paddingHorizontal: spacing.l },
-  geri: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '700' },
-  baslik: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.kirmizi, marginTop: spacing.m, marginHorizontal: spacing.l },
-  bos: { textAlign: 'center', marginTop: 40, color: colors.metin, fontSize: fontSize.normal, paddingHorizontal: spacing.l },
-  kart: { backgroundColor: colors.beyaz, borderRadius: radius.m, padding: spacing.m, gap: 4 },
-  kartUst: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  ad: { fontSize: fontSize.normal + 2, fontWeight: '700', color: colors.metin, flex: 1 },
-  rozet: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: radius.tam, borderWidth: 1, borderColor: colors.cizgi },
-  rozetYazi: { fontSize: 13, fontWeight: '700' },
-  bilgi: { fontSize: fontSize.kucuk + 1, color: colors.metin, opacity: 0.8 },
+  kart: { backgroundColor: colors.yuzey, borderRadius: radius.m, borderWidth: 1, borderColor: colors.cizgi, padding: spacing.m, gap: 6 },
+  kartUst: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.s, marginBottom: 2 },
+  ad: { fontSize: fontSize.normal + 2, fontWeight: '800', color: colors.metin, flex: 1 },
+  bilgi: { flexDirection: 'row', alignItems: 'center', gap: spacing.s },
+  bilgiYazi: { fontSize: fontSize.kucuk + 1, color: colors.metinSoluk },
   yorumSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.s, marginTop: 4 },
-  sikayet: { marginTop: spacing.s, color: colors.metin, opacity: 0.6, fontWeight: '600', fontSize: fontSize.kucuk + 1 },
-  iptal: { marginTop: spacing.s, color: colors.kirmizi, fontWeight: '700', fontSize: fontSize.kucuk + 1 },
+  baglantilar: { flexDirection: 'row', gap: spacing.l, marginTop: spacing.s },
+  sikayet: { color: colors.metinSoluk, fontWeight: '600', fontSize: fontSize.kucuk + 1 },
+  iptal: { color: colors.kirmiziAcik, fontWeight: '700', fontSize: fontSize.kucuk + 1 },
 });

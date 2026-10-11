@@ -1,5 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import Bos from '../components/Bos';
+import Ekran from '../components/Ekran';
 import { Asci, vitrindenKarta, yeniAscilar } from '../lib/vitrin';
 import { colors, fontSize, radius, spacing } from '../theme';
 
@@ -15,22 +18,23 @@ export default function AsciSec({ sec, geri }: { sec: (id: string) => void; geri
   }, []);
 
   return (
-    <View style={styles.kap}>
-      <View style={styles.ust}>
-        <Pressable onPress={geri} accessibilityRole="button">
-          <Text style={styles.geri}>‹ Geri</Text>
-        </Pressable>
-      </View>
-      <Text style={styles.baslik}>Hangi aşçıdan talep edelim?</Text>
-      {hata ? <Text style={styles.bos}>{hata}</Text> : null}
-      {!liste && !hata ? <ActivityIndicator size="large" color={colors.kirmizi} style={{ marginTop: 40 }} /> : null}
-      {liste && liste.length === 0 ? <Text style={styles.bos}>Henüz kayıtlı aşçı yok.</Text> : null}
+    <Ekran baslik="Aşçı seç" geri={geri}>
       <FlatList
         data={liste ?? []}
         keyExtractor={(a) => a.id}
-        contentContainerStyle={{ padding: spacing.l, gap: spacing.m }}
+        contentContainerStyle={{ padding: spacing.l, paddingTop: 0, gap: spacing.m }}
+        ListHeaderComponent={<Text style={styles.soru}>Hangi aşçıdan talep edelim?</Text>}
+        ListEmptyComponent={
+          hata ? (
+            <Bos mesaj={hata} simge="cloud-offline-outline" />
+          ) : !liste ? (
+            <Bos yukleniyor />
+          ) : (
+            <Bos mesaj="Henüz kayıtlı aşçı yok." />
+          )
+        }
         renderItem={({ item }) => (
-          <Pressable onPress={() => sec(item.id)} style={styles.satir} accessibilityRole="button">
+          <Pressable onPress={() => sec(item.id)} style={({ pressed }) => [styles.satir, pressed && { opacity: 0.85 }]} accessibilityRole="button">
             {item.foto ? (
               <Image source={{ uri: item.foto }} style={styles.foto} />
             ) : (
@@ -38,29 +42,43 @@ export default function AsciSec({ sec, geri }: { sec: (id: string) => void; geri
                 <Text style={styles.fotoYazi}>{item.ad[0]?.toLocaleUpperCase('tr-TR')}</Text>
               </View>
             )}
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, gap: 2 }}>
               <Text style={styles.ad}>{item.ad}</Text>
               <Text style={styles.uzmanlik}>{item.uzmanlik}</Text>
+              {item.puan != null && item.yorumSayisi > 0 ? (
+                <View style={styles.puan}>
+                  <Ionicons name="star" size={13} color={colors.sari} />
+                  <Text style={styles.puanYazi}>
+                    {item.puan.toLocaleString('tr-TR', { minimumFractionDigits: 1 })} ({item.yorumSayisi})
+                  </Text>
+                </View>
+              ) : null}
             </View>
-            <Text style={styles.ok}>›</Text>
+            <Ionicons name="chevron-forward" size={22} color={colors.metinSoluk} />
           </Pressable>
         )}
       />
-    </View>
+    </Ekran>
   );
 }
 
 const styles = StyleSheet.create({
-  kap: { flex: 1, backgroundColor: colors.krem, paddingTop: 56 },
-  ust: { paddingHorizontal: spacing.l },
-  geri: { fontSize: fontSize.baslik, color: colors.kirmizi, fontWeight: '700' },
-  baslik: { fontSize: fontSize.buyuk, fontWeight: '800', color: colors.kirmizi, marginTop: spacing.m, marginHorizontal: spacing.l },
-  bos: { textAlign: 'center', marginTop: 40, color: colors.metin, fontSize: fontSize.normal, paddingHorizontal: spacing.l },
-  satir: { flexDirection: 'row', alignItems: 'center', gap: spacing.m, backgroundColor: colors.beyaz, borderRadius: radius.m, padding: spacing.m },
-  foto: { width: 56, height: 56, borderRadius: radius.tam },
+  soru: { fontSize: fontSize.normal, color: colors.metinSoluk, marginBottom: spacing.s },
+  satir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.m,
+    backgroundColor: colors.yuzey,
+    borderRadius: radius.m,
+    borderWidth: 1,
+    borderColor: colors.cizgi,
+    padding: spacing.m,
+  },
+  foto: { width: 60, height: 60, borderRadius: radius.tam },
   fotoBos: { backgroundColor: colors.kirmizi, alignItems: 'center', justifyContent: 'center' },
-  fotoYazi: { color: colors.sari, fontSize: fontSize.baslik, fontWeight: '700' },
-  ad: { fontSize: fontSize.normal + 2, fontWeight: '700', color: colors.metin },
-  uzmanlik: { fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.7 },
-  ok: { fontSize: 28, color: colors.kirmizi },
+  fotoYazi: { color: colors.sari, fontSize: fontSize.baslik, fontWeight: '800' },
+  ad: { fontSize: fontSize.normal + 2, fontWeight: '800', color: colors.metin },
+  uzmanlik: { fontSize: fontSize.kucuk, color: colors.metinSoluk },
+  puan: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  puanYazi: { fontSize: 13, fontWeight: '700', color: colors.metin },
 });

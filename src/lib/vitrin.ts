@@ -8,6 +8,7 @@ export type Asci = {
   puan: number | null;
   yorumSayisi: number;
   foto?: string | null;
+  fiyat?: number | null;
 };
 
 // "En Sevilen Aşçılar" listesine girmek için gereken en az yorum sayısı.
@@ -36,6 +37,7 @@ export function vitrindenKarta(v: Vitrin): Asci {
     puan: v.ortalama_puan != null ? Number(v.ortalama_puan) : null,
     yorumSayisi: v.yorum_sayisi ?? 0,
     foto: v.fotograf,
+    fiyat: v.baslangic_fiyati,
   };
 }
 

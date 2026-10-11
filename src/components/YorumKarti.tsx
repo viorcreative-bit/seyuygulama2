@@ -25,11 +25,11 @@ export default function YorumKarti({ yorum, altinda }: { yorum: Yorum; altinda?:
 }
 
 const styles = StyleSheet.create({
-  kart: { backgroundColor: colors.beyaz, borderRadius: radius.m, padding: spacing.m, gap: 6 },
+  kart: { backgroundColor: colors.yuzey, borderRadius: radius.m, borderWidth: 1, borderColor: colors.cizgi, padding: spacing.m, gap: 6 },
   ust: { flexDirection: 'row', justifyContent: 'space-between' },
   ad: { fontSize: fontSize.normal, fontWeight: '700', color: colors.metin },
-  tarih: { fontSize: fontSize.kucuk, color: colors.metin, opacity: 0.6 },
+  tarih: { fontSize: fontSize.kucuk, color: colors.metinSoluk },
   metin: { fontSize: fontSize.normal, color: colors.metin, lineHeight: 23 },
-  cevap: { backgroundColor: colors.krem, borderRadius: radius.s, padding: spacing.s + 4, gap: 2, marginTop: 4 },
-  cevapBaslik: { fontSize: fontSize.kucuk, fontWeight: '700', color: colors.kirmizi },
+  cevap: { backgroundColor: colors.yuzeyUst, borderRadius: radius.s, padding: spacing.s + 4, gap: 2, marginTop: 4 },
+  cevapBaslik: { fontSize: fontSize.kucuk, fontWeight: '700', color: colors.sari },
 });

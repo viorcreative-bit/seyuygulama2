@@ -6,7 +6,7 @@ export function Yildizlar({ puan, boyut = 18 }: { puan: number; boyut?: number }
   const dolu = Math.round(puan);
   return (
     <Text style={{ fontSize: boyut, letterSpacing: 2 }} accessibilityLabel={`5 üzerinden ${puan} yıldız`}>
-      <Text style={{ color: colors.altin }}>{'★'.repeat(dolu)}</Text>
+      <Text style={{ color: colors.sari }}>{'★'.repeat(dolu)}</Text>
       <Text style={{ color: colors.cizgi }}>{'★'.repeat(5 - dolu)}</Text>
     </Text>
   );
@@ -18,7 +18,7 @@ export function YildizSec({ deger, degisti }: { deger: number; degisti: (n: numb
     <View style={styles.satir}>
       {[1, 2, 3, 4, 5].map((n) => (
         <Pressable key={n} onPress={() => degisti(n)} accessibilityRole="button" accessibilityLabel={`${n} yıldız`} hitSlop={6}>
-          <Text style={[styles.yildiz, { color: n <= deger ? colors.altin : colors.cizgi }]}>★</Text>
+          <Text style={[styles.yildiz, { color: n <= deger ? colors.sari : colors.cizgi }]}>★</Text>
         </Pressable>
       ))}
     </View>
