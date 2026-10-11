@@ -258,25 +258,37 @@ join public.profiles p on p.id = t.musteri_id
 left join public.talep_adresleri a on a.talep_id = t.id
 where t.asci_id = auth.uid();
 
--- 7) Bildirimler (schema_15.sql çalıştırılmış olmalı)
+-- 7) Bildirimler (bildirimlerin gitmesi için schema_15.sql de çalıştırılmış olmalı; çalıştırılmadıysa talep yine de sorunsuz açılır)
+-- Bildirim gönderilemese bile asıl işlem (talep, teklif) asla bozulmasın.
+create or replace function public.bildirim_dene(p_kullanicilar uuid[], p_baslik text, p_govde text)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  perform public.bildirim_gonder(p_kullanicilar, p_baslik, p_govde);
+exception when others then
+  raise warning 'Bildirim atlandı: %', sqlerrm;
+end;
+$$;
+revoke execute on function public.bildirim_dene(uuid[], text, text) from public, anon, authenticated;
+
 -- Seçilen tekliften doğan talep için "yeni talep" bildirimi gitmesin (aşçıya ayrıca "teklifin seçildi" gider).
 create or replace function public.bildirim_talep()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
   if tg_op = 'INSERT' then
     if new.durum = 'bekliyor' then
-      perform public.bildirim_gonder(array[new.asci_id], 'Yeni talep geldi',
+      perform public.bildirim_dene(array[new.asci_id], 'Yeni talep geldi',
         new.semt || ' · ' || new.kisi_sayisi || ' kişilik yemek talebi');
     end if;
   elsif new.durum is distinct from old.durum then
     if new.durum = 'kabul' then
-      perform public.bildirim_gonder(array[new.musteri_id], 'Talebin kabul edildi', 'Aşçı talebini kabul etti.');
+      perform public.bildirim_dene(array[new.musteri_id], 'Talebin kabul edildi', 'Aşçı talebini kabul etti.');
     elsif new.durum = 'red' then
-      perform public.bildirim_gonder(array[new.musteri_id], 'Talebin reddedildi', 'Aşçı bu talebi karşılayamıyor. Başka bir aşçı seçebilirsin.');
+      perform public.bildirim_dene(array[new.musteri_id], 'Talebin reddedildi', 'Aşçı bu talebi karşılayamıyor. Başka bir aşçı seçebilirsin.');
     elsif new.durum = 'iptal' then
-      perform public.bildirim_gonder(array[new.asci_id], 'Talep iptal edildi', 'Bir müşteri talebini iptal etti.');
+      perform public.bildirim_dene(array[new.asci_id], 'Talep iptal edildi', 'Bir müşteri talebini iptal etti.');
     elsif new.durum = 'tamamlandi' then
-      perform public.bildirim_gonder(array[new.musteri_id], 'Hizmet tamamlandı', 'Aşçını yorumlayarak puan verebilirsin.');
+      perform public.bildirim_dene(array[new.musteri_id], 'Hizmet tamamlandı', 'Aşçını yorumlayarak puan verebilirsin.');
     end if;
   end if;
   return null;
@@ -290,11 +302,11 @@ declare
 begin
   if tg_op = 'INSERT' then
     select coalesce(array_agg(a.profil_id), '{}') into v_asciler from public.asci_profilleri a where a.onayli_mi;
-    perform public.bildirim_gonder(v_asciler, 'Yeni müşteri talebi',
+    perform public.bildirim_dene(v_asciler, 'Yeni müşteri talebi',
       new.semt || ' · ' || new.kisi_sayisi || ' kişilik. Teklif verebilirsin.');
   elsif new.durum = 'iptal' and old.durum is distinct from 'iptal' then
     select coalesce(array_agg(te.asci_id), '{}') into v_asciler from public.acik_teklifler te where te.talep_id = new.id;
-    perform public.bildirim_gonder(v_asciler, 'Talep iptal edildi', 'Teklif verdiğin bir müşteri talebi iptal edildi.');
+    perform public.bildirim_dene(v_asciler, 'Talep iptal edildi', 'Teklif verdiğin bir müşteri talebi iptal edildi.');
   end if;
   return null;
 end;
@@ -313,9 +325,9 @@ declare
 begin
   if tg_op = 'INSERT' then
     select musteri_id into v_musteri from public.acik_talepler where id = new.talep_id;
-    perform public.bildirim_gonder(array[v_musteri], 'Yeni teklif geldi', 'Talebin için bir aşçı teklif verdi.');
+    perform public.bildirim_dene(array[v_musteri], 'Yeni teklif geldi', 'Talebin için bir aşçı teklif verdi.');
   elsif new.durum = 'kabul' and old.durum is distinct from 'kabul' then
-    perform public.bildirim_gonder(array[new.asci_id], 'Teklifin seçildi', 'Müşteri teklifini seçti. Talep, Doğrudan talepler bölümünde.');
+    perform public.bildirim_dene(array[new.asci_id], 'Teklifin seçildi', 'Müşteri teklifini seçti. Talep, Doğrudan talepler bölümünde.');
   end if;
   return null;
 end;

@@ -344,4 +344,12 @@ await olarak(MUS3, async () => {
   for (let i = 0; i < 5; i++) await dene(acikTalep(5 + i));
   r = await dene(acikTalep(12)); kontrol('en fazla 5 açık talep sınırı', !r.ok, r.hata?.slice(0, 40));
 });
+
+// Bildirim işlevi hiç yokken (schema_15 çalıştırılmamış gibi) açık talep yine açılabilmeli
+await db.exec(`alter function public.bildirim_gonder(uuid[], text, text) rename to bildirim_gonder_gizli`);
+await db.exec(`delete from acik_talepler where musteri_id='${MUS3}'`);
+await olarak(MUS3, async () => {
+  r = await dene(acikTalep(20)); kontrol('bildirim işlevi yokken de açık talep açılır', r.ok, r.hata ?? '');
+});
+await db.exec(`alter function public.bildirim_gonder_gizli(uuid[], text, text) rename to bildirim_gonder`);
 console.log(`\nSONUÇ: ${gecen} geçti, ${kalan} kaldı`);
