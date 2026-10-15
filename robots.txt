@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /sepet.html
+Disallow: /odeme.html
+Disallow: /siparis.html
+
+Sitemap: https://www.laziotekstil.com/sitemap.xml

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>İletişim | Lazio Tekstil</title>
+  <meta name="description" content="Lazio Tekstil iletişim bilgileri, WhatsApp destek hattı ve sık sorulan sorular.">
+  <link rel="canonical" href="https://www.laziotekstil.com/iletisim.html">
+  <meta name="theme-color" content="#26357a">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="iletisim">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Sayfa konumu">
+        <ol>
+          <li><a href="index.html">Ana sayfa</a></li>
+          <li aria-current="page">İletişim</li>
+        </ol>
+      </nav>
+      <header class="page-head">
+        <h1>İletişim</h1>
+        <p>Sipariş, iade ya da toptan üretimle ilgili her konuda bize yazabilirsiniz. En hızlı yanıtı WhatsApp'tan veriyoruz.</p>
+      </header>
+    </div>
+
+    <section class="section-tight" style="padding-top:0">
+      <div class="container content-grid">
+        <div>
+          <dl class="contact-list">
+            <div><dt>WhatsApp</dt><dd><a id="c-wa" href="#" target="_blank" rel="noopener">WhatsApp'tan yazın</a></dd></div>
+            <div><dt>Telefon</dt><dd><a data-co="company.phone" id="c-phone" href="#"></a></dd></div>
+            <div><dt>E-posta</dt><dd><a data-co="company.email" id="c-email" href="#"></a></dd></div>
+            <div><dt>Adres</dt><dd data-co="company.address"></dd></div>
+            <div><dt>Çalışma saatleri</dt><dd data-co="company.workingHours"></dd></div>
+          </dl>
+          <div id="map-slot" style="margin-top:24px"></div>
+        </div>
+
+        <form class="panel-box" id="contact-form" data-form="iletisim" novalidate>
+          <h2>Bize yazın</h2>
+          <div class="form-alert" role="alert" tabindex="-1" hidden></div>
+          <div class="form-grid">
+            <div class="field full">
+              <label for="c-name">Ad soyad</label>
+              <input class="input" id="c-name" name="name" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="c-tel">Telefon</label>
+              <input class="input" id="c-tel" name="phone" type="tel" autocomplete="tel" required>
+            </div>
+            <div class="field">
+              <label for="c-mail">E-posta <span class="optional">(isteğe bağlı)</span></label>
+              <input class="input" id="c-mail" name="email" type="email" autocomplete="email">
+            </div>
+            <div class="field full">
+              <label for="c-topic">Konu</label>
+              <select class="select input" id="c-topic" name="topic" required>
+                <option value="">Seçin</option>
+                <option>Sipariş durumu</option>
+                <option>İade ve değişim</option>
+                <option>Beden ve ürün bilgisi</option>
+                <option>Toptan ve fason üretim</option>
+                <option>Diğer</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="c-message">Mesajınız</label>
+              <textarea class="textarea" id="c-message" name="message" placeholder="Sipariş numaranız varsa ekleyin" required></textarea>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <button type="submit" class="btn btn-primary" data-channel="whatsapp">WhatsApp ile gönder</button>
+            <button type="submit" class="btn btn-secondary" data-channel="email">E-postayla gönder</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="sss" aria-labelledby="faq-title">
+      <div class="container">
+        <h2 id="faq-title">Sık sorulan sorular</h2>
+        <div class="faq" id="faq"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/products.js"></script>
+  <script src="assets/js/garments.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/pages/forms.js"></script>
+</body>
+</html>

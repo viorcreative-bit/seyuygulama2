@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mağaza | Lazio Tekstil</title>
+  <meta name="description" content="Lazio Tekstil tişört, polo yaka, sweatshirt, kapüşonlu, eşofman ve elbise modelleri. Kendi üretimimiz, aracısız fiyatlarla.">
+  <link rel="canonical" href="https://www.laziotekstil.com/magaza.html">
+  <meta name="theme-color" content="#26357a">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="magaza">
+  <div id="site-header"></div>
+
+  <main id="main" class="container">
+    <nav class="breadcrumb" aria-label="Sayfa konumu">
+      <ol id="breadcrumb">
+        <li><a href="index.html">Ana sayfa</a></li>
+        <li><a href="magaza.html">Mağaza</a></li>
+      </ol>
+    </nav>
+
+    <header class="page-head">
+      <h1 id="shop-title">Tüm ürünler</h1>
+      <p id="shop-lead">Kendi atölyemizde ürettiğimiz bütün modeller.</p>
+    </header>
+
+    <div class="shop-layout">
+      <aside class="filters" id="filters" aria-label="Filtreler">
+        <div class="filters-head">
+          <h2>Filtrele</h2>
+          <button type="button" class="icon-btn filters-close" id="filters-close" aria-label="Filtreleri kapat"></button>
+        </div>
+        <form id="filter-form">
+          <fieldset>
+            <legend>Kategori</legend>
+            <ul class="filter-list" id="f-category"></ul>
+          </fieldset>
+          <fieldset>
+            <legend>Beden</legend>
+            <div class="size-options size-options-sm" id="f-size"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Renk</legend>
+            <div class="color-filter" id="f-color"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Fiyat</legend>
+            <ul class="filter-list" id="f-price"></ul>
+          </fieldset>
+          <button type="button" class="text-btn" id="filters-reset">Filtreleri temizle</button>
+          <div class="filters-apply">
+            <button type="button" class="btn btn-primary btn-block" id="filters-apply"></button>
+          </div>
+        </form>
+      </aside>
+
+      <div>
+        <div class="shop-toolbar">
+          <button type="button" class="btn btn-secondary filter-open" id="filters-open" aria-controls="filters" aria-expanded="false">Filtrele</button>
+          <p class="result-count" id="result-count" aria-live="polite"></p>
+          <label class="sr-only" for="sort">Sıralama</label>
+          <select class="select" id="sort">
+            <option value="onerilen">Önerilen sıralama</option>
+            <option value="yeni">Yeni gelenler</option>
+            <option value="artan">Fiyat: düşükten yükseğe</option>
+            <option value="azalan">Fiyat: yüksekten düşüğe</option>
+          </select>
+        </div>
+        <div class="active-search" id="active-search" hidden></div>
+        <div class="product-grid" id="shop-grid"></div>
+        <div class="empty-state" id="shop-empty" hidden>
+          <h2>Bu filtrelere uyan ürün yok</h2>
+          <p>Bir filtreyi kaldırın ya da tüm ürünlere dönün.</p>
+          <button type="button" class="btn btn-secondary" id="empty-reset">Filtreleri temizle</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/products.js"></script>
+  <script src="assets/js/garments.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/pages/shop.js"></script>
+</body>
+</html>

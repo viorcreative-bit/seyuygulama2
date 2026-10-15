@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lazio Tekstil | Üreticisinden tişört, sweatshirt ve eşofman</title>
+  <meta name="description" content="Lazio Tekstil kendi ürettiği tişört, sweatshirt, kapüşonlu ve eşofmanları aracısız satıyor. 1.500 TL üzeri ücretsiz kargo, havale/EFT ve kapıda ödeme.">
+  <link rel="canonical" href="https://www.laziotekstil.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Lazio Tekstil | Üreticisinden, aracısız">
+  <meta property="og:description" content="Kendi üretimimiz tişört, sweatshirt ve eşofmanlar, fabrika fiyatıyla.">
+  <meta property="og:url" content="https://www.laziotekstil.com/">
+  <meta property="og:locale" content="tr_TR">
+  <meta name="theme-color" content="#26357a">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="home">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1 id="hero-title">Üreticisinden, aracısız.</h1>
+          <p class="hero-lead">Tişört, sweatshirt ve eşofmanlarımızı kendi atölyemizde kesip dikiyoruz. Mağaza zinciri ya da aracı olmadan, doğrudan size gönderiyoruz.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="magaza.html">Ürünleri incele</a>
+            <a class="btn btn-secondary" href="toptan.html">Toptan sipariş için teklif al</a>
+          </div>
+        </div>
+
+        <div class="hero-board drafting" id="hero-board">
+          <div class="hero-figure" id="hero-figure"></div>
+          <div class="hero-controls">
+            <div>
+              <span class="control-label" id="hero-color-label">Renk: <strong></strong></span>
+              <div class="swatches" id="hero-swatches" role="group" aria-labelledby="hero-color-label"></div>
+            </div>
+            <div>
+              <span class="control-label" id="hero-size-label">Ölçüler: <strong></strong> beden</span>
+              <div class="size-options size-options-sm" id="hero-sizes" role="radiogroup" aria-labelledby="hero-size-label"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight" aria-labelledby="cat-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="cat-title">Kategoriler</h2>
+          <a class="link-more" href="magaza.html">Tüm ürünler</a>
+        </div>
+        <ul class="category-row" id="category-row"></ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="featured-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="featured-title">Öne çıkan ürünler</h2>
+          <a class="link-more" href="magaza.html">Mağazaya git</a>
+        </div>
+        <div class="product-grid" id="featured-grid"></div>
+      </div>
+    </section>
+
+    <section class="section-tight" aria-label="Alışveriş koşulları">
+      <div class="container">
+        <ul class="assurances" id="assurances"></ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="process-title">
+      <div class="container">
+        <h2 id="process-title">Kumaştan kargoya</h2>
+        <p class="section-lead">Her ürün aynı çatı altında beş aşamadan geçer. Aracı olmadığı için fiyata yalnızca üretim ve kargo yansır.</p>
+        <ol class="process">
+          <li>
+            <h3>Kumaş</h3>
+            <p>Kumaşı ürüne göre seçiyor, gramajını ve yıkamadan sonraki çekmesini kontrol ediyoruz.</p>
+          </li>
+          <li>
+            <h3>Kalıp ve kesim</h3>
+            <p>Kalıpları beden tablosuna göre hazırlıyor, kumaşı kat kat serip kesiyoruz.</p>
+          </li>
+          <li>
+            <h3>Dikim</h3>
+            <p>Overlok, reçme ve düz makinede dikiyor; yaka ve omuzları bantla güçlendiriyoruz.</p>
+          </li>
+          <li>
+            <h3>Kalite kontrol</h3>
+            <p>Her ürünün ölçüsünü ve dikişini tek tek kontrol ediyoruz. Kusurlu ürün paketlenmez.</p>
+          </li>
+          <li>
+            <h3>Paket ve kargo</h3>
+            <p>Siparişinizi <span data-co="shipping.dispatchTime"></span> içinde kargoya veriyoruz.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="band-indigo section" aria-labelledby="wholesale-title">
+      <div class="container band-grid">
+        <div>
+          <h2 id="wholesale-title">Markanız için üretelim</h2>
+          <p>Toptan ve fason üretimde kumaş seçiminden paketlemeye kadar tüm süreci üstleniyoruz. Ürünleriniz kendi etiketinizle, kendi markanız adına üretilir.</p>
+          <div class="hero-actions">
+            <a class="btn btn-tape" href="toptan.html#teklif">Teklif iste</a>
+            <a class="btn btn-ghost-light" id="wholesale-wa" href="#" target="_blank" rel="noopener">WhatsApp'tan yaz</a>
+          </div>
+        </div>
+        <dl class="band-facts">
+          <div><dt>Minimum sipariş</dt><dd data-co="wholesale.minQuantity"></dd></div>
+          <div><dt>Termin</dt><dd data-co="wholesale.leadTime"></dd></div>
+          <div><dt>Ürün grupları</dt><dd>Tişört, polo, sweatshirt, kapüşonlu, eşofman, elbise</dd></div>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/products.js"></script>
+  <script src="assets/js/garments.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/pages/home.js"></script>
+</body>
+</html>
