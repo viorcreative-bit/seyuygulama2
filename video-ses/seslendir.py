@@ -27,9 +27,12 @@ async def main():
     cikti.mkdir(parents=True, exist_ok=True)
     vekil = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
     for satir in METIN.read_text(encoding="utf-8").splitlines():
-        sayfa, metin = satir.split("\t")
+        # isteğe bağlı üçüncü sütun o satırın sesini belirler (ör. öğretmen sözlerinde erkek ses)
+        sayfa, metin, *satir_sesi = satir.split("\t")
         hedef = cikti / f"vo_{sayfa}.mp3"
-        await edge_tts.Communicate(metin, ses, rate=hiz, proxy=vekil).save(str(hedef))
+        await edge_tts.Communicate(
+            metin, satir_sesi[0] if satir_sesi else ses, rate=hiz, proxy=vekil
+        ).save(str(hedef))
         print(hedef)
 
 

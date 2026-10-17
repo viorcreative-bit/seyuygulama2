@@ -8,7 +8,7 @@ def sh(*a): subprocess.run(a, check=True, capture_output=True)
 
 # 1) clean voice lines
 vo = {}
-for p in ["04","05","06","07","08","09","10","11","12","17","18","19"]:
+for p in [f"{i:02d}" for i in range(4,20)]:
     sh("ffmpeg","-y","-i",f"vo_{p}.mp3","-af",
        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
@@ -18,8 +18,7 @@ for p in ["04","05","06","07","08","09","10","11","12","17","18","19"]:
 
 # 2) page plan: (page, voice id or None, fixed duration or None)
 plan = [(1,None,5.0),(2,None,6.25),(3,None,5.0)]  # 2. sayfadaki gerçek video 6,25 sn
-plan += [(i,f"{i:02d}",None) for i in range(4,13)]
-plan += [(13,None,5.5),(14,None,5.5),(15,None,5.5),(16,None,5.5)]
+plan += [(i,f"{i:02d}",None) for i in range(4,17)]
 plan += [(17,"17",None),(18,"18",None),(19,"19",None)]
 segs=[]
 for page,v,fixed in plan:
