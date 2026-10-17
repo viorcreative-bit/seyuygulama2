@@ -1,8 +1,9 @@
 """Durağan bir görselden yavaş kamera hareketli (yakınlaşma / kaydırma) 1080p video üretir.
 
-Kullanım: python hareket.py GORSEL CIKTI.mp4 SURE BASLA_X,BASLA_Y,BASLA_Z BITIS_X,BITIS_Y,BITIS_Z
+Kullanım: python hareket.py GORSEL CIKTI.mp4 SURE BASLA_X,BASLA_Y,BASLA_Z BITIS_X,BITIS_Y,BITIS_Z [GENISLIKxYUKSEKLIK]
 
 X ve Y görsel üzerindeki odak noktasıdır (0-1), Z yakınlaşmadır (1 = görselin tamamı).
+Son değer verilmezse 1920x1080; dikey Reels için 1080x1920.
 """
 import math
 import subprocess
@@ -15,7 +16,7 @@ W, H, FPS = 1920, 1080, 30
 
 
 def kare_penceresi(img_w, img_h, x, y, z):
-    # 16:9 pencere, görselin dışına taşmayacak şekilde
+    # çıktı oranında pencere, görselin dışına taşmayacak şekilde
     pw = min(img_w, img_h * W / H) / z
     ph = pw * H / W
     cx = min(max(x * img_w, pw / 2), img_w - pw / 2)
@@ -29,7 +30,10 @@ def yumusak(t):
 
 
 def main():
+    global W, H
     kaynak, cikti, sure = sys.argv[1], sys.argv[2], float(sys.argv[3])
+    if len(sys.argv) > 6:
+        W, H = (int(v) for v in sys.argv[6].split("x"))
     a = [float(v) for v in sys.argv[4].split(",")]
     b = [float(v) for v in sys.argv[5].split(",")]
 
