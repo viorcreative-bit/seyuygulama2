@@ -8,7 +8,7 @@ def sh(*a): subprocess.run(a, check=True, capture_output=True)
 
 # 1) clean voice lines
 vo = {}
-for p in [f"{i:02d}" for i in range(4,20)]:
+for p in [f"{i:02d}" for i in range(4,18)]:
     sh("ffmpeg","-y","-i",f"vo_{p}.mp3","-af",
        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
@@ -19,24 +19,26 @@ for p in [f"{i:02d}" for i in range(4,20)]:
 # 2) page plan: (page, voice id or None, fixed duration or None)
 plan = [(1,None,5.0),(2,None,6.25),(3,None,5.0)]  # 2. sayfadaki gerçek video 6,25 sn
 plan += [(i,f"{i:02d}",None) for i in range(4,17)]
-plan += [(17,"17",None),(18,"18",None),(19,"19",None)]
+plan += [(17,"17",None),(18,None,5.5)]  # 18: "Keşke dememek için." kapanışı, yalnızca müzik
 segs=[]
 for page,v,fixed in plan:
-    lead = 0.8 if page==19 else 0.6
+    lead = 0.6
     if v is None: dur = fixed
     else:
-        dur = lead + len(vo[v])/SR + (4.0 if page==19 else 1.0)
+        dur = lead + len(vo[v])/SR + 1.0
         dur = max(dur, 5.0)
     segs.append(dict(page=page, voice=v, lead=lead, dur=round(dur,2)))
 total = sum(s["dur"] for s in segs)
+# müzik bu süreye göre üretilir; kurgu kısalınca önceki sayfaların müziği değişmesin diye eski toplam süre verilebilir
+muzik_suresi = max(total, float(sys.argv[3])) if len(sys.argv) > 3 else total
 
 # 3) music
 bpm=66; beat=60/bpm; e8=beat/2; bar=4*beat
 mid=lambda m: 440*2**((m-69)/12)
 CH={"Am":(45,[57,60,64,69]),"F":(41,[53,57,60,65]),"C":(48,[55,60,64,67]),"G":(43,[55,59,62,67])}
 prog=["Am","F","C","G"]
-nbars=int(np.ceil(total/bar))+1
-L=int((total+4)*SR); mus=np.zeros((L,2),np.float32)
+nbars=int(np.ceil(muzik_suresi/bar))+1
+L=int((muzik_suresi+4)*SR); mus=np.zeros((L,2),np.float32)
 def piano(f,vel,dur=3.2):
     t=np.arange(int(dur*SR))/SR; B=0.0004; y=np.zeros_like(t)
     amps=[1,.45,.28,.16,.09,.05,.03,.02]; d0=0.9+f/700
