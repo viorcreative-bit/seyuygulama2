@@ -2,6 +2,7 @@ import numpy as np, subprocess, json, os, sys
 from scipy.signal import fftconvolve, butter, sosfilt
 from scipy.io import wavfile
 D = sys.argv[1]; os.chdir(D)
+TEMPO = sys.argv[2] if len(sys.argv) > 2 else "0.95"  # Google sesi için yavaşlatma; Edge seslerinde 1.0
 SR = 44100
 def sh(*a): subprocess.run(a, check=True, capture_output=True)
 
@@ -11,7 +12,7 @@ for p in ["04","05","06","07","08","09","10","11","12","17","18","19"]:
     sh("ffmpeg","-y","-i",f"vo_{p}.mp3","-af",
        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,"
-       "atempo=0.95,highpass=f=70,equalizer=f=180:t=q:w=1:g=2,loudnorm=I=-16:TP=-2:LRA=7",
+       f"atempo={TEMPO},highpass=f=70,equalizer=f=180:t=q:w=1:g=2,loudnorm=I=-16:TP=-2:LRA=7",
        "-ar",str(SR),"-ac","1",f"vo_{p}.wav")
     sr, x = wavfile.read(f"vo_{p}.wav"); vo[p] = x.astype(np.float32)/32768.0
 
