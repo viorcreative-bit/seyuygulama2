@@ -17,7 +17,7 @@ for p in ["04","05","06","07","08","09","10","11","12","17","18","19"]:
     sr, x = wavfile.read(f"vo_{p}.wav"); vo[p] = x.astype(np.float32)/32768.0
 
 # 2) page plan: (page, voice id or None, fixed duration or None)
-plan = [(1,None,5.0),(2,None,6.0),(3,None,5.0)]
+plan = [(1,None,5.0),(2,None,6.25),(3,None,5.0)]  # 2. sayfadaki gerçek video 6,25 sn
 plan += [(i,f"{i:02d}",None) for i in range(4,13)]
 plan += [(13,None,5.5),(14,None,5.5),(15,None,5.5),(16,None,5.5)]
 plan += [(17,"17",None),(18,"18",None),(19,"19",None)]
@@ -47,7 +47,9 @@ def piano(f,vel,dur=3.2):
         y+=a*np.sin(2*np.pi*fk*t)*np.exp(-t*(d0+0.55*k))
     att=np.minimum(1,t/0.004); return (vel*y*att).astype(np.float32)
 def add(sig,start,pan):
-    i=int(start*SR); j=min(L,i+len(sig)); s=sig[:j-i]
+    i=int(start*SR)
+    if i>=L: return
+    j=min(L,i+len(sig)); s=sig[:j-i]
     mus[i:j,0]+=s*(1-pan)*1.0; mus[i:j,1]+=s*(pan)*1.0
 rng=np.random.default_rng(7)
 pattern=[0,1,2,3,2,1,2,1]
