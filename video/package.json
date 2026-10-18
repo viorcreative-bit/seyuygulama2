@@ -1,0 +1,14 @@
+{
+  "name": "guclu-insaat-tanitim-videosu",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "muzik": "python3 muzik.py",
+    "render": "node render.mjs --format 16x9",
+    "render:dikey": "node render.mjs --format 9x16",
+    "kare": "node render.mjs --kare"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

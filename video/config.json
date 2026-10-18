@@ -1,0 +1,53 @@
+{
+  "firma": {
+    "ad": "GÜÇLÜ",
+    "altAd": "İNŞAAT",
+    "slogan": "Geleceği sağlam inşa ediyoruz."
+  },
+  "iletisim": {
+    "web": "",
+    "telefon": "",
+    "adres": ""
+  },
+  "sahneler": {
+    "giris": {
+      "etiket": "01 — PLAN",
+      "satirlar": ["Her büyük yapı", "bir planla başlar."]
+    },
+    "yukselis": {
+      "etiket": "02 — İNŞA",
+      "satirlar": ["Sağlam temeller,", "güçlü yapılar."]
+    },
+    "hizmetler": {
+      "etiket": "03 — HİZMETLERİMİZ",
+      "baslik": "Uzmanlık alanlarımız",
+      "liste": [
+        { "ikon": "konut", "baslik": "Konut Projeleri", "aciklama": "Modern ve konforlu yaşam alanları" },
+        { "ikon": "ticari", "baslik": "Ticari Yapılar", "aciklama": "İş merkezleri ve ofis binaları" },
+        { "ikon": "donusum", "baslik": "Kentsel Dönüşüm", "aciklama": "Depreme dayanıklı yeni yapılar" },
+        { "ikon": "yonetim", "baslik": "Proje Yönetimi", "aciklama": "Planlamadan anahtar teslime" }
+      ]
+    },
+    "degerler": {
+      "etiket": "04 — DEĞERLERİMİZ",
+      "kelimeler": ["KALİTE", "GÜVEN", "ZAMANINDA TESLİM"]
+    }
+  },
+  "zamanlama": {
+    "giris": 0,
+    "yukselis": 4.8,
+    "hizmetler": 10.8,
+    "degerler": 18.0,
+    "logo": 23.4,
+    "bitis": 30.0,
+    "bpm": 100
+  },
+  "renkler": {
+    "vurgu": "#F2A20C",
+    "vurguAcik": "#F7BE4A",
+    "arkaPlanUst": "#122030",
+    "arkaPlanAlt": "#09121B",
+    "metin": "#F4F6F8",
+    "metinIkincil": "#9AA9B8"
+  }
+}
