@@ -108,7 +108,8 @@ try {
       '-y', '-loglevel', 'error',
       '-f', 'image2pipe', '-framerate', String(arg.fps), '-c:v', 'png', '-i', '-',
       ...(arg.sessiz ? [] : ['-i', muzik]),
-      '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p',
+      // hafif gürültü azaltma: her karede değişen gren dosya boyutunu ikiye katlıyor, görüntü farkı yok
+      '-vf', 'hqdn3d=1.5:1.5:4:4', '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p',
       ...(arg.sessiz ? [] : ['-c:a', 'aac', '-b:a', '192k', '-shortest']),
       '-movflags', '+faststart', cikti,
     ], { stdio: ['pipe', 'inherit', 'inherit'] });
