@@ -246,13 +246,12 @@ def main():
 
         if tur in DARBE:
             darbe(m, bas, DARBE[tur])
-        gecis = s.get("gecis")
-        if gecis == "perde":
-            hisirti(m, bas + 0.4, 0.45, sure=1.0, soldan_saga=True)
-        elif gecis == "kayma":
-            hisirti(m, bas + 0.27, 0.22, sure=0.6, soldan_saga=False)
-        elif gecis == "solma":
-            hisirti(m, bas + 0.35, 0.18, sure=0.9, soldan_saga=True)
+        # geçiş sesleri ekrandaki geçişle aynı anda, sahne sınırına ortalanmış
+        gecis, gs = s.get("gecis"), s.get("gecisSuresi", 0)
+        if gecis == "mavi":
+            yukselen(m, bas - gs / 2, bas, 0.07)
+        elif gecis == "yumusak":
+            hisirti(m, bas, 0.12, sure=gs, soldan_saga=i % 2 == 0)
 
     # Önemli anlardan önce yükselen efekt, logolarda çanlar
     ilk_kategori = next((s for s in sahneler if s["tur"] == "kategori"), None)

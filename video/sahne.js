@@ -145,6 +145,7 @@
   // Alanı dolduracak şekilde kırpar; p ile yavaşça yakınlaşır ve kayar (Ken Burns).
   function foto(ad, x, y, w, h, p, o = {}) {
     const im = GORSEL[ad];
+    p = Math.max(0, p);
     const [fx, fy] = o.odak ?? [0.5, 0.5];
     const [z0, z1] = o.zoom ?? [1.04, 1.12];
     const s = Math.max(w / im.width, h / im.height) * lerp(z0, z1, p);
@@ -317,16 +318,20 @@
   }
 
   // ---- zaman çizelgesi ----
+  // 'yumusak': çapraz geçiş; 'mavi': marka mavisine kararıp yeni sahneye açılma (bölüm geçişleri).
   const VARSAYILAN_GECIS = {
-    logo: 'perde', rakamlar: 'perde', hakkimizda: 'kayma', harita: 'kayma', baskan: 'perde',
-    degerler: 'kayma', ara: 'solma', kategori: 'perde', proje: 'kayma', yonetim: 'perde', kapanis: 'perde',
+    logo: 'mavi', rakamlar: 'mavi', hakkimizda: 'yumusak', harita: 'yumusak', baskan: 'mavi',
+    degerler: 'yumusak', ara: 'yumusak', kategori: 'mavi', proje: 'yumusak', yonetim: 'mavi', kapanis: 'mavi',
   };
-  const GECIS_SURESI = { perde: 0.8, kayma: 0.55, solma: 0.7 };
+  const GECIS_SURESI = { yumusak: 1.0, mavi: 1.4 };
+  const TURE_GORE_GECIS_SURESI = { ara: 1.2 };
   const SAHNELER = [];
   {
     let saat = 0;
     const ekle = (tur, vurus, veri) => {
-      SAHNELER.push({ tur, bas: saat, sure: vurus * VURUS, veri, gecis: veri.gecis ?? VARSAYILAN_GECIS[tur] });
+      const gecis = veri.gecis ?? VARSAYILAN_GECIS[tur];
+      const gecisSuresi = veri.gecisSuresi ?? TURE_GORE_GECIS_SURESI[tur] ?? GECIS_SURESI[gecis];
+      SAHNELER.push({ tur, bas: saat, sure: vurus * VURUS, veri, gecis, gecisSuresi });
       saat += vurus * VURUS;
     };
     let araSirasi = 0;
@@ -343,7 +348,7 @@
   window.zamanCizelgesi = () => ({
     bpm: K.bpm,
     toplam: TOPLAM,
-    sahneler: SAHNELER.map((s) => ({ tur: s.tur, bas: s.bas, sure: s.sure, gecis: s.gecis ?? null })),
+    sahneler: SAHNELER.map((s) => ({ tur: s.tur, bas: s.bas, sure: s.sure, gecis: s.gecis ?? null, gecisSuresi: s.gecisSuresi ?? 0 })),
   });
 
   // ---- sahneler ----
@@ -1001,23 +1006,30 @@
   };
 
   // ---- geçişler ve son işlem ----
-  function perde(p) {
-    const egim = H * 0.35;
-    const gen = W + 2 * egim + 200 * U;
-    const bant = (x, genislik, renk) => {
-      ctx.fillStyle = renk;
-      ctx.beginPath();
-      ctx.moveTo(x, H);
-      ctx.lineTo(x + egim, 0);
-      ctx.lineTo(x + egim + genislik, 0);
-      ctx.lineTo(x + genislik, H);
-      ctx.closePath();
-      ctx.fill();
-    };
-    const x = lerp(-gen - egim - 200 * U, W, eInOutCubic(p));
-    bant(x + 140 * U, gen, R.marka);
-    bant(x + gen + 140 * U, 50 * U, R.vurgu);
-    bant(x, 140 * U, R.lacivert);
+  // Geçiş sahne sınırının iki yanına eşit yayılır: önceki sahnenin son yarısı + yeni sahnenin ilk yarısı.
+  function gecisBul(t, i) {
+    for (const j of [i, i + 1]) {
+      const s = SAHNELER[j];
+      if (!s || j === 0 || !s.gecis) continue;
+      const p = (t - s.bas + s.gecisSuresi / 2) / s.gecisSuresi;
+      if (p >= 0 && p < 1) return { yeni: j, p };
+    }
+    return null;
+  }
+
+  function maviPerde(p) {
+    const a = eInOutCubic(1 - Math.abs(2 * p - 1));
+    const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.75);
+    g.addColorStop(0, rgba(R.marka, a));
+    g.addColorStop(1, rgba('#141C52', a));
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function olcekle(k) {
+    ctx.translate(W / 2, H / 2);
+    ctx.scale(k, k);
+    ctx.translate(-W / 2, -H / 2);
   }
 
   const DAMGASIZ = new Set(['giris', 'logo', 'kapanis']);
@@ -1087,48 +1099,35 @@
 
     let i = SAHNELER.findIndex((s) => t < s.bas + s.sure);
     if (i < 0) i = SAHNELER.length - 1;
-    const s = SAHNELER[i], lt = t - s.bas;
-    const gecis = i > 0 ? s.gecis : null;
-    const gs = gecis ? GECIS_SURESI[gecis] : 0;
+    const gecis = gecisBul(t, i);
     let damgaSahnesi = i;
-    let perdeIlerleme = null;
+    let maviIlerleme = null;
 
-    if (gecis && lt < gs) {
-      const o = SAHNELER[i - 1];
-      const p = lt / gs;
-      if (gecis === 'perde') {
-        if (p < 0.5) {
-          cizSahne(o, t - o.bas);
-          damgaSahnesi = i - 1;
-        } else {
-          cizSahne(s, lt);
-        }
-        perdeIlerleme = p;
-      } else if (gecis === 'kayma') {
+    if (!gecis) {
+      cizSahne(SAHNELER[i], t - SAHNELER[i].bas);
+    } else {
+      const { yeni, p } = gecis;
+      const o = SAHNELER[yeni - 1], s = SAHNELER[yeni];
+      damgaSahnesi = p < 0.5 ? yeni - 1 : yeni;
+      if (s.gecis === 'mavi') {
+        const g = p < 0.5 ? o : s;
+        cizSahne(g, t - g.bas);
+        maviIlerleme = p;
+      } else {
+        // eski sahne hafifçe yaklaşırken yeni sahne biraz yakından gelip yerine oturur
         const e = eInOutCubic(p);
         ctx.save();
-        ctx.translate(-e * 140 * U, 0);
+        olcekle(lerp(1, 1.025, e));
         cizSahne(o, t - o.bas);
         ctx.restore();
-        const x = W * (1 - e);
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(x, 0, W - x, H);
-        ctx.clip();
-        ctx.translate((1 - e) * 100 * U, 0);
-        cizSahne(s, lt);
-        ctx.restore();
-        ctx.fillStyle = R.vurgu;
-        ctx.fillRect(x - 5 * U, 0, 5 * U, H);
-      } else {
-        cizSahne(o, t - o.bas);
-        katmanda(() => cizSahne(s, lt), eInOutCubic(p));
+        katmanda(() => {
+          olcekle(lerp(1.025, 1, e));
+          cizSahne(s, t - s.bas);
+        }, e);
       }
-    } else {
-      cizSahne(s, lt);
     }
     damga(damgaSahnesi, t);
-    if (perdeIlerleme !== null) perde(perdeIlerleme);
+    if (maviIlerleme !== null) maviPerde(maviIlerleme);
     sonIslem(t);
   };
 
