@@ -1,53 +1,264 @@
 {
-  "firma": {
-    "ad": "GÜÇLÜ",
-    "altAd": "İNŞAAT",
-    "slogan": "Geleceği sağlam inşa ediyoruz."
+  "bpm": 100,
+  "renkler": {
+    "marka": "#2A3C90",
+    "lacivert": "#0A1030",
+    "lacivertAcik": "#151D4A",
+    "vurgu": "#8FA2FF",
+    "metin": "#FFFFFF",
+    "metinIkincil": "#B4BCDD"
   },
-  "iletisim": {
-    "web": "",
-    "telefon": "",
-    "adres": ""
-  },
-  "sahneler": {
-    "giris": {
-      "etiket": "01 — PLAN",
-      "satirlar": ["Her büyük yapı", "bir planla başlar."]
+  "sahneler": [
+    {
+      "tur": "giris",
+      "vurus": 6,
+      "gorsel": "giris-maket.jpg",
+      "odak": [0.5, 0.55],
+      "etiket": "1991’DEN BERİ",
+      "satirlar": ["YAPILARI KADAR", "SAĞLAM TEMELLER", "ÜZERİNDE YÜKSELİYORUZ."]
     },
-    "yukselis": {
-      "etiket": "02 — İNŞA",
-      "satirlar": ["Sağlam temeller,", "güçlü yapılar."]
+    {
+      "tur": "logo",
+      "vurus": 8,
+      "alt": "1991’den beri",
+      "ulkeler": ["TÜRKİYE", "KAZAKİSTAN", "ÇEK CUMHURİYETİ", "AMERİKA", "GANA", "LİBYA"]
     },
-    "hizmetler": {
-      "etiket": "03 — HİZMETLERİMİZ",
-      "baslik": "Uzmanlık alanlarımız",
-      "liste": [
-        { "ikon": "konut", "baslik": "Konut Projeleri", "aciklama": "Modern ve konforlu yaşam alanları" },
-        { "ikon": "ticari", "baslik": "Ticari Yapılar", "aciklama": "İş merkezleri ve ofis binaları" },
-        { "ikon": "donusum", "baslik": "Kentsel Dönüşüm", "aciklama": "Depreme dayanıklı yeni yapılar" },
-        { "ikon": "yonetim", "baslik": "Proje Yönetimi", "aciklama": "Planlamadan anahtar teslime" }
+    {
+      "tur": "rakamlar",
+      "vurus": 14,
+      "gorsel": "rakamlar.jpg",
+      "etiket": "RAKAMLARLA",
+      "baslik": ["RAKAMLARLA", "GÜÇLÜ GROUP"],
+      "alt": "Rakamlar ile güçlenen 35 yılın tecrübesi...",
+      "rakamlar": [
+        { "deger": 1991, "baslangic": 1950, "etiket": "Hüseyin Çelik tarafından kuruldu" },
+        { "deger": 6, "etiket": "Farklı ülkede faaliyet" },
+        { "deger": 100, "son": "+", "etiket": "Tamamlanan proje" },
+        { "deger": 2000, "son": "+", "etiket": "Kişiye istihdam" },
+        { "deger": 35, "etiket": "Yılın tecrübesi" }
       ]
     },
-    "degerler": {
-      "etiket": "04 — DEĞERLERİMİZ",
-      "kelimeler": ["KALİTE", "GÜVEN", "ZAMANINDA TESLİM"]
+    {
+      "tur": "hakkimizda",
+      "vurus": 16,
+      "gorsel": "hakkimizda-ekip.jpg",
+      "odak": [0.5, 0.45],
+      "etiket": "HAKKIMIZDA",
+      "baslik": ["1991’DEN", "BERİ"],
+      "paragraflar": [
+        "Güçlü Group’un temelleri, Hüseyin Çelik tarafından 1991 yılında kurulan Güçlü İnşaat A.Ş. ile atıldı.",
+        "Bugün ana müteahhit ve yatırımcı olarak 6 farklı ülkede altyapı inşaatları, tüneller, alışveriş merkezleri, ofisler, oteller, konut projeleri, devlet binaları ve yollar inşa ediyoruz.",
+        "100’ün üzerinde projeyi tamamladık; 6 ülkede 2000’den fazla kişiye istihdam sağlıyoruz."
+      ]
+    },
+    {
+      "tur": "harita",
+      "vurus": 14,
+      "gorsel": "harita.png",
+      "etiket": "FAALİYET HARİTASI",
+      "baslik": ["6 FARKLI", "ÜLKEDE", "FAALİYET"],
+      "pinler": [
+        { "ad": "TÜRKİYE", "x": 666, "y": 134, "merkez": true },
+        { "ad": "KAZAKİSTAN", "x": 807, "y": 128 },
+        { "ad": "ÇEK CUMHURİYETİ", "sol": true, "x": 605, "y": 90 },
+        { "ad": "LİBYA", "sol": true, "x": 607, "y": 177 },
+        { "ad": "GANA", "sol": true, "x": 540, "y": 245 },
+        { "ad": "AMERİKA", "x": 300, "y": 133 }
+      ],
+      "sirketlerBaslik": "GRUP ŞİRKETLERİ",
+      "sirketler": [
+        "GÜÇLÜ İNŞAAT LTD. / A.Ş.",
+        "BETA INVESTMENT",
+        "GUCLU USA (AMERİKA)",
+        "GG PRAGUE (ÇEK CUMHURİYETİ)",
+        "GUCLU KZ (KAZAKİSTAN)",
+        "SİNTEK"
+      ]
+    },
+    {
+      "tur": "baskan",
+      "vurus": 16,
+      "gorsel": "baskan-huseyin-celik.jpg",
+      "odak": [0.6, 0.42],
+      "etiket": "BAŞKANIN MESAJI",
+      "alinti": "Güçlü Group, kıtaları aşan tecrübesi, 2000’i aşkın çalışanı ve inovatif yapısı ile iş dünyasının Güçlü tarafı olmaya devam edecektir.",
+      "ad": "HÜSEYİN ÇELİK",
+      "unvan": "Yönetim Kurulu Başkanı"
+    },
+    {
+      "tur": "degerler",
+      "vurus": 16,
+      "gorsel": "marka-degeri.jpg",
+      "etiket": "DEĞERLER",
+      "baslik": "MARKA DEĞERİMİZ",
+      "liste": [
+        { "ikon": "dunya", "baslik": "DÜNYA MARKALARI", "metin": "En iyiyi sunmak için projelerimizin her detayında dünya markalarını tercih ediyoruz." },
+        { "ikon": "yatirim", "baslik": "YATIRIM DEĞERİ", "metin": "İhtiyaca yönelik tasarımları farklı konseptlerle ortaya çıkarıyor, kazandıran projeler oluşturuyoruz." },
+        { "ikon": "guven", "baslik": "GÜVEN", "metin": "Güven odaklı çalışıyor, beklentileri önceden öngörüyor ve profesyonel çözümler sunuyoruz." },
+        { "ikon": "zaman", "baslik": "ZAMANINDA TESLİM", "metin": "Müşteri güvenini korumanın önemini biliyor, teslim tarihine ekstra özen gösteriyoruz." },
+        { "ikon": "lokasyon", "baslik": "LOKASYON", "metin": "Hayata uzak kalmamanız için en doğru lokasyonu seçiyoruz." }
+      ]
+    },
+    {
+      "tur": "ara",
+      "vurus": 6,
+      "gorsel": "kalite.jpg",
+      "odak": [0.5, 0.4],
+      "etiket": "KALİTE",
+      "baslik": ["KALİTE", "POLİTİKASI"],
+      "metin": "Dünya standartlarında projeler, en üst seviyede müşteri memnuniyeti."
+    },
+    {
+      "tur": "ara",
+      "vurus": 6,
+      "gorsel": "cevre.jpg",
+      "odak": [0.55, 0.5],
+      "etiket": "ÇEVRE",
+      "baslik": ["ÇEVRE", "BİLİNCİ"],
+      "metin": "Doğal kaynakları verimli kullanıyor, atıkları azaltıyor ve geri dönüşümü destekliyoruz."
+    },
+    {
+      "tur": "ara",
+      "vurus": 6,
+      "gorsel": "is-guvenligi.jpg",
+      "odak": [0.45, 0.4],
+      "etiket": "İŞ GÜVENLİĞİ",
+      "baslik": ["ÖNCELİĞİMİZ", "İNSAN HAYATI"],
+      "metin": "Çalışanlarımızın sağlık ve güvenliği, iş anlayışımızın vazgeçilmez bir parçasıdır."
+    },
+    {
+      "tur": "ara",
+      "vurus": 6,
+      "gorsel": "tecrube.jpg",
+      "odak": [0.5, 0.5],
+      "etiket": "PROJELERİMİZ",
+      "baslik": ["SINIRLARI AŞAN", "GÜÇLÜ BİR TECRÜBE..."],
+      "metin": "Türkiye’den dünyaya, 35 yılda 100’ü aşkın proje."
+    },
+    {
+      "tur": "kategori",
+      "bolum": "BÖLÜM 01",
+      "baslik": "KONUT VE REZİDANS",
+      "slogan": "Yaşam alanlarındaki detaylardan müşteri ilişkilerine kadar her detayda kaliteyi sunuyoruz.",
+      "gorsel": "kat-konut.jpg",
+      "odak": [0.3, 0.5],
+      "projeler": [
+        { "ad": "BAHÇEŞEHİR KONUT PROJESİ", "konum": "BAŞAKŞEHİR - İSTANBUL", "yil": 2005,
+          "gorseller": ["p-bahcesehir-konut-1.jpg", "p-bahcesehir-konut-2.jpg", "p-bahcesehir-konut-3.jpg"] },
+        { "ad": "ALMATA KONUT PROJESİ", "konum": "KAZAKİSTAN - ALMATA", "yil": 2010,
+          "gorseller": ["p-almata-1.jpg", "p-almata-2.jpg", "p-almata-3.jpg"] },
+        { "ad": "LOZA EVLERİ KONUT PROJESİ", "konum": "BAĞCILAR - İSTANBUL", "yil": 2018, "vurus": 8,
+          "logo": "loza-logo.png", "not": "Sizi hayallerinizdeki yaşam alanıyla buluşturuyor · www.lozaevleri.com.tr",
+          "gorseller": ["p-loza-1.jpg", "p-loza-4.jpg", "p-loza-2.jpg", "p-loza-3.jpg", "p-loza-5.jpg", "p-loza-6.jpg"] },
+        { "ad": "KASPİ OTEL PROJESİ", "konum": "KAZAKİSTAN - ASTANA", "yil": 2007,
+          "gorseller": ["p-kaspi-1.jpg", "p-kaspi-2.jpg", "p-kaspi-3.jpg"] },
+        { "ad": "ÇİMKENT TOPLU KONUT PROJESİ", "konum": "KAZAKİSTAN - ÇİMKENT", "yil": 2009,
+          "gorseller": ["p-cimkent-1.jpg", "p-cimkent-2.jpg", "p-cimkent-3.jpg"] },
+        { "ad": "PRAG KONUT PROJESİ", "konum": "PRAG - ÇEKYA", "yil": 2010,
+          "gorseller": ["p-prag-1.jpg", "p-prag-2.jpg", "p-prag-3.jpg"] },
+        { "ad": "KİPTAŞ PENDİK AYDOS PROJESİ", "konum": "İSTANBUL - PENDİK", "yil": 2005,
+          "gorseller": ["p-kiptas-1.jpg", "p-kiptas-2.jpg", "p-kiptas-3.jpg"] }
+      ]
+    },
+    {
+      "tur": "kategori",
+      "bolum": "BÖLÜM 02",
+      "baslik": "ALTYAPI",
+      "slogan": "Güven odaklı çalışıyor, beklentileri önceden görüyor ve çözümler üretiyoruz.",
+      "gorsel": "kat-altyapi.jpg",
+      "odak": [0.3, 0.6],
+      "projeler": [
+        { "ad": "BAHÇEŞEHİR ALTYAPI PROJESİ", "konum": "İSTANBUL - BAHÇEŞEHİR", "yil": 2005,
+          "gorseller": ["p-bahcesehir-altyapi-1.jpg", "p-bahcesehir-altyapi-2.jpg", "p-bahcesehir-altyapi-3.jpg"] },
+        { "ad": "AVRUPA BÖLGESİ ATIKSU TÜNEL İNŞAATI", "konum": "İSTANBUL - AYAZAĞA", "yil": 2019,
+          "not": "Tünel uzunluğu 8.300 m",
+          "gorseller": ["p-atiksu-tunel-1.jpg", "p-atiksu-tunel-2.jpg", "p-atiksu-tunel-3.jpg"] },
+        { "ad": "İSKİ İÇME SUYU TÜNEL İNŞAATI", "konum": "İSTANBUL - ZEYTİNBURNU", "yil": 2018, "vurus": 6,
+          "not": "Türkiye’de ilk defa %95 yerli TBM (tünel açma makinası) ürettik · Tünel uzunluğu 3.000 m",
+          "isveren": ["isveren-iski.png"],
+          "gorseller": ["p-iski-tunel-1.jpg", "p-iski-tunel-2.jpg", "p-iski-tunel-3.jpg"] },
+        { "ad": "İBB EÜAŞ DENİZ DEŞARJ PROJESİ", "konum": "İSTANBUL - AVCILAR", "yil": 2020, "vurus": 6,
+          "not": "Ambarlı Enerji Santrali soğutma suyu denizden su alma ve deşarj sistemi inşaatı",
+          "isveren": ["isveren-euas.png", "isveren-ibb.png"],
+          "gorseller": ["p-deniz-desarj-1.jpg", "p-deniz-desarj-2.jpg", "p-deniz-desarj-3.jpg"] },
+        { "ad": "ÇORLU KARA BORU HATTI İNŞAATI", "konum": "ÇORLU - TEKİRDAĞ", "yil": 2018, "vurus": 6,
+          "not": "Ergene Havzası OSB arıtılmış atıksularının Marmara Denizi’ne deşarj sistemi",
+          "isveren": ["isveren-sanayi.png"],
+          "gorseller": ["p-corlu-1.jpg", "p-corlu-4.jpg", "p-corlu-2.jpg", "p-corlu-3.jpg"] },
+        { "ad": "İSKİ TUZLA ALTYAPI İNŞAATI İŞİ", "konum": "TUZLA - İSTANBUL", "yil": 2003,
+          "gorseller": ["p-tuzla-1.jpg"] },
+        { "ad": "KİLİS BELEDİYESİ İÇME SUYU İNŞAATI", "konum": "KİLİS", "yil": 2013,
+          "gorseller": ["p-kilis-1.jpg"] }
+      ]
+    },
+    {
+      "tur": "kategori",
+      "bolum": "BÖLÜM 03",
+      "baslik": "KARAYOLU VE ÇEVRE DÜZENLEME",
+      "slogan": "Güçlü Türkiye için ekonomik ve kalıcı çözümler...",
+      "gorsel": "kat-karayolu.jpg",
+      "odak": [0.55, 0.5],
+      "projeler": [
+        { "ad": "BEŞİKDÜZÜ TONYA YOLU İNŞAATI İŞİ", "konum": "BEŞİKDÜZÜ - TRABZON", "yil": 2020,
+          "gorseller": ["p-besikduzu-1.jpg"] },
+        { "ad": "ÇANAKKALE KORDON BOYU DÜZENLEME İNŞAATI", "konum": "ÇANAKKALE", "yil": 2013,
+          "gorseller": ["p-canakkale-1.jpg"] },
+        { "ad": "TAKSİM MEYDANI ÇEVRE DÜZENLEME İNŞAATI", "konum": "TAKSİM - İSTANBUL", "yil": 2017,
+          "gorseller": ["p-taksim-1.jpg"] },
+        { "ad": "SULTANAHMET MEYDANI ÇEVRE DÜZENLEME İNŞAATI", "konum": "SULTANAHMET - İSTANBUL", "yil": 2016,
+          "gorseller": ["p-sultanahmet-1.jpg", "p-sultanahmet-2.jpg"] }
+      ]
+    },
+    {
+      "tur": "kategori",
+      "bolum": "BÖLÜM 04",
+      "baslik": "RESTORASYON",
+      "slogan": "Türkiye’nin değerine değer katmaya devam ediyoruz.",
+      "gorsel": "kat-restorasyon.jpg",
+      "odak": [0.5, 0.45],
+      "projeler": [
+        { "ad": "SADABAD CAMİİ", "konum": "KAĞITHANE - İSTANBUL", "yil": 1999, "gorseller": ["p-sadabad-1.jpg"] },
+        { "ad": "BAHÇEŞEHİR CAMİİ", "konum": "BAHÇEŞEHİR - İSTANBUL", "yil": 2001, "gorseller": ["p-bahcesehir-camii-1.jpg"] },
+        { "ad": "FRANSIZ HAPİSHANESİ", "konum": "EMİNÖNÜ - İSTANBUL", "yil": 2004, "gorseller": ["p-fransiz-hapishanesi-1.jpg"] },
+        { "ad": "İSTANBUL SURLARI", "konum": "FATİH - İSTANBUL", "yil": 1999, "gorseller": ["p-istanbul-surlari-1.jpg"] },
+        { "ad": "FETHİ PAŞA KORUSU", "konum": "ÜSKÜDAR - İSTANBUL", "yil": 1996, "gorseller": ["p-fethi-pasa-1.jpg"] },
+        { "ad": "ÇOBAN MUSTAFA PAŞA CAMİİ", "konum": "KOCAELİ - GEBZE", "yil": 2017, "gorseller": ["p-coban-mustafa-pasa-1.jpg"] }
+      ]
+    },
+    {
+      "tur": "kategori",
+      "bolum": "BÖLÜM 05",
+      "baslik": "AVM",
+      "slogan": "Geleceğin şirketleri arasında yer alan vizyoner bir yaklaşım...",
+      "gorsel": "kat-avm.jpg",
+      "odak": [0.4, 0.5],
+      "projeler": [
+        { "ad": "KONYA KARATAY AVM", "konum": "KARATAY - KONYA", "yil": 2016, "vurus": 6, "gorseller": ["p-karatay-avm-1.jpg"] }
+      ]
+    },
+    {
+      "tur": "yonetim",
+      "vurus": 10,
+      "gorsel": "yonetim-aile.jpg",
+      "etiket": "YÖNETİM",
+      "baslik": "YÖNETİM KURULU",
+      "kisiler": [
+        { "ad": "HÜSEYİN ÇELİK", "unvan": "Yönetim Kurulu Başkanı" },
+        { "ad": "UTKUCAN ÇELİK", "unvan": "Yönetim Kurulu Üyesi" },
+        { "ad": "ÖZGÜR BARAN ÇELİK", "unvan": "Yönetim Kurulu Üyesi" },
+        { "ad": "MUHARREM ARDUÇ", "unvan": "Genel Müdür (Üst Yapı)" },
+        { "ad": "TEYSİR KAMAR", "unvan": "Mali İşler Direktörü" },
+        { "ad": "HAKTAN GÖZÜAÇIK", "unvan": "Genel Müdür (Altyapı)" }
+      ]
+    },
+    {
+      "tur": "kapanis",
+      "vurus": 14,
+      "gorsel": "kapanis.jpg",
+      "alt": "1991’den beri",
+      "web": "www.guclugroup.com.tr",
+      "adres": "Esentepe Mah. Büyükdere Cad. Maya Akar Center C-Blok Kat 2 No: 14-15 · İstanbul",
+      "ofisler": ["İSTANBUL", "ALMATY", "PRAG"]
     }
-  },
-  "zamanlama": {
-    "giris": 0,
-    "yukselis": 4.8,
-    "hizmetler": 10.8,
-    "degerler": 18.0,
-    "logo": 23.4,
-    "bitis": 30.0,
-    "bpm": 100
-  },
-  "renkler": {
-    "vurgu": "#F2A20C",
-    "vurguAcik": "#F7BE4A",
-    "arkaPlanUst": "#122030",
-    "arkaPlanAlt": "#09121B",
-    "metin": "#F4F6F8",
-    "metinIkincil": "#9AA9B8"
-  }
+  ]
 }

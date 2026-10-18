@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Tanıtım videosu için fon müziği üretir: out/muzik.wav
 
-Vuruşlar, geçiş efektleri ve akorlar config.json'daki "zamanlama" değerlerine göre
-yerleştirilir; sahne süreleri değişirse müzik de kendiliğinden uyum sağlar.
+Kullanım: python3 muzik.py out/zamanlama.json
+(render.mjs bu dosyayı sahne.js'in zaman çizelgesinden üretip bu betiği kendisi çağırır.)
+
+Akorlar her 4 vuruşta ve her sahne başında değişir; vuruş yoğunluğu, geçiş sesleri ve
+darbeler sahne türüne göre yerleştirilir. Sahneler eklenip çıkarılsa da müzik uyum sağlar.
 Yalnızca numpy gerekir.
 """
 import json
+import sys
 import wave
 from pathlib import Path
 
@@ -14,6 +18,20 @@ import numpy as np
 KOK = Path(__file__).resolve().parent
 SR = 48000
 rng = np.random.default_rng(11)
+
+# Sahne türüne göre yoğunluk: 0 yalnız pad, 1 yarım tempo davul, 1.5 tam tempo, 2 tam tempo + bas darbeleri
+YOGUNLUK = {
+    "giris": 0, "logo": 0.5, "rakamlar": 1, "hakkimizda": 1, "harita": 1, "baskan": 0.5,
+    "degerler": 1, "ara": 1.5, "kategori": 2, "proje": 2, "yonetim": 1, "kapanis": 0,
+}
+DARBE = {"logo": 0.7, "rakamlar": 0.45, "baskan": 0.35, "ara": 0.4, "kategori": 0.6, "yonetim": 0.4, "kapanis": 0.8}
+AKORLAR = [
+    ("A1", ["A2", "E3", "A3", "C4", "E4"]),
+    ("F1", ["F2", "C3", "F3", "A3", "C4"]),
+    ("C2", ["C3", "G3", "C4", "E4", "G4"]),
+    ("G1", ["G2", "D3", "G3", "B3", "D4"]),
+]
+ARPEJ = [["A3", "C4", "E4", "B4"], ["F3", "A3", "C4", "E4"], ["G3", "C4", "E4", "G4"], ["G3", "B3", "D4", "A4"]]
 
 
 def frekans(nota):
@@ -60,7 +78,7 @@ def alcak_gecir(x, kesim):
     return np.fft.irfft(np.fft.rfft(x) / np.sqrt(1 + (f / kesim) ** 4), n)
 
 
-def pad(m, notalar, bas, bit, kazanc, parlaklik, atak=0.6):
+def pad(m, notalar, bas, bit, kazanc, parlaklik, atak=0.5):
     birakma = 0.9
     n = int((bit - bas + birakma) * SR)
     t = np.arange(n) / SR
@@ -69,8 +87,8 @@ def pad(m, notalar, bas, bit, kazanc, parlaklik, atak=0.6):
         for detune, pan in ((-7, -0.6), (0, 0.0), (7, 0.6)):
             fd = f * 2 ** (detune / 1200)
             s = np.zeros(n)
-            for h in range(1, 11):
-                if fd * h > 9000:
+            for h in range(1, 9):
+                if fd * h > 8000:
                     break
                 s += np.sin(2 * np.pi * fd * h * t + rng.uniform(0, 2 * np.pi)) / h * np.exp(-(h - 1) / parlaklik)
             s *= zarf(n, atak, birakma) * (1 + 0.06 * np.sin(2 * np.pi * 0.23 * t + pan))
@@ -132,17 +150,17 @@ def yukselen(m, bas, bit, kazanc):
     m.ekle(bas, s + ton, kazanc, 0.0, yanki=0.3)
 
 
-def hisirti(m, merkez, kazanc):
-    """Soldan sağa geçen silme geçişi için rüzgâr sesi."""
-    sure = 1.1
+def hisirti(m, merkez, kazanc, sure=1.0, soldan_saga=True):
+    """Ekrandaki silme geçişiyle aynı yönde geçen rüzgâr sesi."""
     n = int(sure * SR)
     t = np.arange(n) / SR
     beyaz = rng.standard_normal(n)
     g = alcak_gecir(beyaz, 2600) - alcak_gecir(beyaz, 270)
-    e = np.exp(-((t - sure / 2) / 0.22) ** 2)
-    x = t / sure
-    bas = merkez - sure / 2
-    i0 = int(bas * SR)
+    e = np.exp(-((t - sure / 2) / (sure * 0.2)) ** 2)
+    x = t / sure if soldan_saga else 1 - t / sure
+    i0 = int((merkez - sure / 2) * SR)
+    if i0 < 0 or i0 >= m.n:
+        return
     for k, kanal in ((0, np.cos(x * np.pi / 2)), (1, np.sin(x * np.pi / 2))):
         seg = (g * e * kanal * kazanc)[: m.n - i0]
         m.kuru[k, i0:i0 + len(seg)] += seg
@@ -181,82 +199,72 @@ def yanki_uygula(x, sure=2.4):
 
 
 def main():
-    cfg = json.loads((KOK / "config.json").read_text(encoding="utf-8"))
-    z = cfg["zamanlama"]
-    G, Y, HZ, D, L, B = z["giris"], z["yukselis"], z["hizmetler"], z["degerler"], z["logo"], z["bitis"]
-    v = 60 / z["bpm"]
+    if len(sys.argv) != 2:
+        sys.exit(__doc__)
+    cizelge = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+    v = 60 / cizelge["bpm"]
+    sahneler = cizelge["sahneler"]
+    B = cizelge["toplam"]
     m = Miks(B)
 
-    # akorlar
-    orta_y, orta_h = (Y + HZ) / 2, (HZ + D) / 2
-    pad(m, ["A2", "E3", "B3", "C4"], G, Y, 0.20, 2.0, atak=2.5)
-    pad(m, ["F2", "C3", "E3", "A3"], Y, orta_y, 0.24, 3.0)
-    pad(m, ["G2", "D3", "G3", "B3"], orta_y, HZ, 0.24, 3.4)
-    pad(m, ["A2", "E3", "A3", "C4"], HZ, orta_h, 0.24, 4.0)
-    pad(m, ["F2", "C3", "F3", "A3"], orta_h, D, 0.24, 4.4)
-    kelime_sayisi = len(cfg["sahneler"]["degerler"]["kelimeler"])
-    slot = (L - D) / kelime_sayisi
-    deger_akorlari = [["C3", "G3", "C4", "E4"], ["G2", "D3", "G3", "B3"], ["F2", "C3", "F3", "A3"], ["A2", "E3", "A3", "C4"]]
-    deger_koklari = ["C2", "G1", "F1", "A1"]
-    for i in range(kelime_sayisi):
-        pad(m, deger_akorlari[i % 4], D + i * slot, D + (i + 1) * slot, 0.26, 4.6, atak=0.15)
-    pad(m, ["C3", "G3", "D4", "E4", "G4"], L, B - 0.6, 0.30, 5.0, atak=0.3)
+    # Her sahneyi 4 vuruşluk parçalara böl; her parça bir akor.
+    akor_sirasi = 0
+    for i, s in enumerate(sahneler):
+        tur, bas, sure = s["tur"], s["bas"], s["sure"]
+        yog = YOGUNLUK.get(tur, 1)
+        son_sahne = i == len(sahneler) - 1
+        t = bas
+        while t < bas + sure - 1e-6:
+            bit = min(t + 4 * v, bas + sure)
+            kok, notalar = AKORLAR[akor_sirasi % 4]
+            arpej = ARPEJ[akor_sirasi % 4]
+            if son_sahne:
+                kok, notalar, bit = "C2", ["C3", "G3", "D4", "E4", "G4"], B - 0.6
+            atak = 2.5 if tur == "giris" else 0.4
+            pad(m, notalar, t, bit, 0.22 if yog < 1 else 0.25, 2.5 + 1.2 * yog, atak=atak)
+            vurus_sayisi = round((bit - t) / v)
+            for b in range(vurus_sayisi):
+                tb = t + b * v
+                if yog >= 0.5 and not son_sahne:
+                    for yarim in range(2):
+                        mizrap(m, arpej[(2 * b + yarim) % 4], tb + yarim * v / 2, 0.055 if yog < 2 else 0.045,
+                               -0.4 if (2 * b + yarim) % 2 else 0.4)
+                if yog >= 1.5 or (yog >= 1 and b % 2 == 0):
+                    davul(m, tb, 0.6)
+                if yog >= 1.5:
+                    zil(m, tb + v / 2, 0.5)
+                if yog >= 2:
+                    bas_nota(m, kok, tb, v / 2, 0.15, sonum=7)
+                    bas_nota(m, kok, tb + v / 2, v / 2, 0.12, sonum=7)
+            if 1 <= yog < 2:
+                bas_nota(m, kok, t, bit - t, 0.14, sonum=0.4)
+            if son_sahne:
+                bas_nota(m, kok, t, bit - t, 0.18, sonum=0.5)
+                break
+            akor_sirasi += 1
+            t = bit
 
-    # giriş ve yükseliş boyunca arpej
-    arpejler = [(G, Y, ["A3", "C4", "E4", "B4"]), (Y, orta_y, ["F3", "A3", "C4", "E4"]), (orta_y, HZ - v, ["G3", "B3", "D4", "G4"])]
-    for bas, bit, notalar in arpejler:
-        i = 0
-        t = bas + v
-        while t < bit:
-            mizrap(m, notalar[i % 4], t, 0.06 if bas == G else 0.07, -0.4 if i % 2 else 0.4)
-            t += v / 2
-            i += 1
+        if tur in DARBE:
+            darbe(m, bas, DARBE[tur])
+        gecis = s.get("gecis")
+        if gecis == "perde":
+            hisirti(m, bas + 0.4, 0.45, sure=1.0, soldan_saga=True)
+        elif gecis == "kayma":
+            hisirti(m, bas + 0.27, 0.22, sure=0.6, soldan_saga=False)
+        elif gecis == "solma":
+            hisirti(m, bas + 0.35, 0.18, sure=0.9, soldan_saga=True)
 
-    # bas
-    bas_nota(m, "F1", Y, orta_y - Y, 0.16, sonum=0.25)
-    bas_nota(m, "G1", orta_y, HZ - orta_y, 0.16, sonum=0.25)
-    t, i = HZ, 0
-    while t < D - 0.01:
-        bas_nota(m, "A1" if t < orta_h else "F1", t, v / 2, 0.15, sonum=7)
-        t += v / 2
-        i += 1
-    for i in range(kelime_sayisi):
-        t = D + i * slot
-        while t < D + (i + 1) * slot - 0.01:
-            bas_nota(m, deger_koklari[i % 4], t, v, 0.16, sonum=4)
-            t += v
-    bas_nota(m, "C2", L, B - L, 0.18, sonum=0.6)
-
-    # ritim
-    t = Y
-    while t < HZ - v * 1.5:
-        davul(m, t, 0.55)
-        t += 2 * v
-    t = HZ
-    while t < D - 0.01:
-        davul(m, t, 0.6)
-        zil(m, t + v / 2, 0.5)
-        t += v
-    t = D
-    while t < L - 2 * v:
-        davul(m, t, 0.62)
-        zil(m, t + v / 2, 0.55)
-        t += v
-
-    # geçiş efektleri
-    yukselen(m, HZ - 1.6, HZ, 0.10)
-    hisirti(m, HZ, 0.5)
-    yukselen(m, L - 1.8, L, 0.16)
-    for t, g in ((Y, 0.55), (HZ, 0.7), (D, 0.6), (L, 0.8)):
-        darbe(m, t, g)
-    for i in range(1, kelime_sayisi):
-        darbe(m, D + i * slot, 0.4)
-
-    # logo: kuleler yükselirken çanlar, parlama anında ışıltı
-    for i, nota in enumerate(["E5", "G5", "C6"]):
-        can(m, nota, L + 0.35 + i * 0.14, 0.09, (-0.4, 0.0, 0.4)[i])
-    for i, nota in enumerate(["D6", "E6", "G6"]):
-        can(m, nota, L + 2.3 + i * 0.12, 0.05, (0.5, -0.2, 0.2)[i])
+    # Önemli anlardan önce yükselen efekt, logolarda çanlar
+    ilk_kategori = next((s for s in sahneler if s["tur"] == "kategori"), None)
+    for s in sahneler:
+        if s["tur"] in ("logo", "kapanis"):
+            yukselen(m, s["bas"] - 1.8, s["bas"], 0.16)
+            for k, nota in enumerate(["E5", "G5", "C6"]):
+                can(m, nota, s["bas"] + 0.5 + k * 0.14, 0.08, (-0.4, 0.0, 0.4)[k])
+            for k, nota in enumerate(["D6", "E6", "G6"]):
+                can(m, nota, s["bas"] + 2.1 + k * 0.12, 0.045, (0.5, -0.2, 0.2)[k])
+    if ilk_kategori:
+        yukselen(m, ilk_kategori["bas"] - 2.4, ilk_kategori["bas"], 0.12)
 
     karisim = yuksek_gecir(m.kuru + yanki_uygula(m.yanki) * 0.9)
     # yalnızca anlık tepeleri yumuşatacak kadar sıkıştır, sonra -1 dBFS'e getir
@@ -266,17 +274,16 @@ def main():
     n = karisim.shape[1]
     giris = int(0.3 * SR)
     karisim[:, :giris] *= np.linspace(0, 1, giris)
-    cikis = int(1.2 * SR)
+    cikis = int(1.5 * SR)
     karisim[:, n - cikis:] *= np.linspace(1, 0, cikis) ** 1.5
 
     hedef = KOK / "out" / "muzik.wav"
     hedef.parent.mkdir(exist_ok=True)
-    veri = (karisim.T * 32767).astype("<i2").tobytes()
     with wave.open(str(hedef), "wb") as w:
         w.setnchannels(2)
         w.setsampwidth(2)
         w.setframerate(SR)
-        w.writeframes(veri)
+        w.writeframes((karisim.T * 32767).astype("<i2").tobytes())
     print(hedef)
 
 
