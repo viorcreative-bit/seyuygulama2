@@ -318,6 +318,43 @@
     });
   }
 
+  /* ---------- Instagram ---------- */
+  // Gönderiler GitHub Actions ile assets/js/instagram.js dosyasına yazılır.
+  var IG_ICONS = {
+    VIDEO: { label: "Video", path: "M8 5v14l11-7z" },
+    CAROUSEL_ALBUM: { label: "Albüm", path: "M4 8h11v12H4zM8 4h12v12h-2V6H8z" }
+  };
+
+  function renderInstagram() {
+    var section = document.querySelector("[data-insta]");
+    var grid = document.querySelector("[data-insta-grid]");
+    var posts = (window.NONNA_INSTAGRAM && window.NONNA_INSTAGRAM.posts) || [];
+    if (!section || !posts.length) return;
+    posts.slice(0, 8).forEach(function (p) {
+      var a = el("a", "insta-item");
+      a.href = p.link;
+      a.target = "_blank";
+      a.rel = "noopener";
+      var img = document.createElement("img");
+      img.src = p.img;
+      img.alt = p.alt || "";
+      if (p.w && p.h) { img.width = p.w; img.height = p.h; }
+      img.loading = "lazy";
+      img.decoding = "async";
+      a.appendChild(img);
+      var icon = IG_ICONS[p.type];
+      if (icon) {
+        var badge = el("span", "insta-badge");
+        badge.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + icon.path + '"/></svg>';
+        badge.appendChild(el("span", "visually-hidden", icon.label));
+        a.appendChild(badge);
+      }
+      a.appendChild(el("span", "visually-hidden", " (Instagram'da açılır)"));
+      grid.appendChild(a);
+    });
+    section.hidden = false;
+  }
+
   /* ---------- Üst bar ve mobil menü ---------- */
   var header = document.querySelector("[data-header]");
   var navToggle = document.querySelector("[data-nav-toggle]");
@@ -351,6 +388,7 @@
   renderFavorites();
   renderMenu();
   renderGallery();
+  renderInstagram();
   watchCategories();
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });

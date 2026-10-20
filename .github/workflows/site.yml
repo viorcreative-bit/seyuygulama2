@@ -1,0 +1,79 @@
+# Siteyi GitHub Pages'e yayınlar ve Instagram gönderilerini günceller.
+# Ayarlar → Pages → Source: "GitHub Actions" seçili olmalıdır.
+name: Siteyi yayınla
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Instagram'ı 3 saatte bir kontrol eder (saatler UTC).
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python paketlerini kur
+        run: pip install --quiet pillow pynacl
+
+      - name: Instagram gönderilerini çek
+        id: instagram
+        continue-on-error: true
+        env:
+          INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+          GH_SECRETS_PAT: ${{ secrets.GH_SECRETS_PAT }}
+        run: python scripts/instagram_sync.py
+
+      - name: Yeni gönderileri depoya kaydet
+        run: |
+          git add assets/instagram assets/js/instagram.js
+          if git diff --cached --quiet; then
+            echo "Instagram'da yeni gönderi yok."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Instagram gönderilerini güncelle"
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
+
+      - name: Yayın klasörünü hazırla
+        run: |
+          mkdir _site
+          cp -R index.html assets _site/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: GitHub Pages'e yayınla
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # Site yine de yayınlanır; bu adım Instagram sorununu görünür kılar ve e-posta bildirimi gönderir.
+      - name: Instagram hatasını bildir
+        if: steps.instagram.outcome == 'failure'
+        run: |
+          echo "::error::Instagram gönderileri alınamadı. Ayrıntılar 'Instagram gönderilerini çek' adımında."
+          exit 1
