@@ -651,6 +651,85 @@ h1, h2, h3, h4 {
   .match-actions { flex-direction: column; width: min(100%, 300px); }
 }
 
+/* ---------- Nargile ----------
+   Loş salon. Duman efekti açıksa (assets/js/nargile.js) içerik, sayfa kaydıkça
+   dumanın içinden belirir: --r her öğenin, --p fotoğrafın görünürlüğüdür (0–1). */
+.hookah {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(88px, 12vw, 160px) 0 clamp(72px, 10vw, 128px);
+  background:
+    radial-gradient(38% 50% at 27% 32%, rgba(245, 190, 110, .14), transparent 70%),
+    radial-gradient(30% 40% at 85% 90%, rgba(130, 150, 180, .07), transparent 70%),
+    #120E0B;
+}
+.hookah-smoke {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+.hookah-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: center;
+}
+.hookah-photo {
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #0C0907;
+}
+.hookah-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+.hookah-text h2 { font-size: clamp(3rem, 7vw, 5.5rem); }
+.hookah-lede {
+  max-width: 42ch;
+  margin: 22px 0 0;
+  font-size: clamp(1.1rem, 1.4vw, 1.3rem);
+  line-height: 1.55;
+}
+.hookah-list {
+  max-width: 560px;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--marble-line);
+}
+.hookah-list li { padding: 12px 0; border-bottom: 1px solid var(--marble-line); }
+.hookah-list .item-desc { margin-top: 2px; }
+.hookah-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+.hookah-note {
+  margin: 18px 0 0;
+  font-style: italic;
+  font-size: .95rem;
+  color: var(--crema);
+}
+
+.hookah.is-smoky [data-reveal] {
+  opacity: var(--r, 0);
+  filter: blur(calc((1 - var(--r, 0)) * 10px));
+  transform: translateY(calc((1 - var(--r, 0)) * 22px));
+}
+.hookah.is-smoky .hookah-photo img {
+  filter: blur(calc((1 - var(--p, 0)) * 14px)) brightness(calc(.35 + var(--p, 0) * .65));
+  transform: scale(calc(1.08 - var(--p, 0) * .08));
+}
+
 /* ---------- Menü ---------- */
 .menu {
   padding: clamp(72px, 10vw, 128px) 0 clamp(56px, 8vw, 96px);
@@ -1175,6 +1254,10 @@ h1, h2, h3, h4 {
 
   .story-inner { grid-template-columns: minmax(0, 1fr); }
   .story-photos { max-width: 520px; }
+
+  .hookah-inner { grid-template-columns: minmax(0, 1fr); }
+  .hookah-photo { aspect-ratio: 1 / 1; max-width: 560px; }
+  .hookah-photo img { object-position: 50% 20%; }
 
   .cat { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 44px 0; }
   .cat-aside { position: static; }

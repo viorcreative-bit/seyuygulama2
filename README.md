@@ -8,6 +8,8 @@ Nonna Cafe menü kataloğundan (`menu.pdf`) alınmıştır.
 - **Giriş:** Nonna logosu, Big Mamma's imzası, menü ve rezervasyon butonları
 - **Önce bunları deneyin:** altı imza tabak
 - **Mekân:** kısa tanıtım, kahvaltı saatleri, rezervasyon telefonu
+- **Maç yayınları:** beIN SPORTS ile Süper Lig ve Avrupa maçları, stadyum arka planlı bant
+- **Nargile:** öne çıkan çeşitler ve fiyatlar; sayfa kaydıkça dumanın içinden belirir
 - **Menü:** 22 kategori, 209 ürün; kategori çubuğu, arama ("kofte" yazınca "köfte" de bulunur) ve ürün fotoğrafı büyütme
 - **Galeri:** mekân ve tabak fotoğrafları
 - **Rezervasyon ve iletişim:** telefon, Instagram, harita
@@ -49,6 +51,7 @@ assets/
   js/menu.js           Menü verisi (ürünler ve fiyatlar)
   js/images.js         Fotoğraf boyutları
   js/main.js           Menü, arama, galeri ve fotoğraf görüntüleyici
+  js/nargile.js        Nargile bölümü: fiyat listesi ve duman efekti
   img/                 Katalogdan çıkarılan fotoğraflar (sm/ küçük boyutlar)
   brand/               Nonna ve Big Mamma's logoları (SVG), favicon
 ```
