@@ -351,6 +351,139 @@ h1, h2, h3, h4 {
   font-style: italic;
 }
 
+/* ---------- Serpme kahvaltı ----------
+   Sitenin tek açık zeminli bölümü: koyu sayfada sabah ışığı. */
+.breakfast {
+  --ink: #2A211B;
+  --ink-soft: #6B5B4D;
+  --rule: rgba(42, 33, 27, .16);
+  padding: clamp(72px, 10vw, 128px) 0;
+  background:
+    radial-gradient(60% 70% at 100% 0%, rgba(255, 250, 240, .9), transparent 70%),
+    var(--cream);
+  color: var(--ink);
+}
+.breakfast :focus-visible { outline-color: var(--red-deep); }
+
+.breakfast-top {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: center;
+}
+.breakfast-text h2 {
+  font-size: clamp(3rem, 7vw, 5.75rem);
+  color: var(--ink);
+}
+.breakfast-lede {
+  max-width: 34ch;
+  margin: 20px 0 0;
+  font-size: clamp(1.15rem, 1.5vw, 1.35rem);
+  line-height: 1.5;
+}
+
+.breakfast-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 30px 0 0;
+}
+.breakfast-amount {
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 9vw, 7.25rem);
+  font-weight: 600;
+  line-height: .9;
+  letter-spacing: -.01em;
+  color: var(--red-deep);
+}
+.breakfast-currency {
+  margin-left: .12em;
+  font-size: .5em;
+  vertical-align: .62em;
+}
+.breakfast-unit {
+  font-style: italic;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  color: var(--ink);
+}
+.breakfast-pair {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: .02em;
+  color: var(--ink-soft);
+}
+.breakfast-hours {
+  max-width: 38ch;
+  margin: 22px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--red-deep);
+  line-height: 1.5;
+}
+.breakfast-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+.breakfast .btn-ghost { border-color: rgba(42, 33, 27, .35); color: var(--ink); }
+.breakfast .btn-ghost:hover { border-color: var(--ink); background: rgba(42, 33, 27, .05); }
+
+.breakfast-photos {
+  position: relative;
+  padding-bottom: 12%;
+  padding-left: 10%;
+}
+.breakfast-photo-main {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: 45% 50%;
+  border-radius: 3px;
+}
+.breakfast-photo-side {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 38%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 8px solid var(--cream);
+}
+
+.breakfast-spread {
+  margin-top: clamp(56px, 7vw, 88px);
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+.breakfast-spread h3 {
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  font-weight: 500;
+  color: var(--ink);
+}
+.spread-groups {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 28px 32px;
+  margin-top: 26px;
+}
+.spread-group h4 {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--red-deep);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.spread-group ul { margin: 0; padding: 0; list-style: none; }
+.spread-group li {
+  padding: 5px 0;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
 /* ---------- Favoriler ---------- */
 .favs { padding: clamp(72px, 10vw, 128px) 0 clamp(56px, 8vw, 96px); }
 
@@ -1255,6 +1388,10 @@ h1, h2, h3, h4 {
   .story-inner { grid-template-columns: minmax(0, 1fr); }
   .story-photos { max-width: 520px; }
 
+  .breakfast-top { grid-template-columns: minmax(0, 1fr); }
+  .breakfast-photos { max-width: 640px; }
+  .spread-groups { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
   .hookah-inner { grid-template-columns: minmax(0, 1fr); }
   .hookah-photo { aspect-ratio: 1 / 1; max-width: 560px; }
   .hookah-photo img { object-position: 50% 20%; }
@@ -1303,4 +1440,7 @@ h1, h2, h3, h4 {
   .contact-phone { font-size: clamp(2.6rem, 13vw, 3.4rem); }
 
   .match-leagues li { padding: 6px 12px; font-size: 1rem; }
+
+  .spread-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; }
+  .breakfast-actions .btn { flex: 1 1 100%; }
 }

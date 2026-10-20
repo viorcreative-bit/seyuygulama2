@@ -86,9 +86,9 @@
 
   /* ---------- Favoriler ---------- */
   var FAVORITES = [
-    { img: "serpme-kahvalti", title: "Serpme Kahvaltı", price: 1180, desc: "İki kişilik: peynir çeşitleri, sahanda sucuk ve yumurta, ızgara hellim, pişi, kaymak, bal ve reçeller." },
     { img: "nonna-calzone-burger", title: "Nonna Calzone Burger", price: 699, desc: "Burger mı pizza mı? İkisi birden: dana burger, sucuk, pastırma, karamelize soğan ve cheddar, hamurun içinde." },
     { img: "dort-peynirli-ravioli", title: "Dört Peynirli Ravioli", price: 549, desc: "Ev yapımı ravioli, dört peynir dolgusu, krema ve domates sos." },
+    { img: "karides-guvec", title: "Karides Güveç", price: 699, desc: "Tereyağında sotelenmiş karides; domates, biber, soğan, sarımsak ve mantar ile." },
     { img: "mozaik-pizza", title: "Mozaik Pizza", price: 549, desc: "Sucuk, salam, jambon, mantar, zeytin, mısır ve biber bir arada." },
     { img: "kuzu-incik", title: "Kuzu İncik", price: 999, desc: "Fırınlanmış patates püresi yatağında, demiglace sos ile." },
     { img: "karayip-katlari", title: "Karayip Katları", price: 599, desc: "Antep fıstığı kaplamalı vanilyalı dondurma, brownie ve çikolata sos." }
@@ -114,6 +114,17 @@
       fig.appendChild(cap);
       grid.appendChild(fig);
     });
+  }
+
+  /* ---------- Serpme kahvaltı fiyatı ---------- */
+  // Menüdeki 2 kişilik Serpme Kahvaltı fiyatından hesaplanır; menüde fiyat değişince burası da değişir.
+  function renderBreakfastPrice() {
+    var item = priceFor("Serpme Kahvaltı");
+    if (!item) return;
+    var person = document.querySelector("[data-breakfast-person]");
+    var total = document.querySelector("[data-breakfast-total]");
+    if (person) person.textContent = priceFormat.format(Math.round(item.p / 2));
+    if (total) total.textContent = formatPrice(item.p);
   }
 
   /* ---------- Menü ---------- */
@@ -349,6 +360,7 @@
 
   /* ---------- Başlat ---------- */
   renderFavorites();
+  renderBreakfastPrice();
   renderMenu();
   renderGallery();
   watchCategories();

@@ -6,6 +6,7 @@ Nonna Cafe menü kataloğundan (`menu.pdf`) alınmıştır.
 ## Bölümler
 
 - **Giriş:** Nonna logosu, Big Mamma's imzası, menü ve rezervasyon butonları
+- **Serpme kahvaltı:** kişi başı fiyat (menüdeki 2 kişilik fiyatın yarısı, otomatik hesaplanır), kahvaltı saatleri, sofradaki 22 çeşit
 - **Önce bunları deneyin:** altı imza tabak
 - **Mekân:** kısa tanıtım, kahvaltı saatleri, rezervasyon telefonu
 - **Maç yayınları:** beIN SPORTS ile Süper Lig ve Avrupa maçları, stadyum arka planlı bant
