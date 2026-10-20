@@ -181,10 +181,27 @@ h1, h2, h3, h4 {
 }
 .header-call:hover { border-color: var(--cream); }
 
+.header-insta {
+  display: grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  margin-left: -16px;
+  flex: none;
+  border-radius: 999px;
+  color: var(--cream);
+}
+.header-insta svg {
+  width: 22px; height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+.header-insta .dot { fill: currentColor; stroke: none; }
+.header-insta:hover { color: var(--bulb); }
+
 .nav-toggle {
   display: none;
   width: 48px; height: 48px;
-  margin-left: auto;
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -899,6 +916,8 @@ h1, h2, h3, h4 {
   :root { --header-h: 64px; --cats-h: 54px; }
 
   .nav-toggle { display: block; }
+  /* Menü açılır panele dönüştüğü için simge sağa yaslanır, hamburgerin yanında durur. */
+  .header-insta { margin-left: auto; margin-right: -24px; }
   /* Üst bar backdrop-filter kullandığı için sabit değil, bara göre konumlanır. */
   .site-nav {
     position: absolute;
