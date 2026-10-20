@@ -14,7 +14,7 @@
   <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&amp;family=Kaushan+Script&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -117,21 +117,41 @@
 
     <section class="match" id="maclar" aria-labelledby="match-title">
       <div class="container match-inner">
-        <div class="match-text">
-          <h2 id="match-title">Maç günü Nonna'da</h2>
-          <p>Türkiye Süper Ligi maçlarını beIN SPORTS'tan dev ekranda, menümüzden dilediğiniz tabakla izleyin.</p>
-          <p>Derbiler ve büyük maçlar için yerinizi önceden ayırtmanızı öneririz. Hangi maçları yayınladığımızı Instagram hesabımızdan takip edebilirsiniz.</p>
+        <div class="match-stack">
+          <p class="match-kicker">Artık beIN SPORTS yayınımız var!</p>
+          <h2 id="match-title" class="match-title">
+            <img class="match-logo" src="assets/brand/beinsports.png" alt="beIN SPORTS" width="653" height="116" loading="lazy">
+            <span class="match-script">Nonna'da</span>
+          </h2>
+          <svg class="match-brush" viewBox="0 0 420 34" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path d="M6 27 C 96 15, 220 9, 414 6"/>
+            <path class="thin" d="M48 31 C 150 21, 268 15, 384 13"/>
+          </svg>
+          <p class="match-lead">Tüm maçları<br>burada izliyoruz!</p>
+          <div class="match-divider" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <circle cx="12" cy="12" r="10"/>
+              <path class="patch" d="M12 7.6l3.6 2.6-1.4 4.2H9.8l-1.4-4.2z"/>
+              <path d="M12 7.6V2.2M15.6 10.2l5.1-1.7M14.2 14.4l3.2 4.3M9.8 14.4l-3.2 4.3M8.4 10.2L3.3 8.5"/>
+            </svg>
+          </div>
+          <ul class="match-leagues" aria-label="Yayınladığımız ligler">
+            <li>Süper Lig</li>
+            <li>UEFA Şampiyonlar Ligi</li>
+            <li>UEFA Avrupa Ligi</li>
+            <li>Trendyol 1. Lig</li>
+          </ul>
+          <p class="match-tagline">Maç heyecanı, lezzette <span class="match-tagline-end">buluşuyor…<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span></p>
           <div class="match-actions">
             <a class="btn btn-primary" href="tel:+902128014564">Maç için yer ayırt</a>
             <a class="btn btn-ghost" href="https://www.instagram.com/nonna.bahcesehir/" target="_blank" rel="noopener">Yayın programına bak</a>
           </div>
+          <p class="match-note">Derbi ve büyük maçlarda yerinizi önceden ayırtmanızı öneririz.</p>
         </div>
-        <figure class="match-screen">
-          <div class="screen">
-            <!-- Resmi beIN SPORTS logosu gelince bu yazı, assets/brand/ altındaki logo dosyasıyla değiştirilecek. -->
-            <span class="bein-word">beIN SPORTS</span>
+        <figure class="match-tv">
+          <div class="tv">
+            <img src="assets/img/mac-stadyum.jpg" alt="Duvardaki dev ekranda yayınlanan bir futbol maçı" width="376" height="354" loading="lazy">
           </div>
-          <figcaption>Türkiye Süper Ligi, beIN SPORTS yayınıyla dev ekranda</figcaption>
         </figure>
       </div>
     </section>
