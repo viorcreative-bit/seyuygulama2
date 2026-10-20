@@ -741,38 +741,8 @@ h1, h2, h3, h4 {
   .gallery-item:hover img { transform: scale(1.03); }
 }
 
-/* ---------- Instagram ---------- */
-.insta { padding: clamp(72px, 10vw, 128px) 0 clamp(40px, 6vw, 72px); }
-.insta-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-.insta-item {
-  position: relative;
-  display: block;
-  aspect-ratio: 4 / 5;
-  border-radius: 3px;
-  overflow: hidden;
-  background: var(--marble);
-}
-.insta-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .insta-item:hover img { transform: scale(1.03); }
-}
-.insta-badge {
-  position: absolute;
-  top: 10px; right: 10px;
-  width: 22px; height: 22px;
-  color: #fff;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .6));
-}
-.insta-badge svg { width: 100%; height: 100%; fill: currentColor; }
-.insta-foot { margin-top: 28px; }
-
 /* ---------- İletişim ---------- */
 .contact { padding: clamp(72px, 10vw, 128px) 0; }
-.insta:not([hidden]) + .contact { border-top: 1px solid var(--marble-line); }
 .contact-inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -1043,8 +1013,6 @@ h1, h2, h3, h4 {
   .contact-list > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 
   .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 42vw; gap: 8px; }
-  .insta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .insta-foot .btn { width: 100%; }
 
   .contact-phone { font-size: clamp(2.6rem, 13vw, 3.4rem); }
 }
