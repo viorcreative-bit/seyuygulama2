@@ -470,8 +470,69 @@ h1, h2, h3, h4 {
 .facts dd { margin: 0; }
 .facts a { text-decoration-color: rgba(243, 233, 218, .4); text-underline-offset: 3px; }
 
+/* ---------- Maç yayınları ---------- */
+.match { padding: clamp(72px, 10vw, 128px) 0; }
+.match-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: center;
+}
+.match-text h2 {
+  font-size: clamp(2.75rem, 6.4vw, 5rem);
+  margin-bottom: 26px;
+}
+.match-text p { max-width: 46ch; margin: 0 0 16px; }
+.match-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+/* Loş bir salonda yanan dev ekran; altındaki damalı şerit marka motifinden. */
+.match-screen { margin: 0; }
+.screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  padding: 24px 24px 40px;
+  border: 10px solid #0E0B09;
+  border-radius: 10px;
+  background: radial-gradient(120% 90% at 50% 38%, #30251E 0%, #15100D 72%);
+  box-shadow:
+    0 0 0 1px var(--marble-line),
+    0 40px 90px -40px rgba(245, 199, 107, .3);
+  overflow: hidden;
+}
+.screen::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 16px;
+  background: repeating-conic-gradient(var(--cream) 0 25%, #15100D 0 50%) 0 0 / 16px 16px;
+}
+.bein-word {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 4.25rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+}
+.match-logo { width: min(64%, 380px); height: auto; }
+.match-screen figcaption {
+  margin-top: 14px;
+  font-style: italic;
+  color: var(--crema);
+  font-size: .98rem;
+}
+
 /* ---------- Menü ---------- */
-.menu { padding: clamp(72px, 10vw, 128px) 0 clamp(56px, 8vw, 96px); }
+.menu {
+  padding: clamp(72px, 10vw, 128px) 0 clamp(56px, 8vw, 96px);
+  border-top: 1px solid var(--marble-line);
+}
 
 .menu-head {
   display: flex;
@@ -991,6 +1052,9 @@ h1, h2, h3, h4 {
 
   .story-inner { grid-template-columns: minmax(0, 1fr); }
   .story-photos { max-width: 520px; }
+
+  .match-inner { grid-template-columns: minmax(0, 1fr); }
+  .match-screen { order: -1; }
 
   .cat { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 44px 0; }
   .cat-aside { position: static; }
