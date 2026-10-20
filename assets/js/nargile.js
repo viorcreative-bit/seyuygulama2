@@ -201,7 +201,7 @@
     // Yazılar: her öğe kendi konumu ekranın alt kısmına geldiğinde netleşir.
     for (var i = 0; i < reveals.length; i++) {
       var top = rect.top + revealTops[i];
-      var r = clamp01((vh * 0.95 - top) / (vh * 0.32));
+      var r = clamp01((vh - top) / (vh * 0.24));
       reveals[i].style.setProperty("--r", r.toFixed(3));
     }
 
