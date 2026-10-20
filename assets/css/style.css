@@ -474,14 +474,27 @@ h1, h2, h3, h4 {
    Yatay bant: mekânın koyu ahşap çıtalı duvarı ve lamba ışıkları üzerinde üç sütun. */
 .match {
   --gold: #E6C68A;
-  --gold-line: rgba(230, 198, 138, .3);
+  --gold-line: rgba(230, 198, 138, .32);
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   padding: clamp(56px, 7vw, 92px) 0;
+  /* Stadyum: tribünler, projektörler ve çim (Nonna afişindeki ekrandan) */
+  background: #0B0E18 url("../img/mac-stadyum-bg.jpg") 50% 45% / cover no-repeat;
+}
+/* Yazıların okunması için gece karanlığı, kenarlarda kararma ve köşelerde projektörler */
+.match::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background:
-    radial-gradient(30% 60% at 6% 20%, rgba(245, 199, 107, .2), transparent 70%),
-    radial-gradient(26% 60% at 96% 80%, rgba(245, 168, 90, .14), transparent 70%),
-    repeating-linear-gradient(90deg, #17110D 0 34px, #0F0B08 34px 36px, #1B1410 36px 38px),
-    #15100C;
+    radial-gradient(9% 16% at 7% 0%, rgba(235, 244, 255, .7), rgba(150, 190, 255, .18) 45%, transparent 75%),
+    radial-gradient(9% 16% at 93% 0%, rgba(235, 244, 255, .7), rgba(150, 190, 255, .18) 45%, transparent 75%),
+    conic-gradient(from 138deg at 7% -4%, transparent 0deg, rgba(190, 215, 255, .1) 14deg, transparent 30deg),
+    conic-gradient(from 192deg at 93% -4%, transparent 0deg, rgba(190, 215, 255, .1) 16deg, transparent 30deg),
+    radial-gradient(75% 95% at 50% 45%, transparent 35%, rgba(4, 5, 10, .55) 100%),
+    linear-gradient(180deg, rgba(7, 9, 18, .6) 0%, rgba(7, 8, 15, .7) 55%, rgba(6, 12, 9, .66) 100%);
 }
 .match-inner {
   display: grid;
