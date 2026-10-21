@@ -332,3 +332,29 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
 @media (prefers-reduced-motion: no-preference) {
   .adm-row { transition: background-color .2s ease; }
 }
+
+/* Giriş ve şifre formları */
+.adm-login-form input[type="text"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 14px;
+  border: 1.5px solid rgba(42, 33, 27, .3);
+  border-radius: 8px;
+  background: #fff;
+}
+.adm-login-form input[type="password"] { font-family: var(--font-text); font-size: 1rem; }
+.adm-link-inline { justify-self: start; padding: 4px 0; }
+.adm-note { margin: 12px 0 0; color: #2E6B30; }
+.adm-login code { font-size: .92em; }
+.adm-account { margin-top: 40px; }
+.adm-password-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 12px;
+}
+.adm-password-form .adm-error { grid-column: 1 / -1; margin: 0; }
+@media (max-width: 640px) {
+  .adm-password-form { grid-template-columns: minmax(0, 1fr); }
+}

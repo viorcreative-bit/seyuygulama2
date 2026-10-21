@@ -27,31 +27,41 @@
   </header>
 
   <main class="adm-wrap adm-main">
+    <!-- Kurulum yapılmamış -->
+    <section class="adm-login" data-view="setup" hidden aria-labelledby="setup-title">
+      <h1 id="setup-title">Panel henüz kurulmadı</h1>
+      <p class="adm-lede">Giriş yapabilmek için Firebase bağlantı bilgilerinin <code>assets/js/firebase-config.js</code> dosyasına yazılması gerekiyor. Kurulum adımları README dosyasının "Fiyat yönetim paneli" bölümünde.</p>
+    </section>
+
     <!-- Giriş -->
     <section class="adm-login" data-view="login" hidden aria-labelledby="login-title">
-      <h1 id="login-title">Menü fiyatlarını güncelleyin</h1>
-      <p class="adm-lede">Buradan yaptığınız değişiklikler sitedeki menüye, favorilere, kahvaltı ve nargile bölümlerine yansır. Giriş için GitHub erişim anahtarınızı girin.</p>
+      <h1 id="login-title">Admin girişi</h1>
+      <p class="adm-lede">Menü fiyatlarını güncellemek için giriş yapın. Kaydettiğiniz fiyatlar sitede hemen görünür.</p>
       <form class="adm-login-form" data-login-form novalidate>
-        <label for="token">GitHub erişim anahtarı</label>
-        <input id="token" name="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required>
+        <label for="username">Kullanıcı adı</label>
+        <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+        <label for="password">Şifre</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
         <label class="adm-check">
           <input type="checkbox" data-remember checked>
           <span>Bu cihazda beni hatırla</span>
         </label>
         <button class="adm-btn adm-btn-primary" type="submit" data-login-submit>Giriş yap</button>
         <p class="adm-error" role="alert" data-login-error hidden></p>
+        <button type="button" class="adm-link adm-link-inline" data-show-forgot>Şifremi unuttum</button>
       </form>
-      <details class="adm-help">
-        <summary>Erişim anahtarı nasıl alınır?</summary>
-        <ol>
-          <li>GitHub'a giriş yapıp <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">yeni erişim anahtarı sayfasını</a> açın.</li>
-          <li><strong>Token name:</strong> "Nonna fiyat paneli" gibi bir ad yazın. <strong>Expiration:</strong> en uzun süreyi seçin; süre dolunca yeni anahtar oluşturmanız gerekir.</li>
-          <li><strong>Repository access:</strong> "Only select repositories" seçip <strong>seyuygulama2</strong> deposunu ekleyin.</li>
-          <li><strong>Permissions → Repository permissions → Contents:</strong> "Read and write" seçin.</li>
-          <li><strong>Generate token</strong> deyip çıkan anahtarı kopyalayın ve yukarıya yapıştırın.</li>
-        </ol>
-        <p>Anahtar yalnızca bu tarayıcıda saklanır. Ortak kullanılan bir bilgisayardaysanız "beni hatırla" kutusunu kapatın.</p>
-      </details>
+    </section>
+
+    <!-- Şifremi unuttum -->
+    <section class="adm-login" data-view="forgot" hidden aria-labelledby="forgot-title">
+      <h1 id="forgot-title">Şifremi unuttum</h1>
+      <p class="adm-lede" data-forgot-text></p>
+      <form class="adm-login-form" data-forgot-form novalidate>
+        <button class="adm-btn adm-btn-primary" type="submit" data-forgot-submit>Sıfırlama bağlantısı gönder</button>
+        <p class="adm-note" role="status" data-forgot-done hidden></p>
+        <p class="adm-error" role="alert" data-forgot-error hidden></p>
+        <button type="button" class="adm-link adm-link-inline" data-show-login>Girişe dön</button>
+      </form>
     </section>
 
     <!-- Yükleniyor -->
@@ -111,6 +121,22 @@
 
       <div class="adm-list" data-list></div>
       <p class="adm-empty" data-empty hidden>Aramanızla eşleşen ürün yok.</p>
+
+      <details class="adm-bulk adm-account">
+        <summary>Şifreyi değiştir</summary>
+        <form class="adm-password-form" data-password-form novalidate>
+          <div class="adm-field">
+            <label for="new-password">Yeni şifre</label>
+            <input id="new-password" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+          <div class="adm-field">
+            <label for="new-password-2">Yeni şifre (tekrar)</label>
+            <input id="new-password-2" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+          <button class="adm-btn adm-btn-ghost" type="submit" data-password-submit>Şifreyi değiştir</button>
+          <p class="adm-error" role="alert" data-password-error hidden></p>
+        </form>
+      </details>
     </section>
   </main>
 
@@ -139,7 +165,7 @@
       </div>
       <p class="adm-error" role="alert" data-publish-error hidden></p>
       <div class="adm-dialog-actions">
-        <button type="submit" class="adm-btn adm-btn-ghost" value="cancel" data-review-cancel>Vazgeç</button>
+        <button type="submit" class="adm-btn adm-btn-ghost" value="cancel">Vazgeç</button>
         <button type="button" class="adm-btn adm-btn-primary" data-publish>Yayınla</button>
       </div>
     </form>
@@ -147,6 +173,8 @@
 
   <div class="adm-toast" role="status" aria-live="polite" data-toast hidden></div>
 
+  <script src="assets/js/menu.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
   <script src="assets/js/admin.js"></script>
 </body>
 </html>

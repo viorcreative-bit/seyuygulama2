@@ -47,7 +47,10 @@
       var line = el("div", "item-line");
       line.appendChild(el("span", "item-name", it.n));
       line.appendChild(el("span", "item-leader"));
-      line.appendChild(el("span", "item-price", priceFormat.format(it.p) + " ₺"));
+      var price = el("span", "item-price", priceFormat.format(it.p) + " ₺");
+      // main.js, panelden gelen güncel fiyatla bu öğeyi de yeniler.
+      price.setAttribute("data-price-key", window.NONNA_PRICE_KEY ? window.NONNA_PRICE_KEY(cat.id, it.n) : cat.id + "::" + it.n);
+      line.appendChild(price);
       li.appendChild(line);
       if (it.d) li.appendChild(el("p", "item-desc", shortFlavors(it.d)));
       ul.appendChild(li);

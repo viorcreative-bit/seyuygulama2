@@ -1,32 +1,31 @@
 /*
  * Nonna fiyat yönetimi (admin.html)
  *
- * Menüdeki fiyatları düzenler ve GitHub'daki assets/js/menu.js dosyasına kaydeder.
- * Sunucu yoktur: tarayıcı GitHub API'ye, kullanıcının oluşturduğu erişim anahtarıyla bağlanır.
- * Dosyada yalnızca "p: 123" fiyat değerleri değiştirilir; ürün adları, açıklamalar ve
- * yorumlar olduğu gibi kalır. Kayıttan sonra GitHub Pages siteyi 1–2 dakikada yeniden yayınlar.
+ * Giriş ve şifre işlemleri Firebase Authentication ile, fiyatlar Firebase Firestore'daki
+ * "site/menu" belgesinde tutulur. Site (assets/js/prices.js) bu belgeyi okuyup menu.js'teki
+ * fiyatların yerine kullanır; kaydedilen fiyatlar sitede hemen görünür.
+ *
+ * Ayarlar assets/js/firebase-config.js dosyasında; yazma yetkisini Firestore kuralları
+ * (firestore.rules) yalnızca admin hesabına verir.
  */
 (function () {
   "use strict";
 
-  // Site hangi daldan yayınlanıyorsa (GitHub → Settings → Pages) burada o dal yazmalı.
-  var CONFIG = {
-    owner: "viorcreative-bit",
-    repo: "seyuygulama2",
-    branch: "claude/nice-planck-y0l93b",
-    path: "assets/js/menu.js"
-  };
-  var API = "https://api.github.com";
-  var TOKEN_KEY = "nonna-admin-token";
-  var PRICE_RE = /\bp:\s*(\d+)/g;
+  var FB = window.NONNA_FIREBASE || {};
+  var MENU = window.NONNA_MENU || [];
+  var CONFIGURED = !!(FB.apiKey && FB.projectId && FB.adminEmail);
+
+  var AUTH_URL = "https://identitytoolkit.googleapis.com/v1/accounts:";
+  var TOKEN_URL = "https://securetoken.googleapis.com/v1/token";
+  var DOC_URL = "https://firestore.googleapis.com/v1/projects/" + encodeURIComponent(FB.projectId || "") +
+    "/databases/(default)/documents/site/menu";
+  var SESSION_KEY = "nonna-admin-session";
   var MAX_PRICE = 1000000;
 
+  var session = null;      // { idToken, refreshToken, email, expiresAt }
   var state = {
-    token: "",
-    sha: "",
-    text: "",
-    menu: [],
-    items: []      // { key, catId, catTitle, group, name, tag, original, value, row, input, old, search }
+    updateTime: null,      // Firestore belgesinin son güncellenme zamanı (çakışma kontrolü için)
+    items: []              // { key, catId, catTitle, name, tag, base, original, value, row, input, search }
   };
 
   var priceFormat = new Intl.NumberFormat("tr-TR");
@@ -46,132 +45,123 @@
     return (text || "").toLocaleLowerCase("tr-TR").replace(/i̇/g, "i").replace(/[çğıöşüâîûé]/g, function (ch) { return FOLD[ch]; });
   }
 
-  /* ---------- Anahtar saklama ---------- */
-  function storedToken() {
-    try { return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; }
-  }
-  function storeToken(token, remember) {
-    try {
-      localStorage.removeItem(TOKEN_KEY);
-      sessionStorage.removeItem(TOKEN_KEY);
-      (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token);
-    } catch (e) { /* tarayıcı depolamaya izin vermiyorsa yalnızca bu oturumda çalışır */ }
-  }
-  function clearToken() {
-    try { localStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
+  // Sitedeki prices.js ile aynı anahtar: "kategori::ürün adı"
+  function priceKey(catId, name) { return catId + "::" + name; }
+
+  // e-postanın bir kısmını gizler: v•••••••••••@gmail.com
+  function maskEmail(email) {
+    var at = email.indexOf("@");
+    if (at < 2) return email;
+    return email.charAt(0) + new Array(at).join("•") + email.slice(at);
   }
 
-  /* ---------- GitHub API ---------- */
-  function api(method, url, body) {
-    var headers = {
-      "Authorization": "Bearer " + state.token,
-      "Accept": "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28"
-    };
-    if (body) headers["Content-Type"] = "application/json";
-    return fetch(API + url, {
-      method: method,
-      headers: headers,
-      body: body ? JSON.stringify(body) : undefined,
-      cache: "no-store"
-    }).then(function (res) {
+  /* ---------- Oturum saklama ---------- */
+  function loadSession() {
+    try {
+      var raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function saveSession(remember) {
+    try {
+      var raw = JSON.stringify(session);
+      if (remember == null) remember = !!localStorage.getItem(SESSION_KEY);
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, raw);
+    } catch (e) { /* tarayıcı depolamaya izin vermiyorsa yalnızca bu sekmede çalışır */ }
+  }
+  function clearSession() {
+    session = null;
+    try { localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+  }
+
+  /* ---------- Firebase istekleri ---------- */
+  function request(method, url, body, opts) {
+    opts = opts || {};
+    var headers = {};
+    var payload;
+    if (opts.form) {
+      headers["Content-Type"] = "application/x-www-form-urlencoded";
+      payload = opts.form;
+    } else if (body) {
+      headers["Content-Type"] = "application/json";
+      payload = JSON.stringify(body);
+    }
+    if (opts.token) headers["Authorization"] = "Bearer " + opts.token;
+    return fetch(url, { method: method, headers: headers, body: payload, cache: "no-store" }).then(function (res) {
       return res.text().then(function (txt) {
         var data = null;
         try { data = txt ? JSON.parse(txt) : null; } catch (e) { data = null; }
         if (!res.ok) {
-          var err = new Error((data && data.message) || ("HTTP " + res.status));
+          var e = (data && data.error) || {};
+          // Giriş hataları kodu mesajın başında taşır ("INVALID_LOGIN_CREDENTIALS", "WEAK_PASSWORD : ..."),
+          // Firestore hataları "status" alanında ("PERMISSION_DENIED", "FAILED_PRECONDITION").
+          var m = /^([A-Z_]+)(?:\s|:|$)/.exec(e.message || "");
+          var err = new Error(e.message || ("HTTP " + res.status));
           err.status = res.status;
+          err.code = m ? m[1] : (e.status || "");
+          err.fsStatus = e.status || "";
           throw err;
         }
         return data;
       });
     }, function () {
-      var err = new Error("GitHub'a bağlanılamadı. İnternet bağlantınızı kontrol edin.");
+      var err = new Error("Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edin.");
       err.status = 0;
+      err.code = "NETWORK";
       throw err;
     });
   }
 
-  function repoUrl() { return "/repos/" + CONFIG.owner + "/" + CONFIG.repo; }
-  function fileUrl() { return repoUrl() + "/contents/" + CONFIG.path.split("/").map(encodeURIComponent).join("/"); }
-
-  function decodeBase64(b64) {
-    var bin = atob(b64.replace(/\s/g, ""));
-    var bytes = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return new TextDecoder("utf-8").decode(bytes);
-  }
-  function encodeBase64(str) {
-    var bytes = new TextEncoder().encode(str);
-    var bin = "";
-    for (var i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-    return btoa(bin);
+  function authCall(method, body) {
+    return request("POST", AUTH_URL + method + "?key=" + encodeURIComponent(FB.apiKey), body);
   }
 
-  /* ---------- Menü dosyası ---------- */
-  function parseMenu(text) {
-    var sandbox = {};
-    new Function("window", text)(sandbox);
-    if (!Array.isArray(sandbox.NONNA_MENU)) throw new Error("Menü dosyası okunamadı.");
-    return sandbox.NONNA_MENU;
+  function startSession(data, email) {
+    session = {
+      idToken: data.idToken || data.id_token,
+      refreshToken: data.refreshToken || data.refresh_token,
+      email: email || (session && session.email) || data.email,
+      expiresAt: Date.now() + (Number(data.expiresIn || data.expires_in) || 3600) * 1000
+    };
   }
 
-  function flatten(menu) {
-    var list = [];
-    menu.forEach(function (cat) {
-      cat.sections.forEach(function (sec) {
-        sec.items.forEach(function (it) {
-          list.push({ catId: cat.id, catTitle: cat.title, group: sec.title || "", name: it.n, tag: it.tag || "", price: it.p });
-        });
-      });
+  // Geçerli kimlik jetonu; süresi dolmak üzereyse yeniler.
+  function idToken(force) {
+    if (!session) return Promise.reject(Object.assign(new Error("Oturum yok"), { code: "NO_SESSION", status: 401 }));
+    if (!force && session.expiresAt - 60000 > Date.now()) return Promise.resolve(session.idToken);
+    var form = "grant_type=refresh_token&refresh_token=" + encodeURIComponent(session.refreshToken);
+    return request("POST", TOKEN_URL + "?key=" + encodeURIComponent(FB.apiKey), null, { form: form }).then(function (data) {
+      startSession(data);
+      saveSession();
+      return session.idToken;
     });
-    return list;
   }
 
-  // Dosyadaki "p: 123" değerlerinin sırası menüdeki ürün sırasıyla birebir eşleşmeli.
-  function priceMatches(text) {
-    var out = [], m;
-    PRICE_RE.lastIndex = 0;
-    while ((m = PRICE_RE.exec(text))) out.push(+m[1]);
-    return out;
-  }
-
-  function checkStructure(text, flat) {
-    var found = priceMatches(text);
-    if (found.length !== flat.length) return false;
-    for (var i = 0; i < flat.length; i++) if (found[i] !== flat[i].price) return false;
-    return true;
-  }
-
-  function buildText() {
-    var k = 0;
-    return state.text.replace(PRICE_RE, function (match, num) {
-      var item = state.items[k++];
-      return item && item.value !== item.original ? match.replace(num, String(item.value)) : match;
+  // Firestore isteği; jeton geçersiz sayılırsa bir kez yenileyip tekrar dener.
+  function firestore(method, url, body) {
+    return idToken().then(function (tok) {
+      return request(method, url, body, { token: tok }).catch(function (err) {
+        if (err.status !== 401) throw err;
+        return idToken(true).then(function (fresh) { return request(method, url, body, { token: fresh }); });
+      });
     });
   }
 
   /* ---------- Görünümler ---------- */
   function show(view) {
     document.querySelectorAll("[data-view]").forEach(function (v) { v.hidden = v.getAttribute("data-view") !== view; });
-    $("[data-session]").hidden = view === "login";
+    $("[data-session]").hidden = view !== "editor" && view !== "loading";
   }
 
   var toastTimer = 0;
-  function toast(message, link) {
+  function toast(message) {
     var box = $("[data-toast]");
     box.textContent = message;
-    if (link) {
-      box.appendChild(document.createTextNode(" "));
-      var a = el("a", "", link.text);
-      a.href = link.href;
-      a.target = "_blank";
-      a.rel = "noopener";
-      box.appendChild(a);
-    }
     box.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { box.hidden = true; }, 9000);
+    toastTimer = setTimeout(function () { box.hidden = true; }, 8000);
   }
 
   function showError(node, message) {
@@ -179,86 +169,172 @@
     node.hidden = !message;
   }
 
+  function busy(btn, on, label) {
+    if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+    btn.disabled = on;
+    btn.textContent = on ? label : btn.dataset.label;
+  }
+
   /* ---------- Giriş ---------- */
   var loginForm = $("[data-login-form]");
   var loginError = $("[data-login-error]");
   var loginSubmit = $("[data-login-submit]");
 
+  // Kullanıcı adı "admin" ise yapılandırmadaki e-postaya karşılık gelir; e-posta da yazılabilir.
+  function emailFor(username) {
+    var u = username.trim().toLocaleLowerCase("tr-TR");
+    if (u === String(FB.adminUser || "admin").toLocaleLowerCase("tr-TR")) return FB.adminEmail;
+    return u.indexOf("@") > 0 ? u : "";
+  }
+
+  function authMessage(err) {
+    switch (err.code) {
+      case "INVALID_LOGIN_CREDENTIALS":
+      case "INVALID_PASSWORD":
+      case "EMAIL_NOT_FOUND":
+      case "INVALID_EMAIL":
+        return "Kullanıcı adı ya da şifre hatalı.";
+      case "USER_DISABLED":
+        return "Bu hesap kapatılmış. Firebase konsolundan hesabı yeniden etkinleştirin.";
+      case "TOO_MANY_ATTEMPTS_TRY_LATER":
+        return "Çok fazla hatalı deneme yapıldı. Biraz bekleyin ya da \"Şifremi unuttum\" ile şifrenizi sıfırlayın.";
+      case "NETWORK":
+        return err.message;
+      default:
+        return "Giriş yapılamadı (" + (err.code || err.status) + ").";
+    }
+  }
+
   loginForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    var token = loginForm.token.value.trim();
-    if (!token) {
-      showError(loginError, "Erişim anahtarını yapıştırın.");
-      loginForm.token.focus();
+    var email = emailFor(loginForm.username.value);
+    var password = loginForm.password.value;
+    if (!loginForm.username.value.trim() || !password) {
+      showError(loginError, "Kullanıcı adı ve şifreyi girin.");
       return;
     }
-    state.token = token;
-    loginSubmit.disabled = true;
-    loginSubmit.textContent = "Kontrol ediliyor…";
+    if (!email) {
+      showError(loginError, "Kullanıcı adı ya da şifre hatalı.");
+      return;
+    }
     showError(loginError, "");
-    api("GET", repoUrl()).then(function (repo) {
-      if (repo && repo.permissions && !repo.permissions.push) {
-        throw Object.assign(new Error("Bu hesabın depoya yazma izni yok."), { status: 403 });
-      }
-      storeToken(token, $("[data-remember]").checked);
-      loginForm.reset();
+    busy(loginSubmit, true, "Giriş yapılıyor…");
+    authCall("signInWithPassword", { email: email, password: password, returnSecureToken: true }).then(function (data) {
+      startSession(data, data.email || email);
+      saveSession($("[data-remember]").checked);
+      loginForm.password.value = "";
       return load();
     }).catch(function (err) {
-      state.token = "";
-      show("login");
-      showError(loginError, loginMessage(err));
+      showError(loginError, authMessage(err));
     }).then(function () {
-      loginSubmit.disabled = false;
-      loginSubmit.textContent = "Giriş yap";
+      busy(loginSubmit, false);
     });
   });
 
-  function loginMessage(err) {
-    if (err.status === 401) return "Anahtar geçersiz ya da süresi dolmuş. Yeni bir anahtar oluşturup tekrar deneyin.";
-    if (err.status === 403) return "Bu anahtarın seyuygulama2 deposuna yazma izni yok. Anahtarı oluştururken Contents için \"Read and write\" seçin.";
-    if (err.status === 404) return "Depo bulunamadı. Anahtarı oluştururken \"Only select repositories\" altında seyuygulama2 deposunu seçtiğinizden emin olun.";
-    return err.message;
-  }
-
   $("[data-logout]").addEventListener("click", function () {
     if (pendingCount() && !confirm("Yayınlanmamış değişiklikler silinecek. Çıkış yapılsın mı?")) return;
-    clearToken();
-    state.token = "";
+    clearSession();
     state.items = [];
     updateBar();
     show("login");
-    loginForm.token.focus();
+    loginForm.username.focus();
   });
 
-  /* ---------- Menüyü yükle ---------- */
+  /* ---------- Şifremi unuttum ---------- */
+  var forgotForm = $("[data-forgot-form]");
+  var forgotSubmit = $("[data-forgot-submit]");
+
+  $("[data-show-forgot]").addEventListener("click", function () {
+    $("[data-forgot-text]").textContent = "Yeni şifre belirlemeniz için " + maskEmail(FB.adminEmail || "") +
+      " adresine bir bağlantı gönderilecek. E-postadaki bağlantıyı açıp yeni şifrenizi yazın, ardından buradan giriş yapın.";
+    showError($("[data-forgot-done]"), "");
+    showError($("[data-forgot-error]"), "");
+    show("forgot");
+    forgotSubmit.focus();
+  });
+  $("[data-show-login]").addEventListener("click", function () { show("login"); loginForm.username.focus(); });
+
+  forgotForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    busy(forgotSubmit, true, "Gönderiliyor…");
+    showError($("[data-forgot-error]"), "");
+    authCall("sendOobCode", { requestType: "PASSWORD_RESET", email: FB.adminEmail }).then(function () {
+      showError($("[data-forgot-done]"), "Bağlantı gönderildi. Birkaç dakika içinde gelmezse gereksiz (spam) klasörüne bakın.");
+    }).catch(function (err) {
+      var msg = err.code === "TOO_MANY_ATTEMPTS_TRY_LATER" || err.code === "RESET_PASSWORD_EXCEED_LIMIT"
+        ? "Kısa sürede çok fazla bağlantı istendi. Biraz bekleyip tekrar deneyin."
+        : (err.code === "NETWORK" ? err.message : "Bağlantı gönderilemedi (" + (err.code || err.status) + ").");
+      showError($("[data-forgot-error]"), msg);
+    }).then(function () {
+      busy(forgotSubmit, false);
+    });
+  });
+
+  /* ---------- Şifreyi değiştir ---------- */
+  var pwForm = $("[data-password-form]");
+  var pwSubmit = $("[data-password-submit]");
+  var pwError = $("[data-password-error]");
+
+  pwForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var a = pwForm.querySelector("#new-password").value;
+    var b = pwForm.querySelector("#new-password-2").value;
+    if (a.length < 8) { showError(pwError, "Şifre en az 8 karakter olmalı."); return; }
+    if (a !== b) { showError(pwError, "İki şifre aynı değil."); return; }
+    showError(pwError, "");
+    busy(pwSubmit, true, "Değiştiriliyor…");
+    idToken().then(function (tok) {
+      return authCall("update", { idToken: tok, password: a, returnSecureToken: true });
+    }).then(function (data) {
+      startSession(data);
+      saveSession();
+      pwForm.reset();
+      pwForm.closest("details").open = false;
+      toast("Şifreniz değiştirildi. Bir sonraki girişte yeni şifrenizi kullanın.");
+    }).catch(function (err) {
+      var msg = err.code === "CREDENTIAL_TOO_OLD_LOGIN_AGAIN"
+        ? "Güvenlik nedeniyle şifre değiştirmek için yeni giriş yapılmış olmalı. Çıkış yapıp tekrar giriş yaptıktan sonra deneyin."
+        : err.code === "WEAK_PASSWORD" ? "Bu şifre çok zayıf; daha uzun bir şifre seçin."
+        : "Şifre değiştirilemedi (" + (err.code || err.status) + ").";
+      showError(pwError, msg);
+    }).then(function () {
+      busy(pwSubmit, false);
+    });
+  });
+
+  /* ---------- Fiyatları yükle ---------- */
+  function readPrices(doc) {
+    var fields = (doc && doc.fields && doc.fields.prices && doc.fields.prices.mapValue && doc.fields.prices.mapValue.fields) || {};
+    var out = {};
+    Object.keys(fields).forEach(function (k) {
+      var v = fields[k].integerValue != null ? Number(fields[k].integerValue) : Number(fields[k].doubleValue);
+      if (!isNaN(v)) out[k] = v;
+    });
+    return out;
+  }
+
   // keep: yeniden yüklemede korunacak bekleyen değişiklikler (ürün anahtarı → fiyat)
   function load(keep) {
     show("loading");
     $("[data-loading-text]").textContent = "Menü yükleniyor…";
-    return api("GET", fileUrl() + "?ref=" + encodeURIComponent(CONFIG.branch)).then(function (file) {
-      var text = decodeBase64(file.content);
-      var menu = parseMenu(text);
-      var flat = flatten(menu);
-      if (!checkStructure(text, flat)) {
-        throw new Error("Menü dosyasının yapısı beklenenden farklı olduğu için fiyatlar güvenle değiştirilemiyor. Dosya elle düzenlendiyse her ürünün tek bir \"p:\" fiyatı olduğundan emin olun.");
-      }
-      state.sha = file.sha;
-      state.text = text;
-      state.menu = menu;
-      buildEditor(flat, keep || {});
+    return firestore("GET", DOC_URL + "?key=" + encodeURIComponent(FB.apiKey)).catch(function (err) {
+      if (err.status === 404) return null;           // henüz hiç kayıt yapılmamış
+      throw err;
+    }).then(function (doc) {
+      state.updateTime = doc ? doc.updateTime : null;
+      buildEditor(readPrices(doc), keep || {});
       show("editor");
     }).catch(function (err) {
-      if (err.status === 401 || err.status === 403) {
-        clearToken();
-        state.token = "";
+      if (err.code === "NO_SESSION" || err.status === 400 && /TOKEN|REFRESH/.test(err.code)) {
+        clearSession();
         show("login");
-        showError(loginError, loginMessage(err));
+        showError(loginError, "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.");
         return;
       }
-      if (err.status === 404) err.message = "Menü dosyası bulunamadı (" + CONFIG.path + ", dal: " + CONFIG.branch + ").";
-      show("loading");
       var box = $("[data-loading-text]");
-      box.textContent = err.message + " ";
+      box.textContent = (err.status === 403
+        ? "Fiyatlar okunamadı: Firestore kuralları okumaya izin vermiyor."
+        : "Fiyatlar yüklenemedi: " + err.message) + " ";
       var retry = el("button", "adm-link", "Tekrar dene");
       retry.type = "button";
       retry.addEventListener("click", function () { load(keep); });
@@ -272,75 +348,73 @@
   var catFilter = $("[data-cat-filter]");
   var bulkScope = $("[data-bulk-scope]");
 
-  function itemKey(it) { return it.catId + "/" + it.name; }
-
-  function buildEditor(flat, keep) {
+  function buildEditor(live, keep) {
     list.textContent = "";
     state.items = [];
     [catFilter, bulkScope].forEach(function (sel) {
       while (sel.options.length > 1) sel.remove(1);
     });
 
-    var currentCat = null, catBody = null, currentGroup = null;
-    flat.forEach(function (f, idx) {
-      if (f.catId !== currentCat) {
-        currentCat = f.catId;
-        currentGroup = null;
-        var sec = el("section", "adm-cat");
-        sec.setAttribute("data-cat", f.catId);
-        sec.appendChild(el("h2", "adm-cat-title", f.catTitle));
-        catBody = el("div", "adm-cat-body");
-        sec.appendChild(catBody);
-        list.appendChild(sec);
-        [catFilter, bulkScope].forEach(function (sel) { sel.add(new Option(f.catTitle, f.catId)); });
-      }
-      if (f.group && f.group !== currentGroup) {
-        currentGroup = f.group;
-        catBody.appendChild(el("h3", "adm-group", f.group));
-      }
+    var idx = 0;
+    MENU.forEach(function (cat) {
+      var sec = el("section", "adm-cat");
+      sec.setAttribute("data-cat", cat.id);
+      sec.appendChild(el("h2", "adm-cat-title", cat.title));
+      var body = el("div", "adm-cat-body");
+      sec.appendChild(body);
+      list.appendChild(sec);
+      [catFilter, bulkScope].forEach(function (sel) { sel.add(new Option(cat.title, cat.id)); });
 
-      var item = {
-        key: itemKey(f),
-        catId: f.catId,
-        catTitle: f.catTitle,
-        name: f.name,
-        tag: f.tag,
-        original: f.price,
-        value: f.price,
-        search: fold([f.name, f.tag, f.group, f.catTitle].join(" "))
-      };
-      if (Object.prototype.hasOwnProperty.call(keep, item.key)) item.value = keep[item.key];
+      cat.sections.forEach(function (s) {
+        if (s.title) body.appendChild(el("h3", "adm-group", s.title));
+        s.items.forEach(function (it) {
+          var key = priceKey(cat.id, it.n);
+          var current = typeof live[key] === "number" ? live[key] : it.p;
+          var item = {
+            key: key,
+            catId: cat.id,
+            catTitle: cat.title,
+            name: it.n,
+            tag: it.tag || "",
+            base: it.p,
+            original: current,
+            value: Object.prototype.hasOwnProperty.call(keep, key) ? keep[key] : current,
+            search: fold([it.n, it.tag, s.title, cat.title].join(" "))
+          };
 
-      var row = el("div", "adm-row");
-      var id = "price-" + idx;
-      var label = el("label", "adm-name", f.name);
-      label.htmlFor = id;
-      if (f.tag) label.appendChild(el("span", "adm-tag", f.tag));
-      var old = el("span", "adm-old", formatPrice(f.price));
-      old.setAttribute("aria-label", "Eski fiyat " + formatPrice(f.price));
-      var wrap = el("div", "adm-price");
-      var input = el("input");
-      input.id = id;
-      input.type = "number";
-      input.inputMode = "numeric";
-      input.min = "1";
-      input.step = "1";
-      input.value = String(item.value);
-      wrap.appendChild(input);
-      wrap.appendChild(el("span", "adm-currency", "₺"));
-      row.appendChild(label);
-      row.appendChild(old);
-      row.appendChild(wrap);
-      catBody.appendChild(row);
+          var row = el("div", "adm-row");
+          var id = "price-" + (idx++);
+          var label = el("label", "adm-name", it.n);
+          label.htmlFor = id;
+          if (it.tag) label.appendChild(el("span", "adm-tag", it.tag));
+          var old = el("span", "adm-old", formatPrice(current));
+          var wrap = el("div", "adm-price");
+          var input = el("input");
+          input.id = id;
+          input.type = "number";
+          input.inputMode = "numeric";
+          input.min = "1";
+          input.step = "1";
+          input.value = String(item.value);
+          wrap.appendChild(input);
+          wrap.appendChild(el("span", "adm-currency", "₺"));
+          row.appendChild(label);
+          row.appendChild(old);
+          row.appendChild(wrap);
+          body.appendChild(row);
 
-      item.row = row;
-      item.input = input;
-      input.addEventListener("input", function () { onPriceInput(item); });
-      state.items.push(item);
-      paintRow(item);
+          item.row = row;
+          item.input = input;
+          item.old = old;
+          input.addEventListener("input", function () { onPriceInput(item); });
+          state.items.push(item);
+          paintRow(item);
+        });
+      });
     });
 
-    $("[data-summary]").textContent = state.items.length + " ürün, " + state.menu.length + " kategori. Fiyatı değiştirdiğiniz ürünler işaretlenir; hepsini en son tek seferde yayınlarsınız.";
+    $("[data-summary]").textContent = state.items.length + " ürün, " + MENU.length + " kategori. Fiyatı değiştirdiğiniz ürünler işaretlenir; hepsini en son tek seferde yayınlarsınız." +
+      (session && session.email ? " Giriş: " + session.email : "");
     applyFilter();
     updateBar();
   }
@@ -420,21 +494,19 @@
     var count = 0;
     state.items.forEach(function (it) {
       if (scope && it.catId !== scope) return;
-      var base = isNaN(it.value) ? it.original : it.value;
-      var next = Math.max(step, Math.round(base * (1 + pct / 100) / step) * step);
-      setValue(it, next);
+      var from = isNaN(it.value) ? it.original : it.value;
+      setValue(it, Math.max(step, Math.round(from * (1 + pct / 100) / step) * step));
       count++;
     });
     updateBar();
-    var where = scope ? bulkScope.options[bulkScope.selectedIndex].text : "tüm menü";
-    toast(where.charAt(0).toLocaleUpperCase("tr-TR") + where.slice(1) + ": " + count + " ürünün fiyatı %" + String(pct).replace(".", ",") + " değişti. Yayınlamadan önce listeyi kontrol edin.");
+    var where = scope ? bulkScope.options[bulkScope.selectedIndex].text : "Tüm menü";
+    toast(where + ": " + count + " ürünün fiyatı %" + String(pct).replace(".", ",") + " değişti. Yayınlamadan önce listeyi kontrol edin.");
   });
 
   /* Geri al */
   $("[data-discard]").addEventListener("click", function () {
     var n = pendingCount() + invalidCount();
-    if (!n) return;
-    if (!confirm(n + " değişiklik geri alınsın mı?")) return;
+    if (!n || !confirm(n + " değişiklik geri alınsın mı?")) return;
     state.items.forEach(function (it) { setValue(it, it.original); });
     updateBar();
   });
@@ -461,65 +533,50 @@
       tr.appendChild(td);
       rows.appendChild(tr);
     });
-    $("[data-review-summary]").textContent = changes.length + " ürünün fiyatı güncellenecek. Yayınladıktan 1–2 dakika sonra sitede görünür.";
+    $("[data-review-summary]").textContent = changes.length + " ürünün fiyatı güncellenecek. Yayınladığınız anda sitede görünür.";
     showError(publishError, "");
-    publishBtn.disabled = false;
-    publishBtn.textContent = "Yayınla";
+    busy(publishBtn, false);
     if (typeof dialog.showModal === "function") dialog.showModal(); else dialog.setAttribute("open", "");
   });
 
-  function commitMessage(changes) {
-    var parts = changes.slice(0, 6).map(function (it) { return it.name + " " + it.original + "→" + it.value; });
-    var title = changes.length === 1
-      ? "Fiyat güncellemesi: " + parts[0]
-      : "Fiyat güncellemesi: " + changes.length + " ürün";
-    var body = changes.map(function (it) { return "- " + it.catTitle + " / " + it.name + ": " + it.original + " → " + it.value + " ₺"; }).join("\n");
-    return title + "\n\nYönetim panelinden güncellendi.\n\n" + body;
+  function publishBody() {
+    var fields = {};
+    state.items.forEach(function (it) { fields[it.key] = { integerValue: String(it.value) }; });
+    return {
+      fields: {
+        prices: { mapValue: { fields: fields } },
+        updatedAt: { timestampValue: new Date().toISOString() },
+        updatedBy: { stringValue: (session && session.email) || "" }
+      }
+    };
   }
 
   publishBtn.addEventListener("click", function () {
     var changes = pendingItems();
     if (!changes.length || invalidCount()) return;
-    var newText = buildText();
-
-    // Kaydetmeden önce: yeni dosya okunabiliyor ve her fiyat istenen değerde mi?
-    try {
-      var check = flatten(parseMenu(newText));
-      var ok = check.length === state.items.length && check.every(function (f, i) { return f.price === state.items[i].value; });
-      if (!ok || !checkStructure(newText, check)) throw new Error();
-    } catch (e) {
-      showError(publishError, "Değişiklikler dosyaya güvenle yazılamadı; hiçbir şey kaydedilmedi. Sayfayı yenileyip tekrar deneyin.");
-      return;
-    }
-
-    publishBtn.disabled = true;
-    publishBtn.textContent = "Yayınlanıyor…";
+    // Başka biri bu arada kaydetmişse üzerine yazmamak için koşullu kayıt.
+    var pre = state.updateTime
+      ? "currentDocument.updateTime=" + encodeURIComponent(state.updateTime)
+      : "currentDocument.exists=false";
+    busy(publishBtn, true, "Yayınlanıyor…");
     showError(publishError, "");
 
-    api("PUT", fileUrl(), {
-      message: commitMessage(changes),
-      content: encodeBase64(newText),
-      sha: state.sha,
-      branch: CONFIG.branch
-    }).then(function (res) {
-      state.sha = res.content.sha;
-      state.text = newText;
-      state.items.forEach(function (it) { it.original = it.value; paintRow(it); });
+    firestore("PATCH", DOC_URL + "?" + pre + "&key=" + encodeURIComponent(FB.apiKey), publishBody()).then(function (doc) {
+      state.updateTime = doc.updateTime;
       state.items.forEach(function (it) {
-        var old = it.row.querySelector(".adm-old");
-        old.textContent = formatPrice(it.original);
-        old.setAttribute("aria-label", "Eski fiyat " + formatPrice(it.original));
+        it.original = it.value;
+        it.old.textContent = formatPrice(it.original);
+        paintRow(it);
       });
       updateBar();
       dialog.close();
-      toast(changes.length + " fiyat kaydedildi. Site 1–2 dakika içinde güncellenir.",
-        res.commit && res.commit.html_url ? { text: "Kaydı GitHub'da gör", href: res.commit.html_url } : null);
+      toast(changes.length + " fiyat kaydedildi ve sitede yayında.");
     }).catch(function (err) {
-      publishBtn.disabled = false;
-      publishBtn.textContent = "Yayınla";
-      if (err.status === 409 || err.status === 422) {
-        showError(publishError, "Menü dosyası siz düzenlerken başka bir yerden değiştirilmiş. \"Güncel menüyü yükle\" ile en son hali alın; yaptığınız değişiklikler korunur.");
-        var reload = el("button", "adm-link", "Güncel menüyü yükle");
+      busy(publishBtn, false);
+      var conflict = err.fsStatus === "FAILED_PRECONDITION" || err.fsStatus === "ALREADY_EXISTS" || err.fsStatus === "ABORTED" || err.status === 409;
+      if (conflict) {
+        showError(publishError, "Fiyatlar siz düzenlerken başka bir cihazdan değiştirilmiş. \"Güncel fiyatları yükle\" ile en son hali alın; yaptığınız değişiklikler korunur.");
+        var reload = el("button", "adm-link", "Güncel fiyatları yükle");
         reload.type = "button";
         reload.addEventListener("click", function () {
           var keep = {};
@@ -529,10 +586,10 @@
         });
         publishError.appendChild(document.createTextNode(" "));
         publishError.appendChild(reload);
-      } else if (err.status === 401) {
-        showError(publishError, "Erişim anahtarının süresi dolmuş ya da geçersiz. Değişiklikleriniz kaydedilmedi; yeni anahtarla tekrar giriş yapın.");
-      } else if (err.status === 403 || err.status === 404) {
-        showError(publishError, "Bu anahtarın menü dosyasını değiştirme izni yok (Contents: Read and write gerekli). Değişiklikleriniz kaydedilmedi.");
+      } else if (err.status === 403) {
+        showError(publishError, "Bu hesabın fiyatları değiştirme yetkisi yok. Firestore kurallarındaki admin kimliğini (UID) kontrol edin. Değişiklikleriniz kaydedilmedi.");
+      } else if (err.status === 401 || err.code === "NO_SESSION") {
+        showError(publishError, "Oturumunuzun süresi dolmuş. Değişiklikleriniz kaydedilmedi; çıkış yapıp tekrar giriş yapın.");
       } else {
         showError(publishError, "Kaydedilemedi: " + err.message);
       }
@@ -545,10 +602,10 @@
   });
 
   /* ---------- Başlat ---------- */
-  state.token = storedToken();
-  if (state.token) {
-    load();
+  if (!CONFIGURED) {
+    show("setup");
   } else {
-    show("login");
+    session = loadSession();
+    if (session && session.refreshToken) load(); else show("login");
   }
 })();

@@ -27,26 +27,39 @@ python3 -m http.server 8000
 
 ## Fiyat yönetim paneli
 
-Menü fiyatları sitenin `admin.html` sayfasından güncellenir:
-**https://viorcreative-bit.github.io/seyuygulama2/admin.html** (sitede bu sayfaya bağlantı yoktur, arama motorlarına kapalıdır).
+Menü fiyatları **https://viorcreative-bit.github.io/seyuygulama2/admin.html** adresindeki panelden güncellenir
+(sitede bu sayfaya bağlantı yoktur, arama motorlarına kapalıdır).
 
+- **Giriş:** kullanıcı adı `admin` ve şifre. "Şifremi unuttum" ile admin e-postasına sıfırlama bağlantısı gider;
+  giriş yaptıktan sonra sayfanın altındaki **Şifreyi değiştir** ile şifre değiştirilir.
 - Ürünleri arayıp kategoriye göre süzerek fiyatları değiştirin; değişen ürünler sarı ile işaretlenir.
-- **Toplu fiyat güncelleme** ile bir kategoriye ya da tüm menüye yüzde zam/indirim uygulanır (1, 5, 10 veya 50 ₺'ye yuvarlanır).
-- **Gözden geçir ve yayınla** değişiklik listesini gösterir; onaylayınca fiyatlar kaydedilir ve site 1–2 dakika içinde güncellenir.
-- Değişiklikler menüye, favorilere, kahvaltı (kişi başı fiyat otomatik hesaplanır) ve nargile bölümlerine birlikte yansır.
+- **Toplu fiyat güncelleme** bir kategoriye ya da tüm menüye yüzde zam/indirim uygular (1, 5, 10 veya 50 ₺'ye yuvarlar).
+- **Gözden geçir ve yayınla** değişiklik listesini gösterir; onaylayınca fiyatlar **hemen** sitede görünür
+  (menü, favoriler, kahvaltının kişi başı fiyatı, nargile listesi).
 
-### Giriş için erişim anahtarı (bir kez)
+### Nasıl çalışır
 
-Panel sunucusuz çalışır; değişiklikleri GitHub'a sizin erişim anahtarınızla kaydeder.
+Giriş ve fiyatlar Google'ın Firebase hizmetinde tutulur (ücretsiz plan yeterli):
 
-1. GitHub'da https://github.com/settings/personal-access-tokens/new sayfasını açın.
-2. **Token name:** "Nonna fiyat paneli". **Expiration:** en uzun süre (dolunca yenisini oluşturun).
-3. **Repository access:** "Only select repositories" → `seyuygulama2`.
-4. **Permissions → Repository permissions → Contents:** "Read and write".
-5. **Generate token** → anahtarı kopyalayıp paneldeki giriş alanına yapıştırın.
+- **Firebase Authentication:** admin hesabı (e-posta + şifre), şifre sıfırlama e-postası.
+- **Firestore:** `site/menu` belgesi, panelden kaydedilen fiyatlar. Herkes okuyabilir, yalnızca admin yazabilir (`firestore.rules`).
+- Site açılırken bu fiyatları okur (`assets/js/prices.js`) ve `menu.js`'teki fiyatların yerine kullanır.
+  Firebase'e ulaşılamazsa son bilinen fiyatlar, o da yoksa `menu.js` fiyatları gösterilir.
 
-Anahtar yalnızca girdiğiniz cihazın tarayıcısında saklanır. Ortak bir bilgisayarda "Bu cihazda beni hatırla" kutusunu kapatın ya da işiniz bitince **Çıkış yap**'a basın.
-Panel, sitenin yayınlandığı dala (`assets/js/admin.js` içindeki `CONFIG.branch`) yazar; GitHub Pages ayarında dal değişirse orayı da güncelleyin.
+### Kurulum (bir kez, ~10 dakika)
+
+1. https://console.firebase.google.com adresinde **Proje oluştur** → ad: `nonna-cafe` (Google Analytics gerekmez).
+2. **Build → Authentication → Get started → Sign-in method → Email/Password**'ü açın.
+3. **Authentication → Users → Add user:** e-posta `viorcreative@gmail.com` (ya da `firebase-config.js`'teki `adminEmail`), şifre: admin şifresi.
+   Eklenen kullanıcının **User UID** değerini kopyalayın.
+4. **Authentication → Settings → User actions:** "Enable create (sign-up)" kutusunu kapatın (yeni hesap açılmasın).
+   **Templates → Password reset:** şablon dilini Türkçe yapabilirsiniz.
+5. **Build → Firestore Database → Create database** (konum: `eur3` ya da yakın bir bölge, "production mode").
+   **Rules** sekmesine `firestore.rules` dosyasının içeriğini yapıştırın, `ADMIN_UID` yerine 3. adımdaki UID'yi yazıp **Publish**.
+6. **Proje ayarları (dişli) → Genel → Uygulamalarınız → Web (</>)** ile bir web uygulaması ekleyin;
+   yapılandırmadaki `apiKey` ve `projectId` değerlerini `assets/js/firebase-config.js` dosyasına yazın.
+
+Bu değerler gizli değildir; yetkiyi Firestore kuralları ve admin şifresi korur.
 
 ## Fiyat ve ürün güncelleme
 
@@ -57,7 +70,7 @@ Tüm menü `assets/js/menu.js` dosyasındadır. Her ürün şu alanlardan oluşu
 ```
 
 - `n` ürün adı, `p` fiyat (₺), `d` açıklama, `tag` küçük not, `img` fotoğraf adı (uzantısız)
-- Fiyatları en kolay yönetim panelinden değiştirirsiniz; dosyadan değiştirmek için yalnızca `p` değerini güncelleyin.
+- Fiyatları yönetim panelinden değiştirin. `menu.js`'teki `p` değerleri varsayılan fiyatlardır; panelde kayıtlı fiyat varsa sitede o görünür.
 - Yeni fotoğraf eklerken: büyük boyutu `assets/img/`, küçük boyutu (en uzun kenar 560 px) `assets/img/sm/`
   klasörüne aynı adla koyun ve boyutlarını `assets/js/images.js` dosyasına ekleyin.
 
@@ -71,6 +84,7 @@ GitHub Pages için: depo ayarlarında **Pages → Branch** olarak bu dalı ve k�
 ```
 index.html
 admin.html             Fiyat yönetim paneli
+firestore.rules        Firestore güvenlik kuralları (Firebase konsoluna yapıştırılır)
 assets/
   css/style.css        Tasarım (renkler, yazı tipleri, düzen)
   js/menu.js           Menü verisi (ürünler ve fiyatlar)
@@ -78,6 +92,8 @@ assets/
   js/main.js           Menü, arama, galeri ve fotoğraf görüntüleyici
   js/nargile.js        Nargile bölümü: fiyat listesi ve duman efekti
   js/admin.js          Fiyat yönetim paneli (admin.html)
+  js/prices.js         Panelden kaydedilen fiyatları Firebase'den okur
+  js/firebase-config.js  Firebase bağlantı bilgileri, admin kullanıcı adı ve e-postası
   css/admin.css        Fiyat yönetim paneli tasarımı
   img/                 Katalogdan çıkarılan fotoğraflar (sm/ küçük boyutlar)
   brand/               Nonna ve Big Mamma's logoları (SVG), favicon

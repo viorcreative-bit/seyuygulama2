@@ -99,18 +99,23 @@
     var grid = document.querySelector("[data-favs]");
     if (!grid) return;
     FAVORITES.forEach(function (fav, i) {
-      var item = priceFor(fav.title);
-      fav.price = item ? item.p : null;
+      var found = findItem(fav.title);
       var fig = el("figure", "fav fav-" + (i + 1));
       var btn = el("button", "fav-photo");
       btn.type = "button";
       btn.setAttribute("aria-label", fav.title + " fotoğrafını büyüt");
       btn.appendChild(photo(fav.img, "", i === 0 ? "(min-width: 900px) 58vw, 100vw" : "(min-width: 900px) 34vw, 100vw"));
-      btn.addEventListener("click", function () { openLightbox(fav, btn); });
+      btn.addEventListener("click", function () {
+        openLightbox({ img: fav.img, title: fav.title, desc: fav.desc, price: found ? found.item.p : null }, btn);
+      });
       var cap = el("figcaption");
       var line = el("div", "fav-line");
       line.appendChild(el("span", "fav-name", fav.title));
-      if (fav.price != null) line.appendChild(el("span", "fav-price", formatPrice(fav.price)));
+      if (found) {
+        var price = el("span", "fav-price", formatPrice(found.item.p));
+        price.setAttribute("data-price-key", priceKey(found.cat.id, found.item.n));
+        line.appendChild(price);
+      }
       cap.appendChild(line);
       cap.appendChild(el("p", "fav-desc", fav.desc));
       fig.appendChild(btn);
@@ -137,7 +142,8 @@
   var catSections = [];
   var itemRows = [];
 
-  function renderItem(item, catTitle) {
+  function renderItem(item, cat) {
+    var catTitle = cat.title;
     var li = el("li", "item" + (item.img ? " has-photo" : ""));
     li.dataset.search = fold([item.n, item.d, item.tag, catTitle].join(" "));
 
@@ -158,7 +164,9 @@
     if (item.tag) name.appendChild(el("span", "item-tag", item.tag));
     line.appendChild(name);
     line.appendChild(el("span", "item-leader"));
-    line.appendChild(el("span", "item-price", formatPrice(item.p)));
+    var price = el("span", "item-price", formatPrice(item.p));
+    price.setAttribute("data-price-key", priceKey(cat.id, item.n));
+    line.appendChild(price);
     main.appendChild(line);
     if (item.d) main.appendChild(el("p", "item-desc", item.d));
     li.appendChild(main);
@@ -212,7 +220,7 @@
         if (s.title) group.appendChild(el("h4", "cat-group-title", s.title));
         if (s.note) group.appendChild(el("p", "cat-group-note", s.note));
         var ul = el("ul", "items");
-        s.items.forEach(function (item) { ul.appendChild(renderItem(item, cat.title)); count++; });
+        s.items.forEach(function (item) { ul.appendChild(renderItem(item, cat)); count++; });
         group.appendChild(ul);
         body.appendChild(group);
       });
@@ -308,10 +316,30 @@
     { img: "mekan-nonna-neon", shape: "wide", pos: "50% 22%", title: "Nonna", alt: "Mavi NONNA neon tabelası" }
   ];
 
-  function priceFor(title) {
+  function findItem(title) {
     var found = null;
-    MENU.forEach(function (c) { c.sections.forEach(function (s) { s.items.forEach(function (it) { if (!found && it.n === title) found = it; }); }); });
+    MENU.forEach(function (c) { c.sections.forEach(function (s) { s.items.forEach(function (it) { if (!found && it.n === title) found = { cat: c, item: it }; }); }); });
     return found;
+  }
+  function priceFor(title) {
+    var f = findItem(title);
+    return f ? f.item : null;
+  }
+
+  /* ---------- Canlı fiyatlar ---------- */
+  // prices.js, yönetim panelinden kaydedilen fiyatları getirince ekrandaki bütün fiyatlar yenilenir.
+  // Fiyat gösteren her öğe data-price-key="kategori::ürün adı" taşır.
+  function priceKey(catId, name) {
+    return window.NONNA_PRICE_KEY ? window.NONNA_PRICE_KEY(catId, name) : catId + "::" + name;
+  }
+  function refreshPrices() {
+    var byKey = {};
+    MENU.forEach(function (c) { c.sections.forEach(function (s) { s.items.forEach(function (it) { byKey[priceKey(c.id, it.n)] = it; }); }); });
+    document.querySelectorAll("[data-price-key]").forEach(function (node) {
+      var it = byKey[node.getAttribute("data-price-key")];
+      if (it) node.textContent = formatPrice(it.p);
+    });
+    renderBreakfastPrice();
   }
 
   function renderGallery() {
@@ -364,6 +392,7 @@
   /* ---------- Başlat ---------- */
   renderFavorites();
   renderBreakfastPrice();
+  document.addEventListener("nonna:prices", refreshPrices);
   renderMenu();
   renderGallery();
   watchCategories();
