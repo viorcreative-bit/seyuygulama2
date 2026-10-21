@@ -27,10 +27,10 @@
   </header>
 
   <main class="adm-wrap adm-main">
-    <!-- Kurulum yapılmamış -->
+    <!-- Kurulum yapılmamış ya da PHP çalışmıyor -->
     <section class="adm-login" data-view="setup" hidden aria-labelledby="setup-title">
       <h1 id="setup-title">Panel henüz kurulmadı</h1>
-      <p class="adm-lede">Giriş yapabilmek için Firebase bağlantı bilgilerinin <code>assets/js/firebase-config.js</code> dosyasına yazılması gerekiyor. Kurulum adımları README dosyasının "Fiyat yönetim paneli" bölümünde.</p>
+      <p class="adm-lede" data-setup-text></p>
     </section>
 
     <!-- Giriş -->
@@ -47,19 +47,38 @@
           <span>Bu cihazda beni hatırla</span>
         </label>
         <button class="adm-btn adm-btn-primary" type="submit" data-login-submit>Giriş yap</button>
+        <p class="adm-note" role="status" data-login-note hidden></p>
         <p class="adm-error" role="alert" data-login-error hidden></p>
         <button type="button" class="adm-link adm-link-inline" data-show-forgot>Şifremi unuttum</button>
       </form>
     </section>
 
-    <!-- Şifremi unuttum -->
+    <!-- Şifremi unuttum: 1) e-postaya kod gönder -->
     <section class="adm-login" data-view="forgot" hidden aria-labelledby="forgot-title">
       <h1 id="forgot-title">Şifremi unuttum</h1>
-      <p class="adm-lede" data-forgot-text></p>
+      <p class="adm-lede">Admin hesabına kayıtlı e-posta adresine 6 haneli bir kod gönderilecek. Kodu ve yeni şifrenizi bir sonraki ekrana yazarak şifrenizi yenilersiniz.</p>
       <form class="adm-login-form" data-forgot-form novalidate>
-        <button class="adm-btn adm-btn-primary" type="submit" data-forgot-submit>Sıfırlama bağlantısı gönder</button>
-        <p class="adm-note" role="status" data-forgot-done hidden></p>
+        <button class="adm-btn adm-btn-primary" type="submit" data-forgot-submit>Kodu gönder</button>
         <p class="adm-error" role="alert" data-forgot-error hidden></p>
+        <button type="button" class="adm-link adm-link-inline" data-show-reset>Kodum zaten var</button>
+        <button type="button" class="adm-link adm-link-inline" data-show-login>Girişe dön</button>
+      </form>
+    </section>
+
+    <!-- Şifremi unuttum: 2) kod + yeni şifre -->
+    <section class="adm-login" data-view="reset" hidden aria-labelledby="reset-title">
+      <h1 id="reset-title">Yeni şifre</h1>
+      <p class="adm-lede" data-reset-text>E-postanıza gelen 6 haneli kodu ve yeni şifrenizi yazın.</p>
+      <form class="adm-login-form" data-reset-form novalidate>
+        <label for="reset-code">E-postadaki kod</label>
+        <input id="reset-code" class="adm-code-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000" required>
+        <label for="reset-password">Yeni şifre</label>
+        <input id="reset-password" type="password" autocomplete="new-password" minlength="8" required>
+        <label for="reset-password-2">Yeni şifre (tekrar)</label>
+        <input id="reset-password-2" type="password" autocomplete="new-password" minlength="8" required>
+        <button class="adm-btn adm-btn-primary" type="submit" data-reset-submit>Şifreyi yenile</button>
+        <p class="adm-error" role="alert" data-reset-error hidden></p>
+        <button type="button" class="adm-link adm-link-inline" data-resend>Kod gelmedi, tekrar gönder</button>
         <button type="button" class="adm-link adm-link-inline" data-show-login>Girişe dön</button>
       </form>
     </section>
@@ -126,6 +145,10 @@
         <summary>Şifreyi değiştir</summary>
         <form class="adm-password-form" data-password-form novalidate>
           <div class="adm-field">
+            <label for="current-password">Mevcut şifre</label>
+            <input id="current-password" type="password" autocomplete="current-password" required>
+          </div>
+          <div class="adm-field">
             <label for="new-password">Yeni şifre</label>
             <input id="new-password" type="password" autocomplete="new-password" minlength="8" required>
           </div>
@@ -135,6 +158,7 @@
           </div>
           <button class="adm-btn adm-btn-ghost" type="submit" data-password-submit>Şifreyi değiştir</button>
           <p class="adm-error" role="alert" data-password-error hidden></p>
+          <p class="adm-hint" data-account-email></p>
         </form>
       </details>
     </section>
@@ -174,7 +198,6 @@
   <div class="adm-toast" role="status" aria-live="polite" data-toast hidden></div>
 
   <script src="assets/js/menu.js"></script>
-  <script src="assets/js/firebase-config.js"></script>
   <script src="assets/js/admin.js"></script>
 </body>
 </html>

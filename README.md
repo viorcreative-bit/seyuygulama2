@@ -1,6 +1,6 @@
 # Nonna by Big Mamma's Bahçeşehir — web sitesi
 
-Nonna Cafe için tek sayfalık, statik web sitesi. Menüdeki tüm ürünler, fiyatlar ve fotoğraflar
+Nonna Cafe için tek sayfalık web sitesi ve menü fiyatlarını yönetmek için PHP + MySQL ile çalışan bir panel. Menüdeki tüm ürünler, fiyatlar ve fotoğraflar
 Nonna Cafe menü kataloğundan (`menu.pdf`) alınmıştır.
 
 ## Bölümler
@@ -15,51 +15,65 @@ Nonna Cafe menü kataloğundan (`menu.pdf`) alınmıştır.
 - **Galeri:** mekân ve tabak fotoğrafları
 - **Rezervasyon ve iletişim:** telefon, Instagram, harita
 
-## Açmak
+## Hostinge yükleme (PHP + MySQL)
 
-Kurulum gerekmez. `index.html` dosyasını tarayıcıda açmanız yeterli.
-Yerel sunucuyla denemek isterseniz:
+Site, fiyat yönetim paneliyle birlikte PHP ve MySQL destekleyen herhangi bir hostingde (cPanel, Plesk, DirectAdmin vb.) çalışır.
+Gerekenler: **PHP 7.3 ya da üstü** (PHP 8 önerilir), **PDO MySQL** ve **mbstring** eklentileri, bir **MySQL/MariaDB** veritabanı.
+
+1. **Dosyaları yükleyin.** `index.html`, `admin.html`, `api/` ve `assets/` klasörlerini sitenin kök klasörüne
+   (genellikle `public_html`) yükleyin. Hostingin koyduğu varsayılan `index.php` / `default.html` gibi dosyaları silin.
+   `api/.htaccess` dosyasının da yüklendiğinden emin olun (gizli dosyalar bazı FTP programlarında görünmez).
+2. **Veritabanı oluşturun.** Hosting panelinde **MySQL Veritabanları** bölümünden bir veritabanı ve bir kullanıcı oluşturun,
+   kullanıcıyı veritabanına **tüm yetkilerle** (ALL PRIVILEGES) ekleyin.
+3. **Kurulumu çalıştırın.** Tarayıcıda `https://alanadiniz/api/install.php` adresini açın; veritabanı bilgilerini,
+   admin kullanıcı adını, şifresini ve e-postasını yazıp **Kurulumu tamamla**'ya basın. Sihirbaz tabloları oluşturur ve
+   bağlantı bilgilerini `api/config.php` dosyasına kaydeder. Sunucu dosya yazmaya izin vermezse ekranda gösterilen metni
+   Dosya Yöneticisi ile `api/config.php` dosyasına yapıştırın.
+4. **`api/install.php` dosyasını silin.** (Kurulumdan sonra zaten çalışmaz; yine de sunucuda bırakmayın.)
+5. **E-postayı kontrol edin.** Kurulumdaki deneme e-postası gelmediyse "Şifremi unuttum" kodu da gelmez: hostinginizde
+   PHP `mail()` gönderiminin açık olduğunu kontrol edin, gönderen adresi alan adınızda açtığınız bir adres yapın
+   (ör. `bilgi@alanadiniz.com`, `api/config.php` içindeki `mail_from`).
+
+Panelde şifre gönderildiği için sitenizde SSL (https) açık olmalı; çoğu hostingde ücretsiz Let's Encrypt sertifikası tek tıkla açılır.
+
+`api/config.php` veritabanı şifresini içerir; depoya eklenmez (`.gitignore`) ve `api/.htaccess` ile tarayıcıdan açılamaz.
+
+### Bilgisayarda denemek
 
 ```bash
-python3 -m http.server 8000
-# http://localhost:8000
+php -S localhost:8000
+# http://localhost:8000          site
+# http://localhost:8000/api/install.php   kurulum (yerel bir MySQL/MariaDB gerekir)
 ```
+
+PHP olmadan (ör. `python3 -m http.server` ya da GitHub Pages) site `menu.js`'teki fiyatlarla çalışır; panel açılmaz.
 
 ## Fiyat yönetim paneli
 
-Menü fiyatları **https://viorcreative-bit.github.io/seyuygulama2/admin.html** adresindeki panelden güncellenir
+Menü fiyatları **https://alanadiniz/admin.html** adresindeki panelden güncellenir
 (sitede bu sayfaya bağlantı yoktur, arama motorlarına kapalıdır).
 
-- **Giriş:** kullanıcı adı `admin` ve şifre. "Şifremi unuttum" ile admin e-postasına sıfırlama bağlantısı gider;
-  giriş yaptıktan sonra sayfanın altındaki **Şifreyi değiştir** ile şifre değiştirilir.
+- **Giriş:** kurulumda belirlediğiniz kullanıcı adı (ya da e-posta) ve şifre. "Bu cihazda beni hatırla" seçilirse oturum 30 gün,
+  seçilmezse tarayıcı kapanana kadar (en fazla 12 saat) açık kalır.
+- **Şifremi unuttum:** admin e-postasına 6 haneli bir kod gider (15 dakika geçerli). Kodu ve yeni şifreyi panele yazınca şifre
+  yenilenir, açık bütün oturumlar kapanır.
+- **Şifreyi değiştir:** giriş yaptıktan sonra sayfanın altında; mevcut şifre sorulur, diğer cihazlardaki oturumlar kapanır.
 - Ürünleri arayıp kategoriye göre süzerek fiyatları değiştirin; değişen ürünler sarı ile işaretlenir.
 - **Toplu fiyat güncelleme** bir kategoriye ya da tüm menüye yüzde zam/indirim uygular (1, 5, 10 veya 50 ₺'ye yuvarlar).
 - **Gözden geçir ve yayınla** değişiklik listesini gösterir; onaylayınca fiyatlar **hemen** sitede görünür
   (menü, favoriler, kahvaltının kişi başı fiyatı, nargile listesi).
+- Fiyatları iki cihazdan aynı anda düzenlerseniz ikinci kayıt önceki kaydın üzerine yazılmaz; panel güncel fiyatları
+  yükleyip sizin değişikliklerinizi korur.
 
 ### Nasıl çalışır
 
-Giriş ve fiyatlar Google'ın Firebase hizmetinde tutulur (ücretsiz plan yeterli):
-
-- **Firebase Authentication:** admin hesabı (e-posta + şifre), şifre sıfırlama e-postası.
-- **Firestore:** `site/menu` belgesi, panelden kaydedilen fiyatlar. Herkes okuyabilir, yalnızca admin yazabilir (`firestore.rules`).
-- Site açılırken bu fiyatları okur (`assets/js/prices.js`) ve `menu.js`'teki fiyatların yerine kullanır.
-  Firebase'e ulaşılamazsa son bilinen fiyatlar, o da yoksa `menu.js` fiyatları gösterilir.
-
-### Kurulum (bir kez, ~10 dakika)
-
-1. https://console.firebase.google.com adresinde **Proje oluştur** → ad: `nonna-cafe` (Google Analytics gerekmez).
-2. **Build → Authentication → Get started → Sign-in method → Email/Password**'ü açın.
-3. **Authentication → Users → Add user:** e-posta `viorcreative@gmail.com` (ya da `firebase-config.js`'teki `adminEmail`), şifre: admin şifresi.
-   Eklenen kullanıcının **User UID** değerini kopyalayın.
-4. **Authentication → Settings → User actions:** "Enable create (sign-up)" kutusunu kapatın (yeni hesap açılmasın).
-   **Templates → Password reset:** şablon dilini Türkçe yapabilirsiniz.
-5. **Build → Firestore Database → Create database** (konum: `eur3` ya da yakın bir bölge, "production mode").
-   **Rules** sekmesine `firestore.rules` dosyasının içeriğini yapıştırın, `ADMIN_UID` yerine 3. adımdaki UID'yi yazıp **Publish**.
-6. **Proje ayarları (dişli) → Genel → Uygulamalarınız → Web (</>)** ile bir web uygulaması ekleyin;
-   yapılandırmadaki `apiKey` ve `projectId` değerlerini `assets/js/firebase-config.js` dosyasına yazın.
-
-Bu değerler gizli değildir; yetkiyi Firestore kuralları ve admin şifresi korur.
+- `api/prices.php` kayıtlı fiyatları herkese açık olarak döndürür. Site açılırken bunları okur (`assets/js/prices.js`)
+  ve `menu.js`'teki fiyatların yerine kullanır; sunucuya ulaşılamazsa son bilinen fiyatlar, o da yoksa `menu.js` fiyatları gösterilir.
+- `api/admin.php` giriş, kaydetme ve şifre işlemlerini yapar. Şifreler ve sıfırlama kodları veritabanında şifrelenmiş
+  (hash) tutulur; oturum HttpOnly çerezle ve her kayıtta ayrıca CSRF anahtarıyla doğrulanır.
+- 15 dakikada 8 hatalı girişten sonra giriş geçici olarak kapanır; saatte en fazla 3 sıfırlama kodu gönderilir,
+  bir kod için en fazla 5 deneme yapılabilir.
+- Tablolar (`nonna_` önekiyle): `users`, `sessions`, `prices`, `state`, `resets`, `attempts`.
 
 ## Fiyat ve ürün güncelleme
 
@@ -74,29 +88,34 @@ Tüm menü `assets/js/menu.js` dosyasındadır. Her ürün şu alanlardan oluşu
 - Yeni fotoğraf eklerken: büyük boyutu `assets/img/`, küçük boyutu (en uzun kenar 560 px) `assets/img/sm/`
   klasörüne aynı adla koyun ve boyutlarını `assets/js/images.js` dosyasına ekleyin.
 
-## Yayınlama
+## GitHub Pages
 
-Site tamamen statiktir; GitHub Pages, Netlify veya herhangi bir hosting'e dosyalar olduğu gibi yüklenebilir.
-GitHub Pages için: depo ayarlarında **Pages → Branch** olarak bu dalı ve kök klasörü (`/`) seçin.
+Depodaki dal GitHub Pages'te de yayınlanır (önizleme için). Orada PHP çalışmadığı için site `menu.js` fiyatlarıyla açılır,
+fiyat paneli yalnızca kendi hostinginizde çalışır.
 
 ## Dosya yapısı
 
 ```
 index.html
 admin.html             Fiyat yönetim paneli
-firestore.rules        Firestore güvenlik kuralları (Firebase konsoluna yapıştırılır)
+api/
+  install.php          Kurulum sihirbazı (kurulumdan sonra silin)
+  prices.php           Kayıtlı fiyatlar (herkese açık, site okur)
+  admin.php            Panel: giriş, kaydetme, şifre değiştirme, şifremi unuttum
+  lib.php              Ortak kod: veritabanı, oturum, deneme sınırı, e-posta
+  config.php           Kurulumda oluşur: veritabanı bilgileri (depoda yok)
+  .htaccess            config.php ve lib.php'yi tarayıcıya kapatır
 assets/
   css/style.css        Tasarım (renkler, yazı tipleri, düzen)
-  js/menu.js           Menü verisi (ürünler ve fiyatlar)
+  css/admin.css        Fiyat yönetim paneli tasarımı
+  js/menu.js           Menü verisi (ürünler ve varsayılan fiyatlar)
   js/images.js         Fotoğraf boyutları
+  js/prices.js         Panelden kaydedilen fiyatları api/prices.php'den okur
   js/main.js           Menü, arama, galeri ve fotoğraf görüntüleyici
   js/nargile.js        Nargile bölümü: fiyat listesi ve duman efekti
   js/admin.js          Fiyat yönetim paneli (admin.html)
-  js/prices.js         Panelden kaydedilen fiyatları Firebase'den okur
-  js/firebase-config.js  Firebase bağlantı bilgileri, admin kullanıcı adı ve e-postası
-  css/admin.css        Fiyat yönetim paneli tasarımı
   img/                 Katalogdan çıkarılan fotoğraflar (sm/ küçük boyutlar)
-  brand/               Nonna ve Big Mamma's logoları (SVG), favicon
+  brand/               Nonna ve Big Mamma's logoları (SVG), favicon, beIN SPORTS logosu
 ```
 
 ## Kontrol edilmesi gerekenler

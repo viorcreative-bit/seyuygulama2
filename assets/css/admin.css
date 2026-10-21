@@ -349,12 +349,21 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
 .adm-account { margin-top: 40px; }
 .adm-password-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
   gap: 12px;
   align-items: end;
   margin-top: 12px;
 }
-.adm-password-form .adm-error { grid-column: 1 / -1; margin: 0; }
-@media (max-width: 640px) {
+.adm-password-form .adm-error,
+.adm-password-form .adm-hint { grid-column: 1 / -1; margin: 0; }
+.adm-hint { color: rgba(42, 33, 27, .7); font-size: .95rem; }
+@media (max-width: 860px) {
   .adm-password-form { grid-template-columns: minmax(0, 1fr); }
+  .adm-password-form .adm-btn { justify-self: start; }
+}
+.adm-login-form input.adm-code-input {
+  max-width: 220px;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: .3em;
 }
