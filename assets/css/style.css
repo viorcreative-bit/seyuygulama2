@@ -118,6 +118,12 @@ h1, h2, h3, h4 {
 .btn-primary:hover { background: var(--red); }
 .btn-ghost { border-color: rgba(243, 233, 218, .45); color: var(--cream); background: transparent; }
 .btn-ghost:hover { border-color: var(--cream); background: rgba(243, 233, 218, .06); }
+.btn-icon { gap: 10px; }
+.btn-icon svg {
+  width: 20px; height: 20px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.8;
+}
+.btn-icon .dot { fill: currentColor; stroke: none; }
 
 /* ---------- Üst bar ---------- */
 .site-header {
