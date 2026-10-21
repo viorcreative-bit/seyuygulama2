@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Fiyat yönetimi | Nonna</title>
+  <meta name="theme-color" content="#1E1814">
+  <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+  <header class="adm-header">
+    <div class="adm-wrap adm-header-inner">
+      <a class="adm-logo" href="./" aria-label="Siteye dön">
+        <img src="assets/brand/nonna-krem.svg" alt="" width="345" height="191">
+      </a>
+      <p class="adm-title">Fiyat yönetimi</p>
+      <div class="adm-header-actions" data-session hidden>
+        <a class="adm-link" href="./#menu" target="_blank" rel="noopener">Siteyi aç</a>
+        <button type="button" class="adm-link" data-logout>Çıkış yap</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="adm-wrap adm-main">
+    <!-- Giriş -->
+    <section class="adm-login" data-view="login" hidden aria-labelledby="login-title">
+      <h1 id="login-title">Menü fiyatlarını güncelleyin</h1>
+      <p class="adm-lede">Buradan yaptığınız değişiklikler sitedeki menüye, favorilere, kahvaltı ve nargile bölümlerine yansır. Giriş için GitHub erişim anahtarınızı girin.</p>
+      <form class="adm-login-form" data-login-form novalidate>
+        <label for="token">GitHub erişim anahtarı</label>
+        <input id="token" name="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required>
+        <label class="adm-check">
+          <input type="checkbox" data-remember checked>
+          <span>Bu cihazda beni hatırla</span>
+        </label>
+        <button class="adm-btn adm-btn-primary" type="submit" data-login-submit>Giriş yap</button>
+        <p class="adm-error" role="alert" data-login-error hidden></p>
+      </form>
+      <details class="adm-help">
+        <summary>Erişim anahtarı nasıl alınır?</summary>
+        <ol>
+          <li>GitHub'a giriş yapıp <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">yeni erişim anahtarı sayfasını</a> açın.</li>
+          <li><strong>Token name:</strong> "Nonna fiyat paneli" gibi bir ad yazın. <strong>Expiration:</strong> en uzun süreyi seçin; süre dolunca yeni anahtar oluşturmanız gerekir.</li>
+          <li><strong>Repository access:</strong> "Only select repositories" seçip <strong>seyuygulama2</strong> deposunu ekleyin.</li>
+          <li><strong>Permissions → Repository permissions → Contents:</strong> "Read and write" seçin.</li>
+          <li><strong>Generate token</strong> deyip çıkan anahtarı kopyalayın ve yukarıya yapıştırın.</li>
+        </ol>
+        <p>Anahtar yalnızca bu tarayıcıda saklanır. Ortak kullanılan bir bilgisayardaysanız "beni hatırla" kutusunu kapatın.</p>
+      </details>
+    </section>
+
+    <!-- Yükleniyor -->
+    <section class="adm-status" data-view="loading" hidden>
+      <p data-loading-text>Menü yükleniyor…</p>
+    </section>
+
+    <!-- Düzenleyici -->
+    <section class="adm-editor" data-view="editor" hidden aria-labelledby="editor-title">
+      <div class="adm-editor-head">
+        <h1 id="editor-title">Menü fiyatları</h1>
+        <p class="adm-lede" data-summary></p>
+      </div>
+
+      <div class="adm-toolbar">
+        <div class="adm-field">
+          <label for="search">Ürün ara</label>
+          <input id="search" type="search" placeholder="menemen, latte, pizza…" autocomplete="off" data-search>
+        </div>
+        <div class="adm-field">
+          <label for="cat-filter">Kategori</label>
+          <select id="cat-filter" data-cat-filter>
+            <option value="">Tüm kategoriler</option>
+          </select>
+        </div>
+      </div>
+
+      <details class="adm-bulk">
+        <summary>Toplu fiyat güncelleme</summary>
+        <form class="adm-bulk-form" data-bulk-form novalidate>
+          <p>Seçtiğiniz kategorideki bütün fiyatları yüzde olarak artırır ya da azaltır. Sonuçları yayınlamadan önce listede görebilirsiniz.</p>
+          <div class="adm-bulk-fields">
+            <div class="adm-field">
+              <label for="bulk-percent">Değişim (%)</label>
+              <input id="bulk-percent" type="number" inputmode="decimal" step="0.1" placeholder="ör. 10 ya da -5" data-bulk-percent>
+            </div>
+            <div class="adm-field">
+              <label for="bulk-scope">Uygulanacak yer</label>
+              <select id="bulk-scope" data-bulk-scope>
+                <option value="">Tüm menü</option>
+              </select>
+            </div>
+            <div class="adm-field">
+              <label for="bulk-round">Yuvarlama</label>
+              <select id="bulk-round" data-bulk-round>
+                <option value="1">1 ₺</option>
+                <option value="5" selected>5 ₺</option>
+                <option value="10">10 ₺</option>
+                <option value="50">50 ₺</option>
+              </select>
+            </div>
+            <button class="adm-btn adm-btn-ghost" type="submit">Uygula</button>
+          </div>
+          <p class="adm-error" role="alert" data-bulk-error hidden></p>
+        </form>
+      </details>
+
+      <div class="adm-list" data-list></div>
+      <p class="adm-empty" data-empty hidden>Aramanızla eşleşen ürün yok.</p>
+    </section>
+  </main>
+
+  <!-- Bekleyen değişiklikler -->
+  <div class="adm-bar" data-bar hidden>
+    <div class="adm-wrap adm-bar-inner">
+      <p class="adm-bar-text" data-bar-text></p>
+      <div class="adm-bar-actions">
+        <button type="button" class="adm-btn adm-btn-ghost" data-discard>Geri al</button>
+        <button type="button" class="adm-btn adm-btn-primary" data-review>Gözden geçir ve yayınla</button>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="adm-dialog" data-review-dialog aria-labelledby="review-title">
+    <form method="dialog" class="adm-dialog-inner">
+      <h2 id="review-title">Yayınlanacak değişiklikler</h2>
+      <p class="adm-lede" data-review-summary></p>
+      <div class="adm-review-scroll">
+        <table class="adm-review">
+          <thead>
+            <tr><th scope="col">Ürün</th><th scope="col">Eski</th><th scope="col">Yeni</th></tr>
+          </thead>
+          <tbody data-review-rows></tbody>
+        </table>
+      </div>
+      <p class="adm-error" role="alert" data-publish-error hidden></p>
+      <div class="adm-dialog-actions">
+        <button type="submit" class="adm-btn adm-btn-ghost" value="cancel" data-review-cancel>Vazgeç</button>
+        <button type="button" class="adm-btn adm-btn-primary" data-publish>Yayınla</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="adm-toast" role="status" aria-live="polite" data-toast hidden></div>
+
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

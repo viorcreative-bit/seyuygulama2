@@ -85,19 +85,22 @@
   });
 
   /* ---------- Favoriler ---------- */
+  // Fiyatlar menu.js'ten okunur (title, menüdeki ürün adıyla aynı olmalı).
   var FAVORITES = [
-    { img: "nonna-calzone-burger", title: "Nonna Calzone Burger", price: 699, desc: "Burger mı pizza mı? İkisi birden: dana burger, sucuk, pastırma, karamelize soğan ve cheddar, hamurun içinde." },
-    { img: "dort-peynirli-ravioli", title: "Dört Peynirli Ravioli", price: 549, desc: "Ev yapımı ravioli, dört peynir dolgusu, krema ve domates sos." },
-    { img: "karides-guvec", title: "Karides Güveç", price: 699, desc: "Tereyağında sotelenmiş karides; domates, biber, soğan, sarımsak ve mantar ile." },
-    { img: "mozaik-pizza", title: "Mozaik Pizza", price: 549, desc: "Sucuk, salam, jambon, mantar, zeytin, mısır ve biber bir arada." },
-    { img: "kuzu-incik", title: "Kuzu İncik", price: 999, desc: "Fırınlanmış patates püresi yatağında, demiglace sos ile." },
-    { img: "karayip-katlari", title: "Karayip Katları", price: 599, desc: "Antep fıstığı kaplamalı vanilyalı dondurma, brownie ve çikolata sos." }
+    { img: "nonna-calzone-burger", title: "Nonna Calzone Burger", desc: "Burger mı pizza mı? İkisi birden: dana burger, sucuk, pastırma, karamelize soğan ve cheddar, hamurun içinde." },
+    { img: "dort-peynirli-ravioli", title: "Dört Peynirli Ravioli", desc: "Ev yapımı ravioli, dört peynir dolgusu, krema ve domates sos." },
+    { img: "karides-guvec", title: "Karides Güveç", desc: "Tereyağında sotelenmiş karides; domates, biber, soğan, sarımsak ve mantar ile." },
+    { img: "mozaik-pizza", title: "Mozaik Pizza", desc: "Sucuk, salam, jambon, mantar, zeytin, mısır ve biber bir arada." },
+    { img: "kuzu-incik", title: "Kuzu İncik", desc: "Fırınlanmış patates püresi yatağında, demiglace sos ile." },
+    { img: "karayip-katlari", title: "Karayip Katları", desc: "Antep fıstığı kaplamalı vanilyalı dondurma, brownie ve çikolata sos." }
   ];
 
   function renderFavorites() {
     var grid = document.querySelector("[data-favs]");
     if (!grid) return;
     FAVORITES.forEach(function (fav, i) {
+      var item = priceFor(fav.title);
+      fav.price = item ? item.p : null;
       var fig = el("figure", "fav fav-" + (i + 1));
       var btn = el("button", "fav-photo");
       btn.type = "button";
@@ -107,7 +110,7 @@
       var cap = el("figcaption");
       var line = el("div", "fav-line");
       line.appendChild(el("span", "fav-name", fav.title));
-      line.appendChild(el("span", "fav-price", formatPrice(fav.price)));
+      if (fav.price != null) line.appendChild(el("span", "fav-price", formatPrice(fav.price)));
       cap.appendChild(line);
       cap.appendChild(el("p", "fav-desc", fav.desc));
       fig.appendChild(btn);

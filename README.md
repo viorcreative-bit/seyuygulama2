@@ -25,6 +25,29 @@ python3 -m http.server 8000
 # http://localhost:8000
 ```
 
+## Fiyat yönetim paneli
+
+Menü fiyatları sitenin `admin.html` sayfasından güncellenir:
+**https://viorcreative-bit.github.io/seyuygulama2/admin.html** (sitede bu sayfaya bağlantı yoktur, arama motorlarına kapalıdır).
+
+- Ürünleri arayıp kategoriye göre süzerek fiyatları değiştirin; değişen ürünler sarı ile işaretlenir.
+- **Toplu fiyat güncelleme** ile bir kategoriye ya da tüm menüye yüzde zam/indirim uygulanır (1, 5, 10 veya 50 ₺'ye yuvarlanır).
+- **Gözden geçir ve yayınla** değişiklik listesini gösterir; onaylayınca fiyatlar kaydedilir ve site 1–2 dakika içinde güncellenir.
+- Değişiklikler menüye, favorilere, kahvaltı (kişi başı fiyat otomatik hesaplanır) ve nargile bölümlerine birlikte yansır.
+
+### Giriş için erişim anahtarı (bir kez)
+
+Panel sunucusuz çalışır; değişiklikleri GitHub'a sizin erişim anahtarınızla kaydeder.
+
+1. GitHub'da https://github.com/settings/personal-access-tokens/new sayfasını açın.
+2. **Token name:** "Nonna fiyat paneli". **Expiration:** en uzun süre (dolunca yenisini oluşturun).
+3. **Repository access:** "Only select repositories" → `seyuygulama2`.
+4. **Permissions → Repository permissions → Contents:** "Read and write".
+5. **Generate token** → anahtarı kopyalayıp paneldeki giriş alanına yapıştırın.
+
+Anahtar yalnızca girdiğiniz cihazın tarayıcısında saklanır. Ortak bir bilgisayarda "Bu cihazda beni hatırla" kutusunu kapatın ya da işiniz bitince **Çıkış yap**'a basın.
+Panel, sitenin yayınlandığı dala (`assets/js/admin.js` içindeki `CONFIG.branch`) yazar; GitHub Pages ayarında dal değişirse orayı da güncelleyin.
+
 ## Fiyat ve ürün güncelleme
 
 Tüm menü `assets/js/menu.js` dosyasındadır. Her ürün şu alanlardan oluşur:
@@ -34,7 +57,7 @@ Tüm menü `assets/js/menu.js` dosyasındadır. Her ürün şu alanlardan oluşu
 ```
 
 - `n` ürün adı, `p` fiyat (₺), `d` açıklama, `tag` küçük not, `img` fotoğraf adı (uzantısız)
-- Fiyatı değiştirmek için yalnızca `p` değerini güncelleyin.
+- Fiyatları en kolay yönetim panelinden değiştirirsiniz; dosyadan değiştirmek için yalnızca `p` değerini güncelleyin.
 - Yeni fotoğraf eklerken: büyük boyutu `assets/img/`, küçük boyutu (en uzun kenar 560 px) `assets/img/sm/`
   klasörüne aynı adla koyun ve boyutlarını `assets/js/images.js` dosyasına ekleyin.
 
@@ -47,12 +70,15 @@ GitHub Pages için: depo ayarlarında **Pages → Branch** olarak bu dalı ve k�
 
 ```
 index.html
+admin.html             Fiyat yönetim paneli
 assets/
   css/style.css        Tasarım (renkler, yazı tipleri, düzen)
   js/menu.js           Menü verisi (ürünler ve fiyatlar)
   js/images.js         Fotoğraf boyutları
   js/main.js           Menü, arama, galeri ve fotoğraf görüntüleyici
   js/nargile.js        Nargile bölümü: fiyat listesi ve duman efekti
+  js/admin.js          Fiyat yönetim paneli (admin.html)
+  css/admin.css        Fiyat yönetim paneli tasarımı
   img/                 Katalogdan çıkarılan fotoğraflar (sm/ küçük boyutlar)
   brand/               Nonna ve Big Mamma's logoları (SVG), favicon
 ```
