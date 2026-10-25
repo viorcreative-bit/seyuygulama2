@@ -14,11 +14,11 @@ window.NONNA_MENU = [
     id: "kahvaltilar",
     title: "Kahvaltılar",
     banner: ["serpme-kahvalti"],
-    note: "Kahvaltı saatlerimiz: hafta içi 12.00'a, hafta sonu 14.00'a kadar.",
+    note: "Kahvaltımız hafta içi ve hafta sonu 15.00'e kadar mevcuttur. Serpme kahvaltıda 10 yaş ve altı çocuklar ücretsizdir.",
     sections: [
       {
         items: [
-          { n: "Serpme Kahvaltı", tag: "2 kişilik", p: 1180, img: "serpme-kahvalti",
+          { n: "Serpme Kahvaltı", tag: "kişi başı", p: 590, img: "serpme-kahvalti",
             d: "Ezine beyaz peynir, dil peyniri, çeçil peyniri, taze kaşar, burgu peyniri, bal, kaymak, yeşil ve siyah zeytin, limon reçeli, çilek reçeli, Nutella, sahanda sucuk, sahanda yumurta, sigara böreği, ızgara hellim, acuka, domates soslu biber, pişi, domates, salatalık ve kuru meyveler." },
           { n: "Ev Usulü Kahvaltı", tag: "1 kişilik", p: 490, img: "ev-usulu-kahvalti",
             d: "Beyaz peynir, dil peyniri, taze kaşar, çeçil peyniri, bal, kaymak, siyah ve yeşil zeytin, limon reçeli, çilek reçeli, Nutella, sigara böreği, jambon, sahanda yumurta, domates, salatalık." },

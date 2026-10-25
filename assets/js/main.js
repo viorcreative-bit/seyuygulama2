@@ -125,14 +125,11 @@
   }
 
   /* ---------- Serpme kahvaltı fiyatı ---------- */
-  // Menüdeki 2 kişilik Serpme Kahvaltı fiyatından hesaplanır; menüde fiyat değişince burası da değişir.
+  // Menüdeki Serpme Kahvaltı (kişi başı) fiyatı; panelden fiyat değişince burası da değişir.
   function renderBreakfastPrice() {
     var item = priceFor("Serpme Kahvaltı");
-    if (!item) return;
     var person = document.querySelector("[data-breakfast-person]");
-    var total = document.querySelector("[data-breakfast-total]");
-    if (person) person.textContent = priceFormat.format(Math.round(item.p / 2));
-    if (total) total.textContent = formatPrice(item.p);
+    if (item && person) person.textContent = priceFormat.format(item.p);
   }
 
   /* ---------- Menü ---------- */

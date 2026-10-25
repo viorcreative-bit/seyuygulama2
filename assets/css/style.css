@@ -413,12 +413,12 @@ h1, h2, h3, h4 {
   font-size: clamp(1.3rem, 2vw, 1.7rem);
   color: var(--ink);
 }
-.breakfast-pair {
-  margin: 10px 0 0;
+.breakfast-kids {
+  margin: 12px 0 0;
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
   letter-spacing: .02em;
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 .breakfast-hours {
   max-width: 38ch;

@@ -6,7 +6,7 @@ Nonna Cafe menü kataloğundan (`menu.pdf`) alınmıştır.
 ## Bölümler
 
 - **Giriş:** Nonna logosu, Big Mamma's imzası, menü ve rezervasyon butonları
-- **Serpme kahvaltı:** kişi başı fiyat (menüdeki 2 kişilik fiyatın yarısı, otomatik hesaplanır), kahvaltı saatleri, sofradaki 22 çeşit
+- **Serpme kahvaltı:** kişi başı fiyat (menüdeki Serpme Kahvaltı fiyatından gelir), 10 yaş ve altı çocuklar ücretsiz, kahvaltı saati (her gün 15.00'e kadar), sofradaki 22 çeşit
 - **Önce bunları deneyin:** altı imza tabak
 - **Mekân:** kısa tanıtım, kahvaltı saatleri, rezervasyon telefonu
 - **Maç yayınları:** beIN SPORTS ile Süper Lig ve Avrupa maçları, stadyum arka planlı bant
@@ -80,7 +80,7 @@ Menü fiyatları **https://alanadiniz/admin.html** adresindeki panelden güncell
 Tüm menü `assets/js/menu.js` dosyasındadır. Her ürün şu alanlardan oluşur:
 
 ```js
-{ n: "Serpme Kahvaltı", tag: "2 kişilik", p: 1180, img: "serpme-kahvalti", d: "Açıklama…" }
+{ n: "Serpme Kahvaltı", tag: "kişi başı", p: 590, img: "serpme-kahvalti", d: "Açıklama…" }
 ```
 
 - `n` ürün adı, `p` fiyat (₺), `d` açıklama, `tag` küçük not, `img` fotoğraf adı (uzantısız)
@@ -122,6 +122,6 @@ assets/
 
 - **Adres ve harita:** Katalogda açık adres yok. Harita "Nonna by Big Mamma's Bahçeşehir" aramasıyla gösteriliyor;
   açık adresi `index.html` içindeki İletişim bölümüne ve harita bağlantısına eklemeniz önerilir.
-- **Çalışma saatleri:** Katalogda yalnızca kahvaltı saatleri var (hafta içi 12.00'a, hafta sonu 14.00'a kadar).
+- **Çalışma saatleri:** Sitede yalnızca kahvaltı saati var (hafta içi ve hafta sonu 15.00'e kadar).
 - **"F. Çay":** Katalogdaki "F. Çay" (120 ₺) sitede "Fincan Çay" olarak yazıldı.
-- **Serpme Kahvaltı:** Katalog sayfasında görünen güncel fiyat (1.180 ₺) kullanıldı.
+- **Serpme Kahvaltı:** Kişi başı 590 ₺ (katalogdaki 2 kişilik 1.180 ₺ yerine kişi başı fiyat yazıldı).
