@@ -14,7 +14,7 @@ window.NONNA_MENU = [
     id: "kahvaltilar",
     title: "Kahvaltılar",
     banner: ["serpme-kahvalti"],
-    note: "Kahvaltımız hafta içi ve hafta sonu 15.00'e kadar mevcuttur. Serpme kahvaltıda 10 yaş ve altı çocuklar ücretsizdir.",
+    note: "Kahvaltımız hafta içi ve hafta sonu 15.00'e kadar mevcuttur. Serpme kahvaltıda 10 yaş ve altı çocuk ücretsizdir.",
     sections: [
       {
         items: [

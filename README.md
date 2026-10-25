@@ -6,7 +6,7 @@ Nonna Cafe menü kataloğundan (`menu.pdf`) alınmıştır.
 ## Bölümler
 
 - **Giriş:** Nonna logosu, Big Mamma's imzası, menü ve rezervasyon butonları
-- **Serpme kahvaltı:** kişi başı fiyat (menüdeki Serpme Kahvaltı fiyatından gelir), 10 yaş ve altı çocuklar ücretsiz, kahvaltı saati (her gün 15.00'e kadar), sofradaki 22 çeşit
+- **Serpme kahvaltı:** kişi başı fiyat (menüdeki Serpme Kahvaltı fiyatından gelir), 10 yaş ve altı çocuk ücretsiz, kahvaltı saati (her gün 15.00'e kadar), sofradaki 22 çeşit
 - **Önce bunları deneyin:** altı imza tabak
 - **Mekân:** kısa tanıtım, kahvaltı saatleri, rezervasyon telefonu
 - **Maç yayınları:** beIN SPORTS ile Süper Lig ve Avrupa maçları, stadyum arka planlı bant
