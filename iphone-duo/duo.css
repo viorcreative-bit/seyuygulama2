@@ -523,13 +523,13 @@
   border-radius: var(--r-out) var(--r-hinge) var(--r-hinge) var(--r-out);
   padding-right: 0;
   /* ekran kenarının kenar yumuşatması açık renkli çerçeveyle değil koyu zeminle karışsın */
-  background: linear-gradient(to left, #2a2420 0 4px, transparent 4px), var(--duo-ti);
+  background: linear-gradient(#2a2420, #2a2420) right 0 top var(--bezel) / 4px calc(100% - 2 * var(--bezel)) no-repeat, var(--duo-ti);
 }
 
 .duo-device__half--right .duo-device__face--front {
   border-radius: var(--r-hinge) var(--r-out) var(--r-out) var(--r-hinge);
   padding-left: 0;
-  background: linear-gradient(to right, #2a2420 0 4px, transparent 4px), var(--duo-ti);
+  background: linear-gradient(#2a2420, #2a2420) left 0 top var(--bezel) / 4px calc(100% - 2 * var(--bezel)) no-repeat, var(--duo-ti);
 }
 
 .duo-device__screen {
