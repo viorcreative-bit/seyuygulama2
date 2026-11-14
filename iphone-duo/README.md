@@ -1,6 +1,6 @@
 # iPhone Duo — kaydırmalı yakınlaşma bölümü
 
-Ziyaretçi sayfayı aşağı kaydırdıkça fotoğraftaki telefonlara yaklaşan, her durakta bir ayrıntıyı anlatan ve sonunda telefonu açan bağımsız bir bölüm. Hiçbir kütüphaneye bağımlı değildir.
+Ziyaretçi sayfayı aşağı kaydırdıkça fotoğraftaki telefonlara yaklaşan, her durakta bir ayrıntıyı anlatan ve sonunda telefonu açan bağımsız bir bölüm. Açılan telefonun ekranı dokunulabilir: uygulamalar çalışır, kamera ziyaretçinin gerçek ön ve arka kamerasını kullanır. Hiçbir kütüphaneye bağımlı değildir.
 
 ## Akış
 
@@ -12,6 +12,30 @@ Ziyaretçi sayfayı aşağı kaydırdıkça fotoğraftaki telefonlara yaklaşan,
 6. **Dış ekran**: 5,4 inç, ProMotion, 3000 nit
 7. **Ön kamera**: 12 MP Center Stage, ekran altı FaceTime kamerası
 8. **Açılış**: telefon kaydırdıkça açılır; genişlik 84,1 mm'den 164,6 mm'ye, kalınlık 11,3 mm'den 5,2 mm'ye canlı değişir
+9. **Ekran**: telefon tamamen açılınca ana ekran belirir ve uygulamalar kullanılabilir
+
+## Ekrandaki uygulamalar
+
+| Uygulama | Ne yapar |
+| --- | --- |
+| Kamera | Cihazın kamerasını açar. Döndürme düğmesi ön ve arka kamera arasında geçer, deklanşör fotoğraf çeker |
+| Fotoğraflar | Çekilen fotoğrafları gösterir; tek tek açılabilir, indirilebilir, silinebilir |
+| Saat | Canlı saat ve İstanbul, Londra, New York, Tokyo saatleri |
+| Kronometre | Başlat, durdur, tur ve sıfırla. Uygulamadan çıkınca da saymaya devam eder |
+| Takvim | Bugünün işaretli olduğu ay görünümü, önceki ve sonraki aylar |
+| Notlar | Yazılanlar bu tarayıcıda saklanır |
+| Hesap Makinesi | Dört işlem, yüzde ve işaret değiştirme; klavyeyle de çalışır |
+| Ayarlar | Duvar kağıdı seçimi ve ön kamerada ayna görüntüsü |
+
+Ekranın alt kenarındaki çizgi, uygulamalardaki "Ana ekran" düğmesi ve Esc tuşu ana ekrana döner. Telefonlarda (ekran 480 pikselden darsa) uygulamalar tam ekran açılır.
+
+### Kamera hakkında
+
+- Kamera yalnızca **https://** ile açılan sayfalarda çalışır (tarayıcı kuralı). Bilgisayarınızda `index.html` dosyasını çift tıklayarak açtığınızda Chrome ve Edge izin ister; Safari izin vermeyebilir.
+- Bölümü sitenize bir `<iframe>` içinde koyarsanız iframe'e kamera izni verin: `<iframe src="…" allow="camera"></iframe>`.
+- Görüntü ve çekilen fotoğraflar hiçbir sunucuya gönderilmez; yalnızca sayfanın belleğinde durur ve sayfa kapanınca silinir.
+- Kamera; ziyaretçi uygulamadan çıkınca, telefonu kaydırarak katlayınca, bölümden uzaklaşınca ya da sekme değiştirince kapanır.
+- Bilgisayarlarda genellikle tek (ön) kamera vardır; arka kameraya geçmeye çalışınca "Bu cihazda arka kamera yok" uyarısı çıkar.
 
 ## Dosyalar
 

@@ -149,11 +149,12 @@
           <li>3000 nit tepe parlaklık</li>
           <li>İç ekranda 31 saate kadar video oynatma</li>
         </ul>
+        <p class="duo-unfold__hint">Ekrandaki uygulamalara dokunun. Kamera, cihazınızın ön ve arka kamerasını kullanır; çektiğiniz fotoğraflar cihazınızdan çıkmaz.</p>
       </div>
 
-      <div class="duo-unfold__scene" aria-hidden="true">
+      <div class="duo-unfold__scene">
         <div class="duo-device">
-          <div class="duo-device__half duo-device__half--left">
+          <div class="duo-device__half duo-device__half--left" aria-hidden="true">
             <div class="duo-device__face duo-device__face--front">
               <div class="duo-device__screen">
                 <div class="duo-device__lock"><span class="duo-device__date">21 Ekim Çarşamba</span><span class="duo-device__time">15:13</span></div>
@@ -164,7 +165,7 @@
               <div class="duo-device__shade"></div>
             </div>
           </div>
-          <div class="duo-device__half duo-device__half--right">
+          <div class="duo-device__half duo-device__half--right" aria-hidden="true">
             <div class="duo-device__face duo-device__face--front">
               <div class="duo-device__screen">
                 <div class="duo-device__lock"><span class="duo-device__date">21 Ekim Çarşamba</span><span class="duo-device__time">15:13</span></div>
@@ -172,11 +173,72 @@
               <div class="duo-device__shade"></div>
             </div>
           </div>
+
+          <!-- Telefon tamamen açılınca beliren, dokunulabilen iç ekran -->
+          <div class="duo-screen" data-duo-screen data-wall="kum" inert>
+            <div class="duo-screen__inner">
+              <div class="duo-screen__wall" aria-hidden="true"></div>
+              <div class="duo-screen__status" aria-hidden="true">
+                <span data-duo-now="time">15:13</span>
+                <span class="duo-screen__icons">
+                  <svg viewBox="0 0 20 14" width="1.15em" height="0.8em"><path d="M10 13.2 6.9 9.6a4.6 4.6 0 0 1 6.2 0L10 13.2Zm-5.3-6a8 8 0 0 1 10.6 0l1.6-1.8a10.4 10.4 0 0 0-13.8 0l1.6 1.8ZM1.6 3.6a12.9 12.9 0 0 1 16.8 0L20 1.8A15.3 15.3 0 0 0 0 1.8l1.6 1.8Z" fill="currentColor"/></svg>
+                  <svg viewBox="0 0 28 13" width="1.9em" height="0.9em"><rect x="0.6" y="0.6" width="23.8" height="11.8" rx="3.4" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="1.2"/><rect x="2.4" y="2.4" width="17" height="8.2" rx="2" fill="currentColor"/><path d="M26 4.4v4.2a2.2 2.2 0 0 0 0-4.2Z" fill="currentColor" fill-opacity="0.45"/></svg>
+                </span>
+              </div>
+
+              <div class="duo-home" data-duo-home>
+                <div class="duo-widget" aria-hidden="true">
+                  <span class="duo-widget__date" data-duo-now="date">21 Ekim Çarşamba</span>
+                  <span class="duo-widget__time" data-duo-now="time">15:13</span>
+                </div>
+                <ul class="duo-apps" aria-label="Uygulamalar">
+                  <li><button type="button" class="duo-app" data-app="kamera">
+                    <span class="duo-app__icon duo-icon--kamera" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M24 17h16l3 5h6a5 5 0 0 1 5 5v18a5 5 0 0 1-5 5H15a5 5 0 0 1-5-5V27a5 5 0 0 1 5-5h6l3-5Z" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/><circle cx="32" cy="35" r="8.5" fill="none" stroke="#fff" stroke-width="3.4"/></svg></span>
+                    <span class="duo-app__name">Kamera</span>
+                  </button></li>
+                  <li><button type="button" class="duo-app" data-app="fotograflar">
+                    <span class="duo-app__icon duo-icon--fotograflar" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="11" y="15" width="42" height="34" rx="6" fill="none" stroke="#fff" stroke-width="3.4"/><path d="m13 45 12-13 9 9 6-6 11 11" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/><circle cx="42" cy="25" r="4" fill="#fff"/></svg></span>
+                    <span class="duo-app__name">Fotoğraflar</span>
+                  </button></li>
+                  <li><button type="button" class="duo-app" data-app="saat">
+                    <span class="duo-app__icon duo-icon--saat" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="20" fill="none" stroke="#fff" stroke-width="3.4"/><path d="M32 20v12l8 5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span class="duo-app__name">Saat</span>
+                  </button></li>
+                  <li><button type="button" class="duo-app" data-app="kronometre">
+                    <span class="duo-app__icon duo-icon--kronometre" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="36" r="17" fill="none" stroke="#fff" stroke-width="3.4"/><path d="M27 13h10M32 13v6M32 36l6-7M45 21l3-3" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg></span>
+                    <span class="duo-app__name">Kronometre</span>
+                  </button></li>
+                  <li><button type="button" class="duo-app" data-app="takvim">
+                    <span class="duo-app__icon duo-icon--takvim" aria-hidden="true"><span class="duo-icon__day" data-duo-now="weekday">Çar</span><span class="duo-icon__date" data-duo-now="day">21</span></span>
+                    <span class="duo-app__name">Takvim</span>
+                  </button></li>
+                  <li><button type="button" class="duo-app" data-app="notlar">
+                    <span class="duo-app__icon duo-icon--notlar" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M16 22h22M16 31h16M16 40h10" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/><path d="m36 46 2-7 12-12 5 5-12 12-7 2Z" fill="none" stroke="#fff" stroke-width="3.2" stroke-linejoin="round"/></svg></span>
+                    <span class="duo-app__name">Notlar</span>
+                  </button></li>
+                  <li><button type="button" class="duo-app" data-app="hesap">
+                    <span class="duo-app__icon duo-icon--hesap" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M15 23h12M21 17v12M37 23h12M16 38l10 10M26 38 16 48M37 40h12M37 46h12" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg></span>
+                    <span class="duo-app__name">Hesap Makinesi</span>
+                  </button></li>
+                  <li><button type="button" class="duo-app" data-app="ayarlar">
+                    <span class="duo-app__icon duo-icon--ayarlar" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 20h36M14 32h36M14 44h36" fill="none" stroke="#fff" stroke-opacity="0.55" stroke-width="3.4" stroke-linecap="round"/><circle cx="24" cy="20" r="5" fill="#fff"/><circle cx="41" cy="32" r="5" fill="#fff"/><circle cx="29" cy="44" r="5" fill="#fff"/></svg></span>
+                    <span class="duo-app__name">Ayarlar</span>
+                  </button></li>
+                </ul>
+              </div>
+
+              <div class="duo-view" data-duo-view hidden></div>
+              <button type="button" class="duo-screen__homebar" data-duo-homebar aria-label="Ana ekrana dön"></button>
+            </div>
+          </div>
         </div>
-        <div class="duo-device__floor"></div>
+        <div class="duo-device__floor" aria-hidden="true"></div>
       </div>
     </div>
   </div>
+
+  <!-- Dar ekranlarda uygulamalar tam ekran açılır -->
+  <dialog class="duo-modal" data-duo-modal aria-label="iPhone Duo ekranı"></dialog>
 
 </section>
 

@@ -16,6 +16,8 @@
   --duo-font: "Sofia Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --duo-font-tall: "Sofia Sans Extra Condensed", "Sofia Sans", ui-sans-serif, system-ui, sans-serif;
 
+  --duo-wall-img: url("img/duo-ic-ekran.jpg");
+
   /* Sitenizde sabit (fixed) bir üst menü varsa yüksekliğini buraya yazın, ör. 64px */
   --duo-top-offset: 0px;
 
@@ -391,7 +393,7 @@
   padding: 72px 6vw;
 }
 
-.duo.is-enhanced .duo-unfold { height: 280vh; }
+.duo.is-enhanced .duo-unfold { height: 300vh; }
 
 .duo.is-enhanced .duo-unfold__sticky {
   position: sticky;
@@ -458,8 +460,19 @@
   font-weight: 500;
 }
 
-.duo.is-enhanced .duo-unfold__facts { opacity: 0; transform: translateY(10px); }
-.duo.is-enhanced .duo-unfold.is-open .duo-unfold__facts { opacity: 1; transform: none; }
+.duo-unfold__hint {
+  margin-top: 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  font-weight: 600;
+  max-width: 38ch;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.duo.is-enhanced .duo-unfold__facts,
+.duo.is-enhanced .duo-unfold__hint { opacity: 0; transform: translateY(10px); }
+.duo.is-enhanced .duo-unfold.is-open .duo-unfold__facts,
+.duo.is-enhanced .duo-unfold.is-open .duo-unfold__hint { opacity: 1; transform: none; }
 
 .duo-unfold__scene {
   position: relative;
@@ -536,7 +549,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #2a2420 url("img/duo-ic-ekran.jpg") no-repeat;
+  background: #2a2420 var(--duo-wall-img) no-repeat;
   background-size: 200% 100%;
 }
 
@@ -609,6 +622,746 @@
 }
 
 /* --------------------------------------------------------------------------
+   Dokunulabilen iç ekran ve uygulamalar
+   Ölçüler ekranın boyutuna göre "em" ile ölçeklenir (container query)
+   -------------------------------------------------------------------------- */
+
+.duo-screen {
+  --app-ink: #1f2531;
+  --app-soft: #6a7080;
+  --app-bg: #f4f4f1;
+  --app-card: #ffffff;
+  --app-line: rgba(31, 37, 49, 0.1);
+  --app-accent: #5b56a0;
+  position: absolute;
+  inset: var(--bezel);
+  border-radius: calc(var(--r-out) - var(--bezel));
+  overflow: hidden;
+  container: duo-screen / size;
+  transform: translateZ(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+  background: #2a2420;
+  color: #fff;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* JS yoksa telefon zaten açık durur; ekran da görünür */
+.duo:not(.is-enhanced) .duo-screen,
+.duo-unfold.is-live .duo-screen,
+.duo-screen.is-modal {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.45s ease;
+}
+
+.duo-screen.is-modal {
+  inset: 0;
+  border-radius: 0;
+  transform: none;
+}
+
+.duo-screen__inner {
+  position: absolute;
+  inset: 0;
+  font-size: clamp(10px, 3.2cqmin, 17px);
+  line-height: 1.3;
+}
+
+/* Sıfırlama düşük öncelikli: .duo-btn gibi sınıflar her zaman geçerli olsun */
+:where(.duo-screen) button {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.duo-screen button:focus-visible,
+.duo-screen a:focus-visible,
+.duo-screen textarea:focus-visible,
+.duo-screen input:focus-visible + .duo-switch__track,
+.duo-screen input:focus-visible + .duo-wallpick__swatch {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--app-accent);
+}
+
+/* Duvar kağıtları (Ayarlar > Duvar kağıdı) */
+.duo-screen__wall {
+  position: absolute;
+  inset: 0;
+  background: #2a2420 var(--duo-wall-img) center / cover no-repeat;
+}
+
+.duo-screen[data-wall="alacakaranlik"] .duo-screen__wall {
+  background: linear-gradient(165deg, #8e8bbb 0%, #b7a2b4 48%, #e2c3ad 100%);
+}
+
+.duo-screen[data-wall="gece"] .duo-screen__wall {
+  background:
+    radial-gradient(90% 70% at 80% 10%, rgba(120, 128, 170, 0.45), rgba(120, 128, 170, 0) 60%),
+    linear-gradient(170deg, #2b303c 0%, #161a23 100%);
+}
+
+.duo-screen__status {
+  position: absolute;
+  top: 0.75em;
+  left: 1.5em;
+  right: 1.5em;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82em;
+  font-weight: 700;
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+.duo-screen__icons { display: inline-flex; align-items: center; gap: 0.4em; }
+
+.duo-screen.is-app-light .duo-screen__status { color: var(--app-ink); }
+
+.duo-screen__homebar {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 4;
+  width: 11em;
+  height: 1.6em;
+  transform: translateX(-50%);
+}
+
+.duo-screen__homebar::before {
+  content: "";
+  position: absolute;
+  left: 1.5em;
+  right: 1.5em;
+  bottom: 0.55em;
+  height: 0.32em;
+  border-radius: 99px;
+  background: currentColor;
+  opacity: 0.75;
+}
+
+.duo-screen.is-app-light .duo-screen__homebar { color: var(--app-ink); }
+
+/* Ana ekran */
+.duo-home {
+  position: absolute;
+  inset: 2.6em 2em 2.4em;
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.75fr);
+  gap: 1.8em;
+  align-items: center;
+}
+
+.duo-home[hidden] { display: none; }
+
+.duo-widget {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.2em;
+  aspect-ratio: 1;
+  max-height: 100%;
+  padding: 1.1em 1.2em;
+  border-radius: 1.4em;
+  background: rgba(24, 20, 26, 0.26);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  text-shadow: 0 1px 10px rgba(20, 16, 24, 0.25);
+}
+
+.duo-widget__date { font-size: 0.95em; font-weight: 700; opacity: 0.92; }
+
+.duo-widget__time {
+  font-family: var(--duo-font-tall);
+  font-weight: 600;
+  font-size: 5em;
+  line-height: 0.88;
+}
+
+.duo-apps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.4em 0.6em;
+}
+
+.duo-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45em;
+  width: 100%;
+  border-radius: 1em;
+}
+
+.duo-app__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 4.3em;
+  height: 4.3em;
+  border-radius: 23%;
+  box-shadow: 0 0.25em 0.8em rgba(16, 12, 20, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.duo-app__icon svg { width: 72%; height: 72%; }
+
+.duo-app:hover .duo-app__icon { filter: brightness(1.08); }
+.duo-app:active .duo-app__icon { transform: scale(0.92); filter: brightness(0.85); }
+
+.duo-app__name {
+  max-width: 100%;
+  font-size: 0.8em;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 6px rgba(20, 16, 24, 0.45);
+}
+
+.duo-icon--kamera      { background: linear-gradient(160deg, #4a5160, #1f2531); }
+.duo-icon--fotograflar { background: linear-gradient(160deg, #9d98cf, #e3b9a4); }
+.duo-icon--saat        { background: linear-gradient(160deg, #2e3442, #12151c); }
+.duo-icon--kronometre  { background: linear-gradient(160deg, #f0a057, #d1612b); }
+.duo-icon--notlar      { background: linear-gradient(160deg, #5db3a6, #2c7a6f); }
+.duo-icon--hesap       { background: linear-gradient(160deg, #7d78b4, #474279); }
+.duo-icon--ayarlar     { background: linear-gradient(160deg, #9aa0aa, #5b616c); }
+
+.duo-icon--takvim {
+  background: #fff;
+  color: var(--app-ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.05em;
+}
+
+.duo-icon__day { font-size: 0.78em; font-weight: 700; color: #6c679a; line-height: 1; }
+.duo-icon__date { font-family: var(--duo-font-tall); font-size: 2.35em; font-weight: 600; line-height: 0.95; }
+
+/* Dar ekran (telefonda cihaz içi): saat kutusu gizlenir, simgeler büyür */
+@container duo-screen (max-width: 440px) {
+  .duo-home { grid-template-columns: minmax(0, 1fr); inset: 2.4em 1em 2em; }
+  .duo-widget { display: none; }
+  .duo-apps { font-size: 1.12em; gap: 1.1em 0.3em; }
+}
+
+/* Dikey ekran (telefonda tam ekran) */
+@container duo-screen (orientation: portrait) {
+  .duo-home {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    inset: 3.2em 1.4em 3em;
+  }
+  .duo-widget { display: flex; aspect-ratio: auto; gap: 1em; }
+  .duo-apps { font-size: 1em; }
+}
+
+/* Uygulama görünümü */
+.duo-view {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg);
+  color: var(--app-ink);
+  animation: duo-app-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.duo-view[hidden] { display: none; }
+
+@keyframes duo-app-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+.duo-view__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 2.4em 1.6em 0.2em;
+  min-height: 4.2em;
+}
+
+.duo-view__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  padding: 0.3em 0.4em 0.3em 0;
+  color: var(--app-accent);
+  font-weight: 600;
+  border-radius: 0.5em;
+}
+
+.duo-view__back svg { width: 0.7em; height: 1.1em; }
+
+.duo-view__title {
+  margin: 0;
+  padding: 0 1.15em;
+  font-size: 1.75em;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+.duo-view__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.9em 1.6em 2.4em;
+  overscroll-behavior: contain;
+}
+
+.duo-view__note {
+  margin-top: 0.8em;
+  font-size: 0.82em;
+  color: var(--app-soft);
+}
+
+.duo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6em;
+  padding: 0 1.2em;
+  border-radius: 99px;
+  font-weight: 700;
+  background: var(--app-accent);
+  color: #fff;
+}
+
+.duo-screen .duo-btn { color: #fff; background: var(--app-accent); }
+.duo-screen a.duo-btn { text-decoration: none; }
+.duo-screen .duo-btn:disabled { opacity: 0.45; cursor: default; }
+.duo-screen .duo-btn--quiet { color: var(--app-ink); background: rgba(31, 37, 49, 0.08); }
+.duo-screen .duo-btn--danger { color: #b3261e; background: rgba(179, 38, 30, 0.1); }
+
+.duo-empty {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.9em;
+  height: 100%;
+  text-align: center;
+  color: var(--app-soft);
+}
+
+/* Kamera */
+.duo-view--kamera { background: #000; color: #fff; }
+
+.duo-cam {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.duo-cam__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.duo-cam__video.is-mirrored { transform: scaleX(-1); }
+
+.duo-cam__msg {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1em;
+  padding: 2em 9em 2em 2em;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.duo-cam__msg[hidden] { display: none; }
+
+.duo-cam__flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.duo-cam__flash.is-on { animation: duo-flash 0.42s ease-out; }
+
+@keyframes duo-flash {
+  0%   { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+.duo-cam__top {
+  position: absolute;
+  top: 2.2em;
+  left: 1.2em;
+  right: 9em;
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+}
+
+.duo-cam__close {
+  display: grid;
+  place-items: center;
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.duo-cam__close svg { width: 1em; height: 1em; }
+
+.duo-cam__label {
+  padding: 0.35em 0.8em;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.45);
+  font-size: 0.85em;
+  font-weight: 700;
+}
+
+.duo-cam__label:empty { display: none; }
+
+.duo-cam__toast {
+  position: absolute;
+  left: 50%;
+  bottom: 1.6em;
+  transform: translateX(calc(-50% - 4em));
+  max-width: 70%;
+  padding: 0.55em 1em;
+  border-radius: 99px;
+  background: rgba(20, 20, 24, 0.82);
+  font-size: 0.85em;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.duo-cam__toast.is-on { opacity: 1; }
+
+.duo-cam__controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 8em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.duo-cam__shutter {
+  position: relative;
+  width: 4.6em;
+  height: 4.6em;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0.3em #fff;
+}
+
+.duo-cam__shutter::after {
+  content: "";
+  position: absolute;
+  inset: 0.55em;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.12s ease;
+}
+
+.duo-cam__shutter:active::after { transform: scale(0.88); }
+.duo-cam__shutter:disabled { opacity: 0.4; cursor: default; }
+
+.duo-cam__flip,
+.duo-cam__thumb {
+  display: grid;
+  place-items: center;
+  width: 3em;
+  height: 3em;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+.duo-cam__flip svg { width: 1.5em; height: 1.5em; }
+.duo-cam__flip:disabled { opacity: 0.4; cursor: default; }
+
+.duo-cam__thumb { border-radius: 0.6em; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5); }
+.duo-cam__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.duo-cam__thumb:empty { visibility: hidden; }
+
+@container duo-screen (orientation: portrait) {
+  .duo-cam__controls {
+    top: auto;
+    left: 0;
+    width: auto;
+    height: 9em;
+    flex-direction: row;
+    padding-bottom: 1.2em;
+  }
+  .duo-cam__top { right: 1.2em; top: 3em; }
+  .duo-cam__msg { padding: 2em 2em 10em; }
+  .duo-cam__toast { bottom: 10.5em; transform: translateX(-50%); }
+}
+
+/* Fotoğraflar */
+.duo-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.5em, 1fr));
+  gap: 0.25em;
+}
+
+.duo-photos button {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 0.3em;
+  background: #ddd;
+}
+
+.duo-photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.duo-viewer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0d0f13;
+  color: #fff;
+}
+
+.duo-viewer .duo-view__bar { color: #fff; }
+.duo-viewer .duo-view__back { color: #c9c5f2; }
+.duo-viewer__img { flex: 1; min-height: 0; width: 100%; object-fit: contain; }
+.duo-viewer__tools { display: flex; justify-content: center; gap: 0.8em; padding: 0.8em 1em 2.2em; }
+.duo-viewer .duo-btn--quiet { color: #fff; background: rgba(255, 255, 255, 0.14); }
+.duo-viewer .duo-btn--danger { color: #ffb4ab; background: rgba(255, 120, 110, 0.16); }
+
+/* Saat */
+.duo-clock__now {
+  font-family: var(--duo-font-tall);
+  font-size: 6em;
+  font-weight: 600;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+.duo-clock__date { margin-top: 0.3em; color: var(--app-soft); font-weight: 600; }
+
+.duo-list {
+  margin: 1.2em 0 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 0.9em;
+  background: var(--app-card);
+  box-shadow: 0 0 0 1px var(--app-line);
+}
+
+.duo-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.75em 1em;
+  border-top: 1px solid var(--app-line);
+}
+
+.duo-list li:first-child { border-top: 0; }
+.duo-list small { display: block; color: var(--app-soft); font-size: 0.8em; }
+.duo-list strong { font-family: var(--duo-font-tall); font-size: 1.9em; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* Kronometre */
+.duo-watch { display: flex; flex-direction: column; align-items: center; gap: 1em; }
+
+.duo-watch__time {
+  font-family: var(--duo-font-tall);
+  font-size: 6.4em;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.duo-watch__buttons { display: flex; gap: 1em; }
+.duo-watch__buttons .duo-btn { min-width: 7em; }
+.duo-watch .duo-list { align-self: stretch; margin-top: 0.2em; }
+.duo-watch .duo-list:empty { display: none; }
+.duo-watch .duo-list strong { font-size: 1.5em; }
+
+/* Takvim */
+.duo-cal__head { display: flex; align-items: center; justify-content: space-between; gap: 1em; margin-bottom: 0.6em; }
+.duo-cal__month { font-size: 1.15em; font-weight: 800; }
+.duo-cal__nav { display: flex; gap: 0.4em; }
+.duo-cal__nav button { width: 2.2em; height: 2.2em; border-radius: 50%; color: var(--app-accent); background: rgba(91, 86, 160, 0.1); font-weight: 800; }
+.duo-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.2em; text-align: center; }
+.duo-cal__wd { font-size: 0.75em; font-weight: 700; color: var(--app-soft); padding-bottom: 0.3em; }
+.duo-cal__day { display: grid; place-items: center; height: 2.1em; border-radius: 50%; font-weight: 600; }
+.duo-cal__day.is-today { background: var(--app-accent); color: #fff; }
+.duo-cal__day.is-weekend { color: var(--app-soft); }
+.duo-cal__day.is-today.is-weekend { color: #fff; }
+
+/* Notlar */
+.duo-notes {
+  display: block;
+  width: 100%;
+  height: calc(100% - 2em);
+  min-height: 6em;
+  resize: none;
+  border: 0;
+  border-radius: 0.9em;
+  padding: 0.9em 1em;
+  background: var(--app-card);
+  box-shadow: 0 0 0 1px var(--app-line);
+  color: var(--app-ink);
+  font: inherit;
+  font-size: 1.05em;
+  line-height: 1.5;
+}
+
+.duo-notes:focus { outline: none; box-shadow: 0 0 0 2px var(--app-accent); }
+
+/* Hesap Makinesi */
+.duo-view--hesap { background: #15171d; color: #fff; }
+.duo-view--hesap .duo-view__back { color: #c9c5f2; }
+
+.duo-calc {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 1.2em;
+  padding: 0.4em 1.6em 2.2em;
+}
+
+.duo-calc__display {
+  align-self: end;
+  text-align: right;
+  font-family: var(--duo-font-tall);
+  font-weight: 600;
+  font-size: 4.6em;
+  line-height: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.duo-calc__display.is-long { font-size: 3.2em; }
+
+.duo-calc__keys {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 0.45em;
+}
+
+.duo-calc__keys button {
+  border-radius: 99px;
+  background: #2e313a;
+  font-size: 1.2em;
+  font-weight: 700;
+}
+
+.duo-calc__keys button:active { filter: brightness(1.35); }
+.duo-calc__keys .is-fn { background: #9b9fa9; color: #15171d; }
+.duo-calc__keys .is-op { background: #6c679a; font-size: 1.55em; font-weight: 600; }
+.duo-calc__keys .is-op.is-active { background: #fff; color: #6c679a; }
+.duo-calc__keys .is-wide { grid-column: span 2; }
+
+@container duo-screen (orientation: portrait) {
+  .duo-calc { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 0.7fr) minmax(0, 2fr); }
+  .duo-calc__display { font-size: 5.4em; }
+  .duo-calc__keys button { font-size: 1.5em; }
+}
+
+/* Ayarlar */
+.duo-set__group { margin-top: 1.2em; }
+.duo-set__group:first-child { margin-top: 0; }
+.duo-set__label { font-size: 0.8em; font-weight: 700; color: var(--app-soft); padding: 0 0.2em 0.45em; }
+.duo-set__card { border-radius: 0.9em; background: var(--app-card); box-shadow: 0 0 0 1px var(--app-line); padding: 0.9em 1em; }
+
+.duo-wallpick { display: flex; gap: 1em; flex-wrap: wrap; }
+.duo-wallpick label { display: flex; flex-direction: column; align-items: center; gap: 0.4em; font-size: 0.85em; font-weight: 600; cursor: pointer; }
+.duo-wallpick input { position: absolute; opacity: 0; pointer-events: none; }
+
+.duo-wallpick__swatch {
+  width: 4.4em;
+  height: 3.1em;
+  border-radius: 0.6em;
+  box-shadow: 0 0 0 1px var(--app-line);
+  background-size: cover;
+  background-position: center;
+}
+
+.duo-wallpick input:checked + .duo-wallpick__swatch { box-shadow: 0 0 0 2px var(--app-card), 0 0 0 4px var(--app-accent); }
+.duo-wallpick__swatch--kum { background-image: var(--duo-wall-img); }
+.duo-wallpick__swatch--alacakaranlik { background-image: linear-gradient(165deg, #8e8bbb, #b7a2b4 48%, #e2c3ad); }
+.duo-wallpick__swatch--gece { background-image: linear-gradient(170deg, #2b303c, #161a23); }
+
+.duo-switch { display: flex; align-items: center; justify-content: space-between; gap: 1em; font-weight: 600; cursor: pointer; }
+.duo-switch input { position: absolute; opacity: 0; pointer-events: none; }
+
+.duo-switch__track {
+  position: relative;
+  flex: none;
+  width: 2.9em;
+  height: 1.75em;
+  border-radius: 99px;
+  background: #c9ccd3;
+  transition: background-color 0.2s ease;
+}
+
+.duo-switch__track::after {
+  content: "";
+  position: absolute;
+  top: 0.15em;
+  left: 0.15em;
+  width: 1.45em;
+  height: 1.45em;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.duo-switch input:checked + .duo-switch__track { background: #3fa66b; }
+.duo-switch input:checked + .duo-switch__track::after { transform: translateX(1.15em); }
+
+/* Tam ekran (dar ekranlarda uygulama açılınca) */
+.duo-modal {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: #fff;
+  overflow: hidden;
+}
+
+.duo-modal::backdrop { background: rgba(0, 0, 0, 0.6); }
+
+.duo-screen.is-modal { top: env(safe-area-inset-top, 0px); }
+
+/* --------------------------------------------------------------------------
    Tablet ve telefon
    -------------------------------------------------------------------------- */
 
@@ -664,6 +1417,7 @@
   .duo-unfold__readout { margin-top: 1.1rem; }
   .duo-unfold__readout dd { font-size: clamp(2.5rem, 12vw, 3.25rem); }
   .duo-unfold__facts { display: none; }
+  .duo-unfold__hint { margin-top: 0.8rem; font-size: 0.875rem; }
   .duo-unfold__scene { min-height: 46vw; }
 
   .duo-device { --w: min(88vw, 520px); }
@@ -685,5 +1439,8 @@
   .duo.is-stacked .duo-step,
   .duo.is-stacked .duo-step--hero,
   .duo.is-stacked .duo-step--finale { transform: none; }
-  .duo-unfold__facts { transition: none; }
+  .duo-unfold__facts,
+  .duo-unfold__hint { transition: none; }
+  .duo-view,
+  .duo-cam__flash.is-on { animation: none; }
 }
