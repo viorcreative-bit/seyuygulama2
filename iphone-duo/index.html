@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>iPhone Duo yakından</title>
+  <meta name="description" content="iPhone Duo'yu kaydırarak yakından inceleyin: kamera, Touch ID, menteşe, ekranlar ve tüm teknik özellikler.">
+
+  <!-- 1) Yazı tipleri: sitenizin <head> bölümüne ekleyin -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700&family=Sofia+Sans+Extra+Condensed:wght@600;700&display=swap">
+
+  <!-- 2) Bölümün stilleri -->
+  <link rel="stylesheet" href="duo.css">
+
+  <style>
+    /* Yalnızca bu demo sayfası için. Kendi sitenize taşımanız gerekmez. */
+    html, body { margin: 0; background: #eceeea; }
+  </style>
+</head>
+<body>
+
+<!-- 3) Bölüm: <section class="duo"> ... </section> arasını sayfanıza yapıştırın -->
+<section class="duo" id="iphone-duo" aria-label="iPhone Duo tanıtımı">
+
+  <!-- Yakınlaşma turu. data-focus: görseldeki odak alanı (merkez x, merkez y, genişlik, yükseklik; 2000×1333 piksellik görsele göre) -->
+  <div class="duo-tour">
+    <div class="duo-tour__sticky">
+      <img class="duo-tour__backdrop" src="img/iphone-duo.jpg" alt="" aria-hidden="true" decoding="async">
+      <img class="duo-tour__photo" src="img/iphone-duo.jpg" width="2000" height="1333"
+           alt="Masa üzerinde yan yana duran iki katlanmış iPhone Duo: solda arkası dönük Gece Gökyüzü rengi, sağda dış ekranı açık Yıldız Beyazı rengi."
+           decoding="async" fetchpriority="high">
+      <canvas class="duo-tour__canvas" aria-hidden="true"></canvas>
+
+      <div class="duo-tour__wash duo-tour__wash--top" aria-hidden="true"></div>
+      <div class="duo-tour__wash duo-tour__wash--left" aria-hidden="true"></div>
+      <div class="duo-tour__wash duo-tour__wash--right" aria-hidden="true"></div>
+      <div class="duo-tour__wash duo-tour__wash--bottom" aria-hidden="true"></div>
+      <div class="duo-tour__spot" aria-hidden="true"></div>
+      <div class="duo-tour__progress" aria-hidden="true"><span></span></div>
+      <p class="duo-tour__cue" aria-hidden="true">Kaydırın</p>
+
+      <div class="duo-tour__steps">
+
+        <header class="duo-step duo-step--hero" data-label="Genel"
+                data-side="none" data-focus="1000,500,1700,1000" data-focus-m="1000,640,1060,640">
+          <h2 class="duo-hero__title">iPhone Duo</h2>
+          <p class="duo-hero__lede">Apple'ın ilk katlanabilir iPhone'u. Aşağı kaydırın, her ayrıntısına yakından bakalım.</p>
+        </header>
+
+        <article class="duo-step" data-label="Kamera"
+                 data-side="left" data-focus="675,425,400,210" data-focus-m="675,428,340,190"
+                 data-spot="533,368,816,481" data-spot-shape="pill">
+          <p class="duo-step__figure">48 MP</p>
+          <h3 class="duo-step__title">İki kamera, ikisi de 48 MP.</h3>
+          <p class="duo-step__text">Dual Fusion kamera sistemi, 48 MP Fusion Ana kamera ile 48 MP Fusion Ultra Geniş kamerayı aynı platoda topluyor. Ultra Geniş kamera makro çekimleri de üstleniyor.</p>
+          <ul class="duo-step__facts">
+            <li>Dolby Vision ile 120 fps'ye kadar 4K video</li>
+            <li>Ultra Geniş kamerayla makro fotoğraf</li>
+          </ul>
+        </article>
+
+        <article class="duo-step" data-label="Touch ID"
+                 data-side="left" data-focus="575,566,300,360" data-focus-m="575,566,250,300"
+                 data-spot="504,514,526,618" data-spot-shape="pill">
+          <p class="duo-step__figure">Touch ID</p>
+          <h3 class="duo-step__title">Kilidi yan tuş açıyor.</h3>
+          <p class="duo-step__text">iPhone Duo'da kimlik doğrulama, yan tuşa yerleştirilmiş Touch ID ile yapılıyor. Parmağınızı tuşa koymanız; kilidi açmak, uygulamalara giriş yapmak ve Apple Pay ile ödemek için yeterli.</p>
+        </article>
+
+        <article class="duo-step" data-label="Gövde"
+                 data-side="left" data-focus="730,642,600,660" data-focus-m="730,642,470,600">
+          <p class="duo-step__figure">254 g</p>
+          <h3 class="duo-step__title">Önde ve arkada Ceramic Shield.</h3>
+          <p class="duo-step__text">Ön ve arka yüzey Ceramic Shield ile kaplı. IP68 sertifikası sıçramaya, suya ve toza karşı koruma sağlıyor.</p>
+          <ul class="duo-step__facts">
+            <li>Kapalıyken 84,1 × 117,8 × 11,3 mm</li>
+            <li>Gece Gökyüzü ve Yıldız Beyazı renkleri</li>
+          </ul>
+        </article>
+
+        <article class="duo-step" data-label="Menteşe"
+                 data-side="left" data-focus="905,642,300,660" data-focus-m="930,642,240,600"
+                 data-spot="910,358,951,930" data-spot-shape="pill">
+          <p class="duo-step__figure">100+</p>
+          <h3 class="duo-step__title">Yüzü aşkın parçadan bir menteşe.</h3>
+          <p class="duo-step__text">Menteşe, açılıp kapanma hareketini hassasça kontrol ediyor ve katlanan ekranın orta bölümünü destekliyor. Çerçeve ve menteşe kapağı Grade 5 titanyumdan.</p>
+          <ul class="duo-step__facts">
+            <li>Katlanan panelin altında titanyum plaka</li>
+            <li>Açıkken yalnızca 5,2 mm kalınlık</li>
+          </ul>
+        </article>
+
+        <article class="duo-step" data-label="Dış ekran"
+                 data-side="right" data-focus="1273,637,500,640" data-focus-m="1273,637,440,600">
+          <p class="duo-step__figure">5,4″</p>
+          <h3 class="duo-step__title">Kapalıyken de tam bir iPhone.</h3>
+          <p class="duo-step__text">5,4 inç Super Retina XDR dış ekran, telefonu açmadan her şeyi yapabilmeniz için tasarlandı.</p>
+          <ul class="duo-step__facts">
+            <li>ProMotion ile 120 Hz'e kadar yenileme hızı</li>
+            <li>3000 nit tepe parlaklık</li>
+            <li>Dış ekranda 44 saate kadar video oynatma</li>
+          </ul>
+        </article>
+
+        <article class="duo-step" data-label="Ön kamera"
+                 data-side="right" data-focus="1400,425,300,250" data-focus-m="1405,420,220,190"
+                 data-spot="1402,378,1446,422" data-spot-shape="circle">
+          <p class="duo-step__figure">12 MP</p>
+          <h3 class="duo-step__title">Center Stage ön kamera.</h3>
+          <p class="duo-step__text">Dış ekrandaki 12 MP Center Stage kamera kadrajı size göre ayarlıyor. Telefonu açtığınızda iç ekranın altına gizlenmiş ikinci bir FaceTime kamerası devreye giriyor.</p>
+          <ul class="duo-step__facts">
+            <li>İç ekranın altında 1080p FaceTime kamerası</li>
+            <li>Dual Capture: FaceTime'da ön ve arka kamera aynı anda</li>
+          </ul>
+        </article>
+
+        <header class="duo-step duo-step--finale" data-label="Açılış"
+                data-side="none" data-focus="1000,500,1700,1000" data-focus-m="1000,640,1060,640">
+          <p class="duo-hero__title duo-hero__title--small">Şimdi açalım.</p>
+          <p class="duo-hero__lede">Kapalıyken 84,1 mm genişliğinde. Açıldığında 164,6 mm.</p>
+        </header>
+
+      </div>
+
+      <nav class="duo-tour__rail" aria-label="iPhone Duo ayrıntıları"></nav>
+    </div>
+  </div>
+
+  <!-- Açılma sahnesi: kaydırdıkça telefon açılıyor -->
+  <div class="duo-unfold">
+    <div class="duo-unfold__sticky">
+      <div class="duo-unfold__copy">
+        <h3 class="duo-unfold__title">Açın.<br>Karşınızda 7,6 inç.</h3>
+        <p class="duo-unfold__text">Katlanabilir Super Retina XDR iç ekran, iPhone 18 Pro Max'in ekranından yüzde 50 daha büyük. Nano-texture kaplama yansımaları azaltıyor.</p>
+        <dl class="duo-unfold__readout">
+          <div>
+            <dt>Genişlik</dt>
+            <dd><span data-duo-width>164,6</span> mm</dd>
+          </div>
+          <div>
+            <dt>Kalınlık</dt>
+            <dd><span data-duo-depth>5,2</span> mm</dd>
+          </div>
+        </dl>
+        <ul class="duo-unfold__facts">
+          <li>ProMotion ile 120 Hz'e kadar</li>
+          <li>3000 nit tepe parlaklık</li>
+          <li>İç ekranda 31 saate kadar video oynatma</li>
+        </ul>
+      </div>
+
+      <div class="duo-unfold__scene" aria-hidden="true">
+        <div class="duo-device">
+          <div class="duo-device__half duo-device__half--left">
+            <div class="duo-device__face duo-device__face--front">
+              <div class="duo-device__screen">
+                <div class="duo-device__lock"><span class="duo-device__date">21 Ekim Çarşamba</span><span class="duo-device__time">15:13</span></div>
+              </div>
+              <div class="duo-device__shade"></div>
+            </div>
+            <div class="duo-device__face duo-device__face--back">
+              <div class="duo-device__shade"></div>
+            </div>
+          </div>
+          <div class="duo-device__half duo-device__half--right">
+            <div class="duo-device__face duo-device__face--front">
+              <div class="duo-device__screen">
+                <div class="duo-device__lock"><span class="duo-device__date">21 Ekim Çarşamba</span><span class="duo-device__time">15:13</span></div>
+              </div>
+              <div class="duo-device__shade"></div>
+            </div>
+          </div>
+        </div>
+        <div class="duo-device__floor"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teknik özellikler -->
+  <div class="duo-specs">
+    <h3 class="duo-specs__title">Teknik özellikler</h3>
+    <dl class="duo-specs__list">
+      <div class="duo-specs__row">
+        <dt>Ekranlar</dt>
+        <dd>
+          <p class="duo-specs__lead">7,6 inç iç ekran, 5,4 inç dış ekran</p>
+          <ul>
+            <li>İç: katlanabilir Super Retina XDR ekran, nano-texture kaplama</li>
+            <li>Dış: Super Retina XDR ekran</li>
+            <li>İki ekranda da ProMotion ile 120 Hz'e kadar ve 3000 nit tepe parlaklık</li>
+          </ul>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Çip</dt>
+        <dd>
+          <p class="duo-specs__lead">A20 Pro</p>
+          <ul>
+            <li>6 çekirdekli CPU: 2 süper çekirdek, 4 verimlilik çekirdeği</li>
+            <li>Nöral Hızlandırıcılı 7 çekirdekli GPU</li>
+            <li>Çift 16 çekirdekli Neural Engine</li>
+            <li>Özel tasarım buhar odasıyla ısı yönetimi</li>
+          </ul>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Kamera</dt>
+        <dd>
+          <p class="duo-specs__lead">48 MP Dual Fusion kamera sistemi</p>
+          <ul>
+            <li>48 MP Fusion Ana kamera</li>
+            <li>48 MP Fusion Ultra Geniş kamera, makro fotoğraf</li>
+            <li>Dolby Vision ile 120 fps'ye kadar 4K video</li>
+            <li>Dış ekranda 12 MP Center Stage ön kamera</li>
+            <li>İç ekranın altında FaceTime kamerası, Dual Capture</li>
+          </ul>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Güvenlik</dt>
+        <dd>
+          <p class="duo-specs__lead">Yan tuşta Touch ID</p>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Pil ve şarj</dt>
+        <dd>
+          <p class="duo-specs__lead">Çift pil mimarisi</p>
+          <ul>
+            <li>Dış ekranda 44 saate, iç ekranda 31 saate kadar video oynatma</li>
+            <li>MagSafe ve Qi2 ile 25 W'a kadar kablosuz şarj</li>
+            <li>60 W ve üzeri adaptörle yaklaşık 20 dakikada %50 şarj</li>
+          </ul>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Bağlantı</dt>
+        <dd>
+          <p class="duo-specs__lead">Apple C2 modem ve Apple N1 kablosuz çip</p>
+          <ul>
+            <li>Wi‑Fi 7 (802.11be), 2×2 MIMO</li>
+            <li>Bluetooth 6</li>
+            <li>USB‑C: USB 3 ile 10 Gb/sn'ye kadar, DisplayPort</li>
+            <li>eSIM</li>
+          </ul>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Dayanıklılık</dt>
+        <dd>
+          <p class="duo-specs__lead">Grade 5 titanyum çerçeve ve menteşe kapağı</p>
+          <ul>
+            <li>Önde ve arkada Ceramic Shield</li>
+            <li>IP68 sıçramaya, suya ve toza dayanıklılık</li>
+          </ul>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Boyut ve ağırlık</dt>
+        <dd>
+          <p class="duo-specs__lead">254 gram</p>
+          <ul>
+            <li>Açık: 164,6 × 117,8 × 5,2 mm</li>
+            <li>Kapalı: 84,1 × 117,8 × 11,3 mm</li>
+          </ul>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Kapasite</dt>
+        <dd>
+          <p class="duo-specs__lead">256 GB'tan 2 TB'a kadar</p>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Renkler</dt>
+        <dd>
+          <ul class="duo-specs__colors">
+            <li><span class="duo-swatch duo-swatch--night" aria-hidden="true"></span>Gece Gökyüzü</li>
+            <li><span class="duo-swatch duo-swatch--star" aria-hidden="true"></span>Yıldız Beyazı</li>
+          </ul>
+        </dd>
+      </div>
+      <div class="duo-specs__row">
+        <dt>Fiyat</dt>
+        <dd>
+          <p class="duo-specs__lead">ABD'de 1.999 $'dan başlayan fiyatlarla</p>
+        </dd>
+      </div>
+    </dl>
+    <p class="duo-specs__note">Özellikler Apple'ın iPhone Duo ürün ve teknik özellikler sayfalarından derlenmiştir (Kasım 2026). Pil süreleri Apple'ın test koşullarına göredir; fiyat ve özellikler ülkeye göre değişebilir.</p>
+  </div>
+
+</section>
+
+<!-- 4) Bölümün betiği: </body> öncesine ekleyin -->
+<script src="duo.js" defer></script>
+</body>
+</html>

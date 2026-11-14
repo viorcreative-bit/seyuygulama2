@@ -1,0 +1,774 @@
+/* ==========================================================================
+   iPhone Duo — kaydırmalı yakınlaşma bölümü
+   Tüm sınıflar "duo-" ile başlar; sitenizdeki stillerle çakışmaz.
+   ========================================================================== */
+
+.duo {
+  /* Renkler fotoğrafın kendisinden alındı: duvar, Gece Gökyüzü gövde, titanyum çerçeve, duvar kağıdındaki alacakaranlık */
+  --duo-wall: #eceeea;
+  --duo-wall-rgb: 236, 238, 234;
+  --duo-ink: #1f2531;
+  --duo-ink-soft: #4f5664;
+  --duo-line: rgba(31, 37, 49, 0.14);
+  --duo-dusk: #6c679a;
+  --duo-titanium: #d6cfbf;
+  --duo-night: #2b303c;
+
+  --duo-font: "Sofia Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --duo-font-tall: "Sofia Sans Extra Condensed", "Sofia Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Sitenizde sabit (fixed) bir üst menü varsa yüksekliğini buraya yazın, ör. 64px */
+  --duo-top-offset: 0px;
+
+  position: relative;
+  color: var(--duo-ink);
+  background: var(--duo-wall);
+  font-family: var(--duo-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.duo *,
+.duo *::before,
+.duo *::after { box-sizing: border-box; }
+
+:where(.duo) :where(h2, h3, p, ul, dl, dd) { margin: 0; }
+:where(.duo) :where(ul) { padding: 0; list-style: none; }
+
+/* --------------------------------------------------------------------------
+   Yakınlaşma turu — JS yoksa düz, okunabilir bir düzen
+   -------------------------------------------------------------------------- */
+
+.duo-tour__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.duo-tour__backdrop,
+.duo-tour__canvas,
+.duo-tour__wash,
+.duo-tour__spot,
+.duo-tour__progress,
+.duo-tour__rail,
+.duo-tour__cue { display: none; }
+
+.duo-tour__steps {
+  display: grid;
+  gap: 56px;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 56px 24px 72px;
+}
+
+/* --------------------------------------------------------------------------
+   Tipografi
+   -------------------------------------------------------------------------- */
+
+.duo-hero__title {
+  font-family: var(--duo-font-tall);
+  font-weight: 700;
+  font-size: clamp(4.5rem, 9.5vw, 9rem);
+  line-height: 0.84;
+  letter-spacing: -0.005em;
+  color: var(--duo-ink);
+}
+
+.duo-hero__title--small { font-size: clamp(3.5rem, 8vw, 7.5rem); }
+
+.duo-hero__lede {
+  margin-top: 0.9rem;
+  font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--duo-ink-soft);
+  max-width: 44ch;
+}
+
+.duo-step__figure {
+  font-family: var(--duo-font-tall);
+  font-weight: 600;
+  font-size: clamp(4rem, 8vw, 7.75rem);
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+  margin-bottom: 0.35em;
+  color: var(--duo-ink);
+  white-space: nowrap;
+}
+
+.duo-step__title {
+  font-size: clamp(1.5rem, 2.2vw, 2.125rem);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  margin-bottom: 0.7rem;
+}
+
+.duo-step__text {
+  font-size: 1.0625rem;
+  line-height: 1.52;
+  color: var(--duo-ink-soft);
+  max-width: 38ch;
+}
+
+.duo-step__facts {
+  margin-top: 1.1rem;
+  border-top: 1px solid var(--duo-line);
+  max-width: 38ch;
+}
+
+.duo-step__facts li {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--duo-line);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Yakınlaşma turu — JS etkin
+   -------------------------------------------------------------------------- */
+
+.duo.is-enhanced .duo-tour {
+  position: relative;
+  /* Her ayrıntı için ~95 ekran yüksekliği kaydırma */
+  height: calc((var(--duo-count, 8) - 1) * 95vh + 100vh);
+}
+
+.duo.is-enhanced .duo-tour__sticky {
+  position: sticky;
+  top: var(--duo-top-offset);
+  height: calc(100vh - var(--duo-top-offset));
+  height: calc(100svh - var(--duo-top-offset));
+  overflow: hidden;
+  background: var(--duo-wall);
+}
+
+.duo.is-enhanced .duo-tour__photo { display: none; }
+
+.duo.is-enhanced .duo-tour__backdrop {
+  display: block;
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  object-fit: cover;
+  filter: blur(44px) saturate(1.05);
+  transform: scale(1.05);
+  pointer-events: none;
+}
+
+.duo.is-enhanced .duo-tour__canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.duo.is-enhanced .duo-tour__wash {
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.duo-tour__wash--top {
+  inset: 0 0 auto 0;
+  height: 46%;
+  background: linear-gradient(to bottom,
+    rgba(var(--duo-wall-rgb), 0.9) 0%,
+    rgba(var(--duo-wall-rgb), 0.55) 55%,
+    rgba(var(--duo-wall-rgb), 0) 100%);
+}
+
+.duo-tour__wash--left,
+.duo-tour__wash--right {
+  top: 0;
+  bottom: 0;
+  width: 60%;
+}
+
+.duo-tour__wash--left {
+  left: 0;
+  background: linear-gradient(to right,
+    rgba(var(--duo-wall-rgb), 0.95) 0%,
+    rgba(var(--duo-wall-rgb), 0.86) 50%,
+    rgba(var(--duo-wall-rgb), 0) 100%);
+}
+
+.duo-tour__wash--right {
+  right: 0;
+  background: linear-gradient(to left,
+    rgba(var(--duo-wall-rgb), 0.95) 0%,
+    rgba(var(--duo-wall-rgb), 0.86) 50%,
+    rgba(var(--duo-wall-rgb), 0) 100%);
+}
+
+.duo-tour__wash--bottom {
+  inset: auto 0 0 0;
+  height: 64%;
+  background: linear-gradient(to top,
+    rgba(var(--duo-wall-rgb), 0.97) 0%,
+    rgba(var(--duo-wall-rgb), 0.92) 58%,
+    rgba(var(--duo-wall-rgb), 0) 100%);
+}
+
+/* Odak halkası: görseldeki parçanın etrafını çizer, yakınlaşmayla birlikte büyür */
+.duo.is-enhanced .duo-tour__spot {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 1px rgba(31, 37, 49, 0.28),
+    0 0 28px rgba(255, 255, 255, 0.45);
+}
+
+.duo-tour__spot::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  animation: duo-pulse 2.4s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+}
+
+.duo-tour__spot.is-circle { border-radius: 50%; }
+
+@keyframes duo-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.75); }
+  70%  { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); }
+}
+
+.duo.is-enhanced .duo-tour__steps {
+  display: block;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.duo.is-enhanced .duo-step {
+  --duo-in: 0;
+  position: absolute;
+  top: 50%;
+  width: min(30rem, 36vw);
+  opacity: 0;
+  transform: translateY(calc(-50% + (1 - var(--duo-in)) * 18px));
+}
+
+.duo.is-enhanced .duo-step[data-side="right"] { right: 6vw; }
+.duo.is-enhanced .duo-step[data-side="left"]  { left: 6vw; }
+
+.duo.is-enhanced .duo-step--hero,
+.duo.is-enhanced .duo-step--finale {
+  top: clamp(24px, 6vh, 72px);
+  left: 6vw;
+  right: 6vw;
+  width: auto;
+  transform: translateY(calc((1 - var(--duo-in)) * -14px));
+}
+
+.duo.is-enhanced .duo-tour__cue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--duo-ink);
+}
+
+.duo-tour__cue::after {
+  content: "";
+  width: 1.5px;
+  height: 28px;
+  background: currentColor;
+  transform-origin: top;
+  animation: duo-cue 1.8s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+}
+
+@keyframes duo-cue {
+  0%   { transform: scaleY(0); opacity: 1; }
+  60%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+
+/* Alt gezinme çubuğu (masaüstü) */
+.duo.is-enhanced .duo-tour__rail {
+  display: flex;
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(var(--duo-wall-rgb), 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 0 0 1px rgba(31, 37, 49, 0.08), 0 8px 24px rgba(31, 37, 49, 0.08);
+}
+
+.duo-tour__rail button {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--duo-ink-soft);
+  font: 600 0.8125rem/1 var(--duo-font);
+  letter-spacing: 0.005em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.duo-tour__rail button:hover { color: var(--duo-ink); }
+
+.duo-tour__rail button[aria-current="step"] {
+  background: var(--duo-ink);
+  color: #fff;
+}
+
+.duo-tour__rail button:focus-visible,
+.duo a:focus-visible {
+  outline: 2px solid var(--duo-dusk);
+  outline-offset: 2px;
+}
+
+/* İnce ilerleme çizgisi (mobil) */
+.duo-tour__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: rgba(31, 37, 49, 0.08);
+}
+
+.duo-tour__progress span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--duo-ink);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* --------------------------------------------------------------------------
+   Açılma sahnesi
+   -------------------------------------------------------------------------- */
+
+.duo-unfold {
+  --open: 1;
+  position: relative;
+  background:
+    radial-gradient(120% 70% at 70% 45%, #f6f7f4 0%, rgba(246, 247, 244, 0) 60%),
+    var(--duo-wall);
+}
+
+.duo-unfold__sticky {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: center;
+  gap: 4vw;
+  padding: 72px 6vw;
+}
+
+.duo.is-enhanced .duo-unfold { height: 280vh; }
+
+.duo.is-enhanced .duo-unfold__sticky {
+  position: sticky;
+  top: var(--duo-top-offset);
+  height: calc(100vh - var(--duo-top-offset));
+  height: calc(100svh - var(--duo-top-offset));
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.duo-unfold__title {
+  font-family: var(--duo-font-tall);
+  font-size: clamp(3.25rem, 6vw, 6rem);
+  line-height: 0.88;
+  font-weight: 700;
+}
+
+.duo-unfold__text {
+  margin-top: 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.52;
+  color: var(--duo-ink-soft);
+  max-width: 38ch;
+}
+
+.duo-unfold__readout {
+  display: flex;
+  gap: clamp(24px, 3vw, 48px);
+  margin-top: 2rem;
+}
+
+.duo-unfold__readout dt {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--duo-ink-soft);
+}
+
+.duo-unfold__readout dd {
+  font-family: var(--duo-font-tall);
+  font-weight: 600;
+  font-size: clamp(2.75rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  white-space: nowrap;
+}
+
+.duo-unfold__readout dd span {
+  display: inline-block;
+  min-width: 2.6ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.duo-unfold__facts {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--duo-line);
+  max-width: 38ch;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.duo-unfold__facts li {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--duo-line);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.duo.is-enhanced .duo-unfold__facts { opacity: 0; transform: translateY(10px); }
+.duo.is-enhanced .duo-unfold.is-open .duo-unfold__facts { opacity: 1; transform: none; }
+
+.duo-unfold__scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  perspective: 1900px;
+  perspective-origin: 50% 40%;
+  min-height: 0;
+}
+
+.duo.is-enhanced .duo-unfold__scene { height: 100%; }
+
+.duo-device {
+  --w: min(52vw, 660px);
+  --r-out: calc(var(--w) * 0.061);   /* serbest kenarlardaki köşe yarıçapı */
+  --r-hinge: calc(var(--w) * 0.012); /* menteşe tarafındaki köşe */
+  --bezel: calc(var(--w) * 0.016);
+  position: relative;
+  width: var(--w);
+  aspect-ratio: 1646 / 1178;
+  transform-style: preserve-3d;
+  transform:
+    translateX(calc(var(--w) * -0.25 * (1 - var(--open))))
+    rotateX(calc(9deg * var(--tilt, 0)));
+}
+
+.duo-device__half {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.duo-device__half--left {
+  left: 0;
+  transform-origin: 100% 50%;
+  transform: translateZ(1.5px) rotateY(calc(180deg * (1 - var(--open))));
+}
+
+.duo-device__half--right { left: 50%; }
+
+.duo-device__face {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+/* İç yüz: titanyum çerçeve + ekran */
+.duo-device__face--front {
+  --duo-ti: linear-gradient(160deg, #ece7dc 0%, var(--duo-titanium) 45%, #b9b09b 100%);
+  background: var(--duo-ti);
+  padding: var(--bezel);
+}
+
+.duo-device__half--left .duo-device__face--front {
+  right: -1px; /* menteşe çizgisinde ince boşluk kalmasın */
+  border-radius: var(--r-out) var(--r-hinge) var(--r-hinge) var(--r-out);
+  padding-right: 0;
+  /* ekran kenarının kenar yumuşatması açık renkli çerçeveyle değil koyu zeminle karışsın */
+  background: linear-gradient(to left, #2a2420 0 4px, transparent 4px), var(--duo-ti);
+}
+
+.duo-device__half--right .duo-device__face--front {
+  border-radius: var(--r-hinge) var(--r-out) var(--r-out) var(--r-hinge);
+  padding-left: 0;
+  background: linear-gradient(to right, #2a2420 0 4px, transparent 4px), var(--duo-ti);
+}
+
+.duo-device__screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #2a2420 url("img/duo-ic-ekran.jpg") no-repeat;
+  background-size: 200% 100%;
+}
+
+.duo-device__half--left .duo-device__screen {
+  background-position: 0 0;
+  border-radius: calc(var(--r-out) - var(--bezel)) 0 0 calc(var(--r-out) - var(--bezel));
+}
+
+.duo-device__half--right .duo-device__screen {
+  background-position: 100% 0;
+  border-radius: 0 calc(var(--r-out) - var(--bezel)) calc(var(--r-out) - var(--bezel)) 0;
+}
+
+/* Kilit ekranı saati: iki yarıda da aynı öğe, menteşe çizgisinde ortalanır */
+.duo-device__lock {
+  position: absolute;
+  top: 9%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc(var(--w) * 0.6);
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 12px rgba(40, 30, 50, 0.25);
+  pointer-events: none;
+}
+
+.duo-device__half--left  .duo-device__lock { left: 100%; }
+.duo-device__half--right .duo-device__lock { left: 0; }
+
+.duo-device__date {
+  font-family: var(--duo-font);
+  font-weight: 600;
+  font-size: calc(var(--w) * 0.026);
+}
+
+.duo-device__time {
+  font-family: var(--duo-font-tall);
+  font-weight: 600;
+  font-size: calc(var(--w) * 0.2);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+}
+
+/* Dış yüz: fotoğraftaki gerçek dış ekran */
+.duo-device__face--back {
+  transform: rotateY(180deg);
+  background: url("img/duo-dis-ekran.webp") center / 100% 100% no-repeat;
+  border-radius: var(--r-hinge) var(--r-out) var(--r-out) var(--r-hinge);
+}
+
+.duo-device__shade {
+  position: absolute;
+  inset: 0;
+  background: #14161c;
+  opacity: var(--shade, 0);
+  pointer-events: none;
+}
+
+.duo-device__floor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(min(52vw, 660px) * (0.55 + 0.45 * var(--open)));
+  height: 46px;
+  transform: translate(-50%, calc(min(52vw, 660px) * 0.36 + 18px));
+  background: radial-gradient(closest-side, rgba(31, 37, 49, 0.2), rgba(31, 37, 49, 0));
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* --------------------------------------------------------------------------
+   Teknik özellikler
+   -------------------------------------------------------------------------- */
+
+.duo-specs {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(72px, 12vh, 140px) 6vw clamp(72px, 10vh, 120px);
+}
+
+.duo-specs__title {
+  font-family: var(--duo-font-tall);
+  font-weight: 700;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 0.9;
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+
+.duo-specs__row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1fr) 3fr;
+  gap: 1rem 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--duo-line);
+}
+
+.duo-specs__row:last-child { border-bottom: 1px solid var(--duo-line); }
+
+.duo-specs__row dt {
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+.duo-specs__lead {
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.duo-specs__row dd ul {
+  margin-top: 0.5rem;
+  color: var(--duo-ink-soft);
+}
+
+.duo-specs__row dd li { padding: 0.15rem 0; }
+
+.duo-specs__row dd .duo-specs__colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  margin-top: 0;
+  color: var(--duo-ink);
+  font-size: clamp(1.125rem, 1.6vw, 1.3rem);
+  font-weight: 600;
+}
+
+.duo-specs__colors li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.duo-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(31, 37, 49, 0.18);
+}
+
+.duo-swatch--night { background: radial-gradient(circle at 35% 30%, #4a5262, var(--duo-night) 70%); }
+.duo-swatch--star  { background: radial-gradient(circle at 35% 30%, #faf8f3, #ddd5c5 75%); }
+
+.duo-specs__note {
+  margin-top: 1.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--duo-ink-soft);
+  max-width: 70ch;
+}
+
+/* --------------------------------------------------------------------------
+   Tablet ve telefon
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .duo.is-enhanced .duo-tour__rail { display: none; }
+  .duo.is-enhanced .duo-tour__progress { display: block; }
+}
+
+/* Dar ekranlarda metin altta, odak üstte. JS de aynı kırılımı kullanır (is-stacked) */
+.duo.is-stacked .duo-step,
+.duo.is-stacked .duo-step[data-side="left"],
+.duo.is-stacked .duo-step[data-side="right"] {
+  top: auto;
+  left: 20px;
+  right: 20px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  width: auto;
+  transform: translateY(calc((1 - var(--duo-in)) * 14px));
+}
+
+.duo.is-stacked .duo-step--hero,
+.duo.is-stacked .duo-step--finale {
+  top: calc(28px + env(safe-area-inset-top, 0px));
+  bottom: auto;
+  transform: translateY(calc((1 - var(--duo-in)) * -10px));
+}
+
+.duo.is-stacked .duo-step__figure { font-size: clamp(3.25rem, 15vw, 4.75rem); margin-bottom: 0.25em; }
+.duo.is-stacked .duo-step__title { font-size: 1.375rem; margin-bottom: 0.45rem; }
+.duo.is-stacked .duo-step__text { font-size: 1rem; line-height: 1.48; }
+.duo.is-stacked .duo-step__facts { margin-top: 0.8rem; }
+.duo.is-stacked .duo-step__facts li { padding: 0.4rem 0; font-size: 0.875rem; }
+.duo.is-stacked .duo-hero__title { font-size: clamp(4rem, 22vw, 6.5rem); }
+.duo.is-stacked .duo-hero__title--small { font-size: clamp(3rem, 15vw, 4.5rem); }
+.duo.is-stacked .duo-tour__cue { bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+
+@media (max-width: 759px), (max-aspect-ratio: 5/6) {
+  .duo-unfold__sticky {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: start;
+    gap: 8px;
+    padding: 40px 20px;
+  }
+
+  .duo.is-enhanced .duo-unfold__sticky {
+    padding-top: calc(40px + env(safe-area-inset-top, 0px));
+    padding-bottom: 24px;
+  }
+
+  .duo-unfold__title { font-size: clamp(2.75rem, 13vw, 3.75rem); }
+  .duo-unfold__text { font-size: 1rem; margin-top: 0.6rem; }
+  .duo-unfold__readout { margin-top: 1.1rem; }
+  .duo-unfold__readout dd { font-size: clamp(2.5rem, 12vw, 3.25rem); }
+  .duo-unfold__facts { display: none; }
+  .duo-unfold__scene { min-height: 46vw; }
+
+  .duo-device { --w: min(88vw, 520px); }
+  .duo-device__floor {
+    width: calc(min(88vw, 520px) * (0.55 + 0.45 * var(--open)));
+    transform: translate(-50%, calc(min(88vw, 520px) * 0.36 + 14px));
+  }
+
+  .duo-specs { padding-left: 20px; padding-right: 20px; }
+  .duo-specs__row { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; padding: 1.25rem 0; }
+  .duo-specs__row dt { font-size: 0.9375rem; color: var(--duo-ink-soft); font-weight: 600; }
+}
+
+/* Hareket azaltma tercihi: sürekli animasyonlar kapalı, yakınlaşma geçişleri JS tarafında kesik */
+@media (prefers-reduced-motion: reduce) {
+  .duo-tour__spot::after,
+  .duo-tour__cue::after { animation: none; }
+  .duo.is-enhanced .duo-step,
+  .duo.is-stacked .duo-step { transform: translateY(-50%); }
+  .duo.is-enhanced .duo-step--hero,
+  .duo.is-enhanced .duo-step--finale,
+  .duo.is-stacked .duo-step,
+  .duo.is-stacked .duo-step--hero,
+  .duo.is-stacked .duo-step--finale { transform: none; }
+  .duo-unfold__facts { transition: none; }
+}
