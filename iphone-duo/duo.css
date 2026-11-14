@@ -12,7 +12,6 @@
   --duo-line: rgba(31, 37, 49, 0.14);
   --duo-dusk: #6c679a;
   --duo-titanium: #d6cfbf;
-  --duo-night: #2b303c;
 
   --duo-font: "Sofia Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --duo-font-tall: "Sofia Sans Extra Condensed", "Sofia Sans", ui-sans-serif, system-ui, sans-serif;
@@ -610,87 +609,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Teknik özellikler
-   -------------------------------------------------------------------------- */
-
-.duo-specs {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: clamp(72px, 12vh, 140px) 6vw clamp(72px, 10vh, 120px);
-}
-
-.duo-specs__title {
-  font-family: var(--duo-font-tall);
-  font-weight: 700;
-  font-size: clamp(3rem, 6vw, 5.5rem);
-  line-height: 0.9;
-  margin-bottom: clamp(28px, 4vw, 48px);
-}
-
-.duo-specs__row {
-  display: grid;
-  grid-template-columns: minmax(9rem, 1fr) 3fr;
-  gap: 1rem 2rem;
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--duo-line);
-}
-
-.duo-specs__row:last-child { border-bottom: 1px solid var(--duo-line); }
-
-.duo-specs__row dt {
-  font-weight: 700;
-  font-size: 1.0625rem;
-}
-
-.duo-specs__lead {
-  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-}
-
-.duo-specs__row dd ul {
-  margin-top: 0.5rem;
-  color: var(--duo-ink-soft);
-}
-
-.duo-specs__row dd li { padding: 0.15rem 0; }
-
-.duo-specs__row dd .duo-specs__colors {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 32px;
-  margin-top: 0;
-  color: var(--duo-ink);
-  font-size: clamp(1.125rem, 1.6vw, 1.3rem);
-  font-weight: 600;
-}
-
-.duo-specs__colors li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.duo-swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(31, 37, 49, 0.18);
-}
-
-.duo-swatch--night { background: radial-gradient(circle at 35% 30%, #4a5262, var(--duo-night) 70%); }
-.duo-swatch--star  { background: radial-gradient(circle at 35% 30%, #faf8f3, #ddd5c5 75%); }
-
-.duo-specs__note {
-  margin-top: 1.5rem;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--duo-ink-soft);
-  max-width: 70ch;
-}
-
-/* --------------------------------------------------------------------------
    Tablet ve telefon
    -------------------------------------------------------------------------- */
 
@@ -754,9 +672,6 @@
     transform: translate(-50%, calc(min(88vw, 520px) * 0.36 + 14px));
   }
 
-  .duo-specs { padding-left: 20px; padding-right: 20px; }
-  .duo-specs__row { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; padding: 1.25rem 0; }
-  .duo-specs__row dt { font-size: 0.9375rem; color: var(--duo-ink-soft); font-weight: 600; }
 }
 
 /* Hareket azaltma tercihi: sürekli animasyonlar kapalı, yakınlaşma geçişleri JS tarafında kesik */

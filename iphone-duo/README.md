@@ -1,6 +1,6 @@
 # iPhone Duo — kaydırmalı yakınlaşma bölümü
 
-Ziyaretçi sayfayı aşağı kaydırdıkça fotoğraftaki telefonlara yaklaşan, her durakta bir ayrıntıyı anlatan ve sonunda telefonu açıp teknik özellikleri listeleyen bağımsız bir bölüm. Hiçbir kütüphaneye bağımlı değildir.
+Ziyaretçi sayfayı aşağı kaydırdıkça fotoğraftaki telefonlara yaklaşan, her durakta bir ayrıntıyı anlatan ve sonunda telefonu açan bağımsız bir bölüm. Hiçbir kütüphaneye bağımlı değildir.
 
 ## Akış
 
@@ -12,7 +12,6 @@ Ziyaretçi sayfayı aşağı kaydırdıkça fotoğraftaki telefonlara yaklaşan,
 6. **Dış ekran**: 5,4 inç, ProMotion, 3000 nit
 7. **Ön kamera**: 12 MP Center Stage, ekran altı FaceTime kamerası
 8. **Açılış**: telefon kaydırdıkça açılır; genişlik 84,1 mm'den 164,6 mm'ye, kalınlık 11,3 mm'den 5,2 mm'ye canlı değişir
-9. **Teknik özellikler** tablosu
 
 ## Dosyalar
 
@@ -75,4 +74,4 @@ Ziyaretçi sayfayı aşağı kaydırdıkça fotoğraftaki telefonlara yaklaşan,
 
 ## Bilgilerin kaynağı
 
-Teknik özellikler Apple'ın iPhone Duo ürün sayfası, teknik özellikler sayfası ve Eylül 2026 basın bülteninden derlendi. Yayına almadan önce özellikle fiyatı ve Türkiye'ye özgü bilgileri [apple.com/tr](https://www.apple.com/tr/) üzerinden kontrol edin.
+Metinlerdeki bilgiler Apple'ın iPhone Duo ürün sayfası, teknik özellikler sayfası ve Eylül 2026 basın bülteninden derlendi. Yayına almadan önce özellikle fiyatı ve Türkiye'ye özgü bilgileri [apple.com/tr](https://www.apple.com/tr/) üzerinden kontrol edin.
