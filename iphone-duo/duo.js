@@ -5,10 +5,6 @@
 (function () {
   "use strict";
 
-  // Odak koordinatları bu boyuttaki görsele göre yazıldı. Daha yüksek çözünürlüklü
-  // bir sürümle değiştirirseniz (ör. 4000×2666) koordinatları değiştirmeniz gerekmez.
-  var REF_W = 2000;
-  var REF_H = 1333;
 
   var clamp = function (v, a, b) { return v < a ? a : v > b ? b : v; };
   var lerp = function (a, b, t) { return a + (b - a) * t; };
@@ -25,6 +21,9 @@
   var trNumber = function (v) { return v.toFixed(1).replace(".", ","); };
 
   function initDuo(root) {
+    // Betik sayfaya iki kez eklense de her bölüm bir kez kurulur
+    if (root.getAttribute("data-duo-ready")) return;
+    root.setAttribute("data-duo-ready", "1");
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     var screenCtl = createScreen(root);
     // Animasyon kurulamazsa telefon açık kalır; ekran yine kullanılabilir
@@ -46,6 +45,11 @@
     };
     var ctx = canvas && canvas.getContext("2d");
     if (!tour || !sticky || !ctx || !photo) { staticFallback(); return; }
+
+    // Odak koordinatları, fotoğrafın HTML'deki width/height değerlerine göre yazılır.
+    // Aynı fotoğrafın daha yüksek çözünürlüklü sürümünü koysanız da koordinatlar değişmez.
+    var REF_W = parseFloat(photo.getAttribute("width")) || 2000;
+    var REF_H = parseFloat(photo.getAttribute("height")) || 1333;
 
     var steps = Array.prototype.map.call(root.querySelectorAll(".duo-step"), function (el) {
       var f = nums(el.getAttribute("data-focus"));
