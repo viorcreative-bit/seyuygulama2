@@ -15,11 +15,11 @@ Ziyaretçi sayfayı aşağı kaydırdıkça fotoğraftaki iPhone 18 Pro Max'e ya
 
 ## Fotoğraf
 
-Fotoğrafı `img/iphone-18-pro-max.jpg` adıyla bu klasöre koyun. Odak noktaları 2000×1500 piksellik fotoğrafa göre yazıldı; aynı fotoğrafın farklı çözünürlükteki bir sürümü de olur.
+Fotoğraf bu klasörde (`img/iphone-18-pro-max.jpg`, 2000×1501). Odak noktaları bu fotoğrafa göre yazıldı; aynı fotoğrafın farklı çözünürlükteki bir sürümü de olur.
 
 Fotoğraf bulunamazsa sayfa bir **fotoğraf seçici** gösterir: ziyaretçi fotoğrafı seçer ya da sürükler, animasyon hemen başlar. Fotoğraf hiçbir yere yüklenmez.
 
-Odak noktaları ve kameraların etrafındaki halkalar fotoğrafa bakılarak yerleştirildi. Fotoğraf dosyası henüz bu klasörde olmadığı için gerçek fotoğrafla ince ayar yapılmadı; halkalar birkaç piksel kayık görünürse `index.html` içindeki `data-spot` değerleri düzeltilmeli.
+Başka bir fotoğraf kullanırsanız `index.html` içindeki `data-focus` ve `data-spot` değerlerini o fotoğrafa göre güncelleyin.
 
 ## Kendi sitenize ekleme
 
