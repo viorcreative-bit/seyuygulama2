@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>iPhone 18 Pro Max yakından</title>
+  <meta name="description" content="iPhone 18 Pro Max'i kaydırarak yakından inceleyin: kamera sistemi, değişken diyafram, telefoto, LiDAR, gövde ve arka cam.">
+
+  <!-- 1) Yazı tipleri: sitenizin <head> bölümüne ekleyin -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700&family=Sofia+Sans+Extra+Condensed:wght@600;700&display=swap">
+
+  <!-- 2) Bölümün stilleri (iPhone Duo bölümüyle aynı dosya) -->
+  <link rel="stylesheet" href="duo.css">
+
+  <style>
+    /* Yalnızca bu demo sayfası için. Kendi sitenize taşımanız gerekmez. */
+    html, body { margin: 0; background: #efeae6; }
+  </style>
+</head>
+<body>
+
+<!-- 3) Bölüm: <section class="duo duo--promax"> ... </section> arasını sayfanıza yapıştırın -->
+<section class="duo duo--promax" id="iphone-18-pro-max" aria-label="iPhone 18 Pro Max tanıtımı">
+
+  <!-- Yakınlaşma turu. data-focus: fotoğraftaki odak alanı (merkez x, merkez y, genişlik, yükseklik).
+       Değerler, aşağıdaki fotoğrafın width/height değerlerine (2000×1500) göre yazıldı. -->
+  <div class="duo-tour">
+
+    <!-- Fotoğraf bulunamazsa görünür: ziyaretçi fotoğrafı kendi cihazından seçebilir -->
+    <div class="duo-picker" data-duo-picker hidden>
+      <p class="duo-picker__title">Animasyon için fotoğrafı seçin</p>
+      <p class="duo-picker__text">iPhone 18 Pro Max fotoğrafı bulunamadı. Fotoğrafı seçin ya da bu alana sürükleyin; animasyon hemen başlar. Fotoğraf hiçbir yere yüklenmez.</p>
+      <label class="duo-picker__btn">Fotoğraf seç<input type="file" accept="image/*"></label>
+    </div>
+
+    <div class="duo-tour__sticky">
+      <img class="duo-tour__backdrop" src="img/iphone-18-pro-max.jpg" alt="" aria-hidden="true" decoding="async">
+      <img class="duo-tour__photo" src="img/iphone-18-pro-max.jpg" width="2000" height="1500"
+           alt="Elde tutulan bordo renkli iPhone 18 Pro Max'in arkası: üç kameralı kamera platosu, flaş, LiDAR tarayıcı ve yan tuşlar."
+           decoding="async" fetchpriority="high">
+      <canvas class="duo-tour__canvas" aria-hidden="true"></canvas>
+
+      <div class="duo-tour__wash duo-tour__wash--top" aria-hidden="true"></div>
+      <div class="duo-tour__wash duo-tour__wash--left" aria-hidden="true"></div>
+      <div class="duo-tour__wash duo-tour__wash--right" aria-hidden="true"></div>
+      <div class="duo-tour__wash duo-tour__wash--bottom" aria-hidden="true"></div>
+      <div class="duo-tour__spot" aria-hidden="true"></div>
+      <div class="duo-tour__progress" aria-hidden="true"><span></span></div>
+      <p class="duo-tour__cue" aria-hidden="true">Kaydırın</p>
+
+      <div class="duo-tour__steps">
+
+        <header class="duo-step duo-step--hero" data-label="Genel"
+                data-side="none" data-wash="none" data-focus="760,720,1450,950" data-focus-m="980,820,1000,1300">
+          <h2 class="duo-hero__title">iPhone 18<br>Pro Max</h2>
+          <p class="duo-hero__lede">Değişken diyaframlı kamerası ve A20 Pro çipiyle. Aşağı kaydırın, her ayrıntısına yakından bakalım.</p>
+        </header>
+
+        <article class="duo-step" data-label="Kamera"
+                 data-side="left" data-focus="1000,552,680,520" data-focus-m="1000,552,620,470">
+          <p class="duo-step__figure">3 × 48 MP</p>
+          <h3 class="duo-step__title">Üç kamera, üçü de 48 MP.</h3>
+          <p class="duo-step__text">Pro Fusion kamera sistemi; Fusion Ana, Ultra Geniş ve Telefoto kameraların üçünde de 48 MP çözünürlük sunuyor. Kamera platosu telefonun bir kenarından diğerine uzanıyor.</p>
+          <ul class="duo-step__facts">
+            <li>48 MP Ultra Geniş kamera</li>
+            <li>Ön tarafta 18 MP kamera</li>
+          </ul>
+        </article>
+
+        <article class="duo-step" data-label="Ana kamera"
+                 data-side="left" data-focus="812,470,320,300" data-focus-m="812,470,280,250"
+                 data-spot="730,375,894,539" data-spot-shape="circle">
+          <p class="duo-step__figure">ƒ/1.48</p>
+          <h3 class="duo-step__title">Diyafram artık değişebiliyor.</h3>
+          <p class="duo-step__text">48 MP Fusion Ana kamerada, yeni bir rotor mekanizmasının yönettiği altı lazer kesim bıçaktan oluşan değişken diyafram var. Az ışıkta ƒ/1.48'e kadar açılıyor, daha geniş alan derinliği için ƒ/4'e kadar kısılıyor.</p>
+          <ul class="duo-step__facts">
+            <li>Yeni hesaplamalı görüntü işlemeyle daha keskin çekimler</li>
+          </ul>
+        </article>
+
+        <article class="duo-step" data-label="Telefoto"
+                 data-side="left" data-focus="913,548,320,300" data-focus-m="913,548,280,250"
+                 data-spot="831,466,995,630" data-spot-shape="circle">
+          <p class="duo-step__figure">8x</p>
+          <h3 class="duo-step__title">4x telefoto, 8x optik kalite.</h3>
+          <p class="duo-step__text">48 MP Fusion Telefoto kamera 100 mm'de (4x) çekiyor ve 200 mm'de (8x) optik kalitede yakınlaştırma sunuyor.</p>
+          <ul class="duo-step__facts">
+            <li>16x optik kalitede zoom aralığı</li>
+            <li>40x'e kadar dijital zoom</li>
+          </ul>
+        </article>
+
+        <article class="duo-step" data-label="LiDAR"
+                 data-side="right" data-focus="1165,555,280,400" data-focus-m="1165,555,260,340"
+                 data-spot="1090,610,1186,706" data-spot-shape="circle">
+          <p class="duo-step__figure">LiDAR</p>
+          <h3 class="duo-step__title">Derinliği ölçen tarayıcı.</h3>
+          <p class="duo-step__text">Platonun sağında True Tone flaş, mikrofon ve LiDAR Tarayıcı yer alıyor. LiDAR, karanlıkta odaklamaya ve portre çekimlerinde derinliği algılamaya yardım ediyor.</p>
+        </article>
+
+        <article class="duo-step" data-label="Gövde"
+                 data-side="right" data-focus="1270,870,360,600" data-focus-m="1270,870,320,520">
+          <p class="duo-step__figure">249 g</p>
+          <h3 class="duo-step__title">Tek parça alüminyum gövde.</h3>
+          <p class="duo-step__text">Gövde tek parça alüminyumdan şekillendirildi. Bu kenarda Eylem düğmesi ve ses tuşları, karşı kenarın alt kısmında Kamera Denetimi bulunuyor.</p>
+          <ul class="duo-step__facts">
+            <li>163,4 × 78,0 × 8,75 mm</li>
+            <li>IP68 suya ve toza dayanıklılık</li>
+          </ul>
+        </article>
+
+        <article class="duo-step" data-label="Arka cam"
+                 data-side="right" data-focus="900,1120,780,740" data-focus-m="900,1120,700,680">
+          <p class="duo-step__figure">25 W</p>
+          <h3 class="duo-step__title">Renk uyumlu Ceramic Shield arka cam.</h3>
+          <p class="duo-step__text">Arka yüzeyde gövde rengiyle uyumlu Ceramic Shield cam var. MagSafe ile 25 W'a kadar kablosuz şarj oluyor.</p>
+          <ul class="duo-step__facts">
+            <li>60 W adaptörle yaklaşık 15 dakikada %50 şarj</li>
+            <li>Siyah, Gümüş, Buzul ve Bordo renkleri</li>
+          </ul>
+        </article>
+
+        <header class="duo-step duo-step--finale" data-label="Ekran ve çip"
+                data-side="none" data-wash="none" data-focus="760,720,1450,950" data-focus-m="980,820,1000,1300">
+          <p class="duo-hero__title duo-hero__title--small">6,9 inç.<br>A20 Pro.</p>
+          <p class="duo-hero__lede">ProMotion ve Always-On özellikli 6,9 inç OLED ekran. 2 nanometre teknolojisiyle üretilen A20 Pro çip, A19 Pro'nun iki katı yapay zekâ işlem gücü sunuyor.</p>
+        </header>
+
+      </div>
+
+      <nav class="duo-tour__rail" aria-label="iPhone 18 Pro Max ayrıntıları"></nav>
+    </div>
+  </div>
+
+</section>
+
+<!-- 4) Bölümün betiği: </body> öncesine ekleyin (iPhone Duo bölümüyle aynı dosya) -->
+<script src="duo.js" defer></script>
+</body>
+</html>

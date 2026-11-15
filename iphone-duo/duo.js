@@ -58,6 +58,7 @@
       return {
         el: el,
         side: el.getAttribute("data-side") || "none",
+        wash: el.getAttribute("data-wash"),
         label: el.getAttribute("data-label") || "",
         focus: { cx: f[0], cy: f[1], w: f[2], h: f[3] },
         focusM: { cx: fm[0], cy: fm[1], w: fm[2], h: fm[3] },
@@ -159,6 +160,12 @@
     }
 
     function washFor(step) {
+      // data-wash="left|right|top|bottom|none": masaüstünde metnin arkasındaki açık katmanı seçer
+      if (!state.stacked && step.wash) {
+        var only = { top: 0, left: 0, right: 0, bottom: 0 };
+        if (only.hasOwnProperty(step.wash)) only[step.wash] = 1;
+        return only;
+      }
       if (step.side === "none") return { top: 1, left: 0, right: 0, bottom: 0 };
       if (state.stacked) return { top: 0, left: 0, right: 0, bottom: 1 };
       return {
@@ -381,13 +388,56 @@
       if (reduceMotion.addEventListener) reduceMotion.addEventListener("change", relayout);
     }
 
-    if (photo.complete && photo.naturalWidth) start();
-    else {
-      photo.addEventListener("load", start, { once: true });
-      photo.addEventListener("error", function () {
-        root.classList.remove("is-enhanced", "is-stacked"); // görsel yoksa düz düzene dön
-        staticFallback();
-      }, { once: true });
+    // ---- Fotoğrafın yüklenmesi ----
+    // Fotoğraf bulunamazsa bölüm düz düzene döner; sayfada fotoğraf seçici varsa
+    // ziyaretçi fotoğrafı kendi cihazından seçerek animasyonu başlatabilir.
+    var picker = root.querySelector("[data-duo-picker]");
+    var backdrop = root.querySelector(".duo-tour__backdrop");
+    var started = false;
+
+    function begin() {
+      if (started) return;
+      started = true;
+      start();
+    }
+
+    function failed() {
+      if (started) return;
+      root.classList.remove("is-enhanced", "is-stacked");
+      root.classList.add("is-photo-missing");
+      staticFallback();
+      if (picker) picker.hidden = false;
+    }
+
+    function usePhoto(file) {
+      if (!file || !/^image\//.test(file.type)) return;
+      var url = URL.createObjectURL(file);
+      root.classList.remove("is-photo-missing");
+      root.classList.add("is-enhanced");
+      if (picker) picker.hidden = true;
+      photo.addEventListener("load", begin, { once: true });
+      photo.addEventListener("error", failed, { once: true });
+      photo.src = url;
+      if (backdrop) backdrop.src = url;
+    }
+
+    if (picker) {
+      var fileInput = picker.querySelector('input[type="file"]');
+      if (fileInput) fileInput.addEventListener("change", function () { usePhoto(fileInput.files && fileInput.files[0]); });
+      picker.addEventListener("dragover", function (e) { e.preventDefault(); picker.classList.add("is-over"); });
+      picker.addEventListener("dragleave", function () { picker.classList.remove("is-over"); });
+      picker.addEventListener("drop", function (e) {
+        e.preventDefault();
+        picker.classList.remove("is-over");
+        usePhoto(e.dataTransfer && e.dataTransfer.files[0]);
+      });
+    }
+
+    if (photo.complete) {
+      if (photo.naturalWidth) begin(); else failed();
+    } else {
+      photo.addEventListener("load", begin, { once: true });
+      photo.addEventListener("error", failed, { once: true });
     }
   }
 

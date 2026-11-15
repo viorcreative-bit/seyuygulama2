@@ -128,6 +128,66 @@
   font-weight: 500;
 }
 
+/* iPhone 18 Pro Max bölümü: renkler fotoğraftaki sıcak arka plandan ve bordo gövdeden */
+.duo--promax {
+  --duo-wall: #efeae6;
+  --duo-wall-rgb: 239, 234, 230;
+  --duo-ink: #2f1b2b;
+  --duo-ink-soft: #5f4c5a;
+  --duo-line: rgba(47, 27, 43, 0.15);
+  --duo-dusk: #7b3d66;
+}
+
+.duo--promax .duo-hero__title { font-size: clamp(3.75rem, 8vw, 7.5rem); }
+
+.duo--promax.is-enhanced:not(.is-stacked) .duo-step--hero,
+.duo--promax.is-enhanced:not(.is-stacked) .duo-step--finale {
+  right: auto;
+  width: min(32rem, 34vw);
+}
+
+/* Fotoğraf bulunamazsa: kırık görsel yerine fotoğraf seçici */
+.duo.is-photo-missing .duo-tour__photo { display: none; }
+
+.duo-picker {
+  max-width: 44rem;
+  margin: 48px auto 0;
+  padding: 36px 24px;
+  border: 2px dashed var(--duo-line);
+  border-radius: 24px;
+  text-align: center;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.duo-picker[hidden] { display: none; }
+.duo-picker.is-over { border-color: var(--duo-dusk); background: rgba(255, 255, 255, 0.5); }
+
+.duo-picker__title { font-size: 1.375rem; font-weight: 700; line-height: 1.2; }
+.duo-picker__text { margin: 0.5rem auto 1.25rem; max-width: 40ch; color: var(--duo-ink-soft); }
+
+.duo-picker__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: var(--duo-ink);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.duo-picker__btn input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.duo-picker__btn:focus-within { outline: 2px solid var(--duo-dusk); outline-offset: 3px; }
+
 /* --------------------------------------------------------------------------
    Yakınlaşma turu — JS etkin
    -------------------------------------------------------------------------- */

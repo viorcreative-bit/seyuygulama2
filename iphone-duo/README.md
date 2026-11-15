@@ -87,7 +87,9 @@ Ekranın alt kenarındaki çizgi, uygulamalardaki "Ana ekran" düğmesi ve Esc t
   - `data-side="left"` ya da `"right"`: metnin ekranın hangi yanında duracağı.
   - `data-spot="x0,y0,x1,y1"` ve `data-spot-shape="pill"` ya da `"circle"`: parçanın etrafına çizilen beyaz halka (isteğe bağlı).
   - `data-label`: alttaki gezinme çubuğundaki ad.
-- **Daha keskin yakınlaşma**: Fotoğrafın daha yüksek çözünürlüklü bir sürümü varsa (ör. 4000×2666) `img/iphone-duo.jpg` yerine koyun. Koordinatları değiştirmeniz gerekmez.
+  - `data-wash="left|right|top|bottom|none"`: masaüstünde metnin arkasındaki açık renkli katmanı değiştirir (isteğe bağlı).
+- **Daha keskin yakınlaşma**: Fotoğrafın daha yüksek çözünürlüklü bir sürümü varsa (ör. 4000×2666) `img/iphone-duo.jpg` yerine koyun. Koordinatlar fotoğrafın HTML'deki `width` ve `height` değerlerine göre okunduğu için değiştirmeniz gerekmez.
+- **Başka bir telefon**: Aynı motor birden fazla bölümü destekler; `iphone-18-pro-max/` klasörü örnek. `duo.js` sayfaya iki kez eklense de her bölüm bir kez kurulur.
 
 ## Davranış notları
 
