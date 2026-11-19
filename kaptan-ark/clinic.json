@@ -72,14 +72,12 @@
   ],
 
   "speech": {
-    "_not": "Sesli okuma ayarları. voice: tercih edilen sesin adından bir parça (ör. \"Emel\"); boşsa cihazdaki en doğal ses seçilir. Sesleri denemek için sayfa adresinin sonuna ?sesler ekleyin. pronunciations: yanlış okunan kelimeyi nasıl okunması gerektiğiyle eşleyin.",
+    "_not": "Sesli okuma ayarları. voice: tercih edilen sesin adından bir parça (ör. \"Emel\"); boşsa cihazdaki en doğal ses seçilir. Sesleri denemek için sayfa adresinin sonuna ?sesler ekleyin. pronunciations: yanlış okunan kelimeyi nasıl okunması gerektiğiyle eşleyin. Not: \"ARK\" kelimesi ses motorlarında \"arkeoloji\" okunduğu için seslendirmede hiç kullanılmaz; klinik adı \"kliniğimiz\" diye okunur.",
     "voice": "",
     "rate": 1,
     "pitch": 1,
     "pronunciations": {
-      "Kaptan Ark": "Kaptan",
-      "ARK": "ark",
-      "Ark": "ark"
+      "Kaptan Ark": "Kaptan"
     }
   },
 

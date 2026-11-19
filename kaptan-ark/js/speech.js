@@ -1,9 +1,34 @@
 // Sesli okuma yardımcıları: metni konuşma motoruna hazırlar ve cihazdaki en doğal sesi seçer.
 
-// Türkçe ses motorları "Ark" kelimesini "arkeoloji" kısaltması sanıp yanlış okuyor.
-// Seslendirmede maskot kendini sadece "Kaptan" diye tanıtır; "ARK Dental" küçük harfle okunur.
-// Uzun ifadeler önce uygulanır ("Kaptan Ark" → "Kaptan", sonra kalan "Ark" → "ark").
-export const DEFAULT_PRONUNCIATIONS = { 'Kaptan Ark': 'Kaptan', ARK: 'ark', Ark: 'ark' };
+// Türkçe ses motorları "Ark/ark" kelimesini "arkeoloji" kısaltması sanıp yanlış okuyor.
+// Bu yüzden seslendirmede "ARK" hiç geçmez: maskot kendini sadece "Kaptan" diye tanıtır,
+// klinik adı "kliniğimiz" diye okunur (bkz. clinicName). Ekrandaki yazılar değişmez.
+// Uzun ifadeler önce uygulanır ("Kaptan Ark" → "Kaptan", sonra kalan "ARK" silinir).
+export const DEFAULT_PRONUNCIATIONS = { 'Kaptan Ark': 'Kaptan', ARK: '', Ark: '' };
+
+// "ARK Dental'de" → "kliniğimizde": Türkçe hâl ekine göre "kliniğimiz" kelimesinin doğru biçimi.
+function clinicWord(suffix) {
+  const s = String(suffix ?? '').toLocaleLowerCase('tr');
+  if (!s) return 'kliniğimiz';
+  if (/^y?[ea]$/.test(s)) return 'kliniğimize';
+  if (/^[dt][ea]$/.test(s)) return 'kliniğimizde';
+  if (/^[dt][ea]n$/.test(s)) return 'kliniğimizden';
+  if (/^n?[ıiuü]n$/.test(s)) return 'kliniğimizin';
+  if (/^y?[ıiuü]$/.test(s)) return 'kliniğimizi';
+  if (/^y?l[ea]$/.test(s)) return 'kliniğimizle';
+  return 'kliniğimiz';
+}
+
+/** Klinik adını seslendirmeye uygun hale getirir ("ARK" kelimesi okunmaz). */
+function clinicName(text) {
+  return (
+    text
+      // Karşılama: "ARK Dental'e hoş geldiniz" → "Hoş geldiniz"
+      .replace(/(^|[^\p{L}\p{N}])ARK\s+Dental(?:\s+Clinic)?['’]?(?:y?[ea])\s+hoş\s*geldiniz/giu, '$1Hoş geldiniz')
+      // Diğer yerler: "ARK Dental Clinic'in" → "kliniğimizin"
+      .replace(/(^|[^\p{L}\p{N}])ARK\s+Dental(?:\s+Clinic)?(?:['’](\p{L}+))?(?=[^\p{L}\p{N}]|$)/giu, (_, before, suffix) => `${before}${clinicWord(suffix)}`)
+  );
+}
 
 const NOT_WORD = '[^\\p{L}\\p{N}]';
 
@@ -27,6 +52,7 @@ export function speechText(text, pronunciations = {}) {
     .replace(/https?:\/\/\S+/g, '')
     .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '')
     .replace(/[•*#_`>]/g, ' ');
+  out = clinicName(out);
   const dict = { ...DEFAULT_PRONUNCIATIONS, ...(pronunciations ?? {}) };
   const entries = Object.entries(dict).sort((a, b) => b[0].length - a[0].length);
   for (const [from, to] of entries) {
@@ -39,6 +65,7 @@ export function speechText(text, pronunciations = {}) {
       // Cümle sonundaki "ark." kısaltma gibi okunmasın.
       .replace(new RegExp(`(^|${NOT_WORD})(ark)\\.(?=\\s|$)`, 'giu'), '$1$2!')
       .replace(/\s+/g, ' ')
+      .replace(/\s+([,.!?;:])/g, '$1')
       .trim()
   );
 }
