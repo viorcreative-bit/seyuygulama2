@@ -24,7 +24,7 @@ test/                  otomatik testler
 
 ## Hızlı deneme: tek HTML dosyası
 
-`dist/kaptan-ark.html`, her şeyin (maskot, sohbet, randevu, ayarlar) içine gömüldüğü tek bir dosyadır. Çift tıklayıp tarayıcıda açabilir ya da hostinginize tek dosya olarak yükleyebilirsiniz.
+`dist/kaptan-ark.html`, her şeyin (maskot, sohbet, randevu, ayarlar) içine gömüldüğü tek bir dosyadır. Çift tıklayıp tarayıcıda açabilir ya da hostinginize tek dosya olarak yükleyebilirsiniz. Kaptan Ark sağ alt köşede el sallayarak bekler; üstüne tıklanınca sohbet penceresi animasyonla açılır, kapatma düğmesi (✕), Esc tuşu ya da maskota tekrar tıklamak pencereyi kapatır.
 
 - Klinik ayarları dosyanın içindeki `<script id="clinic-config">` bölümündedir; telefon ve `whatsapp` numarasını oradan düzenleyin.
 - Bu sürüm hazır cevaplarla çalışır. Yapay zeka için ayarlardaki `ai.endpoint` alanına bir Cloudflare Worker adresi yazın (bkz. 3b).
@@ -91,7 +91,13 @@ Aşağıdaki satırdaki adresi kendi adresinizle değiştirin:
 - **Shopify:** Online Store → Themes → Edit code → `theme.liquid` içinde `</body>` öncesine yapıştırın.
 - **Kendi HTML siteniz / diğerleri:** Her sayfada `</body>` öncesine ya da "Footer kodu / Özel kod" alanına yapıştırın.
 
-Sağ alt köşede Kaptan Ark düğmesi ve "ARK Dental'e hoş geldiniz! 👋" baloncuğu çıkar. Baloncuk metnini `data-greeting="..."` ile değiştirebilirsiniz. İsterseniz sitenizdeki "Online Randevu" menüsünü doğrudan `https://siteniz.com/kaptan-ark/` adresine yönlendirebilirsiniz.
+Sitenizin sağ alt köşesinde animasyonlu Kaptan Ark ve "ARK Dental'e hoş geldiniz! 👋" baloncuğu çıkar; maskota tıklanınca sohbet penceresi açılır. Asistan şeffaf bir çerçevede çalışır ve sohbet kapalıyken yalnızca maskotun kapladığı alanı kullanır, sitenizin geri kalanı normal şekilde tıklanabilir. Baloncuk metnini `clinic.json` içine `"launcherText": "..."` ekleyerek değiştirebilirsiniz. Tek dosyalık sürümü (`kaptan-ark.html`) yüklediyseniz koda `data-page="kaptan-ark.html"` ekleyin:
+
+```html
+<script src="https://siteniz.com/kaptan-ark/embed.js" data-page="kaptan-ark.html" defer></script>
+```
+
+İsterseniz sitenizdeki "Online Randevu" menüsünü doğrudan `https://siteniz.com/kaptan-ark/` adresine yönlendirebilirsiniz.
 
 ## Güvenlik ve maliyet
 

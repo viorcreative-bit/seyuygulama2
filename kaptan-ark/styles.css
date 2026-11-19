@@ -83,81 +83,45 @@ button { font: inherit; color: inherit; }
 @media (prefers-color-scheme: dark) { .call { color: var(--teal-300); } }
 .call svg { width: 18px; height: 18px; fill: currentColor; }
 
-/* ---------- Yerleşim ---------- */
-.layout {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 460px);
-  gap: clamp(16px, 3vw, 40px);
-  padding: 0 clamp(16px, 4vw, 40px) clamp(16px, 3vw, 32px);
-  max-width: 1280px;
-  width: 100%;
-  margin: 0 auto;
+/* ---------- Widget: sağ alt köşedeki maskot ve açılan sohbet ---------- */
+.widget { --mascot-w: 150px; --gap: 16px; }
+
+.launcher {
+  position: fixed;
+  right: var(--gap);
+  bottom: calc(var(--gap) - 8px);
+  z-index: 30;
 }
 
-/* ---------- Sahne ve maskot ---------- */
-.stage {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 0;
-}
-.spotlight {
-  position: absolute;
-  width: min(95%, 640px);
-  aspect-ratio: 1;
-  top: 50%;
-  left: 50%;
-  translate: -50% -42%;
-  background: var(--spot);
-  pointer-events: none;
-}
-
+/* Maskotun yanındaki konuşma baloncuğu (sohbet kapalıyken) */
 .bubble {
-  position: relative;
-  z-index: 2;
-  max-width: min(440px, 92%);
-  min-height: 56px;
-  padding: 16px 48px 16px 20px;
+  position: absolute;
+  right: calc(100% - 4px);
+  bottom: 58%;
+  width: max-content;
+  max-width: min(260px, calc(100vw - var(--mascot-w) - 36px));
+  padding: 12px 16px;
   background: var(--card);
   color: var(--ink);
-  border-radius: 24px;
-  box-shadow: var(--shadow);
   border: 1px solid var(--line);
-  font-size: 1.05rem;
-  line-height: 1.5;
-  font-weight: 600;
-  transform-origin: 30% 100%;
-  animation: bubble-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both 0.35s;
+  border-radius: 20px 20px 6px 20px;
+  box-shadow: var(--shadow);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  font-weight: 700;
+  cursor: pointer;
+  transform-origin: 100% 100%;
+  opacity: 0;
+  transform: translateY(10px) scale(0.6);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
-.bubble::after {
-  content: "";
-  position: absolute;
-  left: 34%;
-  bottom: -12px;
-  width: 24px;
-  height: 24px;
-  background: var(--card);
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  transform: rotate(45deg);
-  border-bottom-right-radius: 6px;
-}
-.bubble-text { margin: 0; white-space: pre-line; max-height: 9.5em; overflow-y: auto; }
+.bubble.show { opacity: 1; transform: none; pointer-events: auto; }
+.widget[data-open="true"] .bubble { opacity: 0; transform: translateY(10px) scale(0.6); pointer-events: none; }
+.bubble-text { margin: 0; white-space: pre-line; max-height: 7.3em; overflow: hidden; }
 .bubble .dots { display: none; }
 .bubble[data-state="thinking"] .bubble-text { display: none; }
 .bubble[data-state="thinking"] .dots { display: inline-flex; }
-.bubble-speak {
-  position: absolute; right: 10px; top: 10px;
-  width: 32px; height: 32px; border: 0; border-radius: 50%;
-  background: var(--teal-50); cursor: pointer; display: grid; place-items: center;
-}
-.bubble-speak svg { width: 18px; height: 18px; fill: var(--teal-600); }
-@media (prefers-color-scheme: dark) { .bubble-speak svg { fill: var(--teal-300); } }
 
 .dots { gap: 6px; padding: 8px 2px; }
 .dots i {
@@ -169,15 +133,32 @@ button { font: inherit; color: inherit; }
 
 .mascot {
   position: relative;
-  z-index: 1;
-  width: min(100%, 540px, calc((100dvh - 250px) * 1.122));
-  min-width: 180px;
+  width: var(--mascot-w);
   aspect-ratio: 1278 / 1139;
   container-type: inline-size;
   cursor: pointer;
-  animation: pop-in 0.9s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+  animation: pop-in 0.9s cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
   -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 10px 16px rgba(11, 70, 80, 0.22));
+  transition: transform 0.25s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
+.mascot:hover { transform: translateY(-4px) scale(1.04); }
+.mascot:focus-visible { outline: 3px solid var(--teal-500); outline-offset: 4px; border-radius: 24px; }
+/* Sohbet kapalıyken "konuş benimle" rozeti */
+.mascot::after {
+  content: "";
+  position: absolute;
+  right: 2%;
+  top: 0;
+  width: 24%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--teal-600) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2Z'/%3E%3C/svg%3E") center / 55% no-repeat;
+  box-shadow: 0 0 0 3px #fff, 0 6px 14px -4px rgba(11, 70, 80, 0.5);
+  animation: badge-pulse 2.2s ease-in-out infinite;
+  transition: opacity 0.2s, transform 0.3s;
+}
+.widget[data-open="true"] .mascot::after { opacity: 0; transform: scale(0.3); animation: none; }
 .mascot-rig {
   position: absolute;
   inset: 0;
@@ -259,18 +240,41 @@ button { font: inherit; color: inherit; }
 
 /* ---------- Sohbet ---------- */
 .chat {
-  position: relative;
-  z-index: 2;
+  position: fixed;
+  z-index: 31;
+  right: calc(var(--gap) + var(--mascot-w) - 6px);
+  bottom: var(--gap);
+  width: min(400px, calc(100vw - var(--mascot-w) - var(--gap) * 2));
+  height: min(640px, calc(100dvh - var(--gap) * 2));
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  max-height: calc(100dvh - 90px);
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: 0 30px 80px -24px rgba(11, 70, 80, 0.45);
   overflow: hidden;
+  /* Kapalıyken maskotun yanında küçülmüş ve görünmez durur; açılınca büyüyerek gelir. */
+  transform-origin: 100% 100%;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(28px, 24px) scale(0.3);
+  transition: transform 0.45s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.3s ease 0.1s, visibility 0s linear 0.45s;
 }
+.widget[data-open="true"] .chat {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: transform 0.55s cubic-bezier(0.2, 1.25, 0.35, 1), opacity 0.2s ease, visibility 0s;
+}
+.widget[data-open="true"] .chat .chat-head,
+.widget[data-open="true"] .chat .messages,
+.widget[data-open="true"] .chat .chips,
+.widget[data-open="true"] .chat .composer {
+  animation: panel-item 0.5s ease both;
+}
+.widget[data-open="true"] .chat .messages { animation-delay: 0.08s; }
+.widget[data-open="true"] .chat .chips { animation-delay: 0.14s; }
+.widget[data-open="true"] .chat .composer { animation-delay: 0.2s; }
 .chat-head {
   display: flex;
   align-items: center;
@@ -371,10 +375,10 @@ button { font: inherit; color: inherit; }
   border: 1px solid var(--teal-300);
   background: var(--card);
   color: var(--teal-700);
-  padding: 8px 14px;
+  padding: 7px 12px;
   border-radius: 999px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   cursor: pointer;
   transition: background 0.15s, transform 0.15s;
 }
@@ -427,41 +431,36 @@ button { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--teal-500); outline-offset: 2px; }
 
 /* ---------- Mobil ---------- */
-@media (max-width: 860px) {
+@media (max-width: 640px) {
   .topbar { padding: 10px 16px; }
   .call span { display: none; }
   .call { padding: 9px; }
-  .layout { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); gap: 10px; padding: 0 16px 16px; }
-  .stage { flex-direction: row; align-items: flex-end; justify-content: center; gap: 4px; }
-  .stage .mascot { width: min(42vw, 280px, calc(26dvh * 1.122)); min-width: 120px; order: 1; }
-  .stage .bubble { order: 2; font-size: 0.92rem; padding: 12px 40px 12px 14px; align-self: center; margin-bottom: 18%; }
-  .stage .bubble::after { left: -8px; bottom: 22px; transform: rotate(135deg); }
-  .spotlight { width: min(70vw, 340px); translate: -82% -46%; }
-  .bubble-text { max-height: 6.2em; }
-  .chat { max-height: none; }
-  .messages { min-height: 90px; padding-top: 14px; }
-  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
-  .chips::-webkit-scrollbar { display: none; }
-  .chips button { flex: none; }
-  .disclaimer { margin: 6px 14px 10px; font-size: 0.7rem; }
 }
-@media (max-width: 460px) {
-  .stage .bubble { display: none; }
-  .spotlight { translate: -50% -46%; }
-  .layout { padding: 0 10px 10px; }
-  .chat-head { padding: 10px 10px 10px 12px; }
-  .avatar { width: 38px; height: 38px; }
-  .composer { margin: 0 8px; }
+/* Dar ekran düzeni: JS ekran genişliğine (gömülüyse ziyaretçinin ekranına) göre .compact ekler. */
+.widget.compact { --mascot-w: 108px; --gap: 10px; }
+.widget.compact .chat {
+  left: var(--gap);
+  right: var(--gap);
+  top: var(--gap);
+  bottom: calc(var(--mascot-w) * 0.86 + var(--gap));
+  width: auto;
+  height: auto;
+  transform-origin: 88% 100%;
 }
+.widget.compact .bubble { font-size: 0.9rem; padding: 10px 14px; }
+.widget.compact .messages { min-height: 90px; padding-top: 14px; }
+.widget.compact .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
+.widget.compact .chips::-webkit-scrollbar { display: none; }
+.widget.compact .chat-head { padding: 10px 10px 10px 12px; gap: 8px; }
+.widget.compact .avatar { width: 38px; height: 38px; }
+.widget.compact .icon-btn { width: 36px; height: 36px; }
+.widget.compact .composer { margin: 0 8px; }
+.widget.compact .disclaimer { margin: 6px 14px 10px; font-size: 0.7rem; }
 
-/* Gömülü (widget) görünüm */
+/* Başka bir siteye gömülü (iframe) görünüm: arka plan şeffaf, üst bar yok */
+html.embed, body.embed { background: transparent; }
+html.embed { color-scheme: normal; }
 body.embed .topbar { display: none; }
-body.embed .layout { padding: 0; grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); gap: 0; }
-body.embed .stage { flex-direction: row; padding: 6px 12px 0; }
-body.embed .stage .bubble { display: none; }
-body.embed .stage .mascot { width: 150px; min-width: 0; }
-body.embed .spotlight { width: 220px; translate: -50% -44%; }
-body.embed .chat { border-radius: 0; border: 0; box-shadow: none; max-height: none; }
 
 /* Ses deneme paneli (?sesler) */
 .voice-panel {
@@ -509,12 +508,16 @@ body.embed .chat { border-radius: 0; border: 0; box-shadow: none; max-height: no
 @keyframes pulse-text { 50% { opacity: 0.45; } }
 
 /* ---------- Animasyonlar ---------- */
-@keyframes pop-in {
-  from { opacity: 0; transform: translateY(8%) scale(0.86); }
+@keyframes panel-item {
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
-@keyframes bubble-in {
-  from { opacity: 0; transform: scale(0.6); }
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(8%) scale(0.86); }
   to { opacity: 1; transform: none; }
 }
 @keyframes bob {

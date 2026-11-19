@@ -25,32 +25,8 @@
     </a>
   </header>
 
-  <main class="layout">
-    <section class="stage" aria-label="Maskot">
-      <div class="spotlight" aria-hidden="true"></div>
-
-      <div class="bubble" id="bubble" data-state="text">
-        <p class="bubble-text" id="bubbleText"></p>
-        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-        <button class="bubble-speak" id="bubbleSpeak" type="button" title="Sesli dinle" aria-label="Mesajı sesli dinle">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4Zm-2.5-8.8v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6Z"/></svg>
-        </button>
-      </div>
-
-      <div class="mascot" id="mascot" data-state="intro" role="img" aria-label="ARK Dental maskotu Kaptan Ark, el sallıyor">
-        <div class="mascot-shadow" aria-hidden="true"></div>
-        <div class="mascot-rig">
-          <img class="layer" src="img/mascot-body.webp" alt="" draggable="false">
-          <div class="layer jaw" aria-hidden="true"></div>
-          <div class="eye eye-l" aria-hidden="true"><div class="lid"></div></div>
-          <div class="eye eye-r" aria-hidden="true"><div class="lid"></div></div>
-          <img class="layer glove" src="img/mascot-glove.webp" alt="" draggable="false">
-        </div>
-        <div class="sparkles" aria-hidden="true"></div>
-      </div>
-    </section>
-
-    <section class="chat" aria-label="Sohbet">
+  <div class="widget" id="widget" data-open="false">
+    <section class="chat" id="chatPanel" role="dialog" aria-label="Kaptan Ark ile sohbet" aria-hidden="true">
       <header class="chat-head">
         <div class="avatar" aria-hidden="true"></div>
         <div class="who">
@@ -63,6 +39,9 @@
         </button>
         <button class="icon-btn" id="resetBtn" type="button" title="Yeni sohbet" aria-label="Yeni sohbet başlat">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"/></svg>
+        </button>
+        <button class="icon-btn" id="closeBtn" type="button" title="Kapat" aria-label="Sohbeti kapat">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
         </button>
       </header>
 
@@ -82,7 +61,26 @@
       </form>
       <p class="disclaimer">Kaptan Ark bir dijital asistandır, hata yapabilir ve muayenenin yerini tutmaz. Randevu talepleri WhatsApp ile kliniğe iletilir; ad ve telefonunuz yalnızca bu amaçla kullanılır.</p>
     </section>
-  </main>
+
+    <div class="launcher">
+      <div class="bubble" id="bubble" data-state="text" role="button" tabindex="-1">
+        <p class="bubble-text" id="bubbleText"></p>
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+
+      <div class="mascot" id="mascot" data-state="intro" role="button" tabindex="0" aria-expanded="false" aria-controls="chatPanel" aria-label="Kaptan Ark ile sohbeti aç">
+        <div class="mascot-shadow" aria-hidden="true"></div>
+        <div class="mascot-rig">
+          <img class="layer" src="img/mascot-body.webp" alt="" draggable="false">
+          <div class="layer jaw" aria-hidden="true"></div>
+          <div class="eye eye-l" aria-hidden="true"><div class="lid"></div></div>
+          <div class="eye eye-r" aria-hidden="true"><div class="lid"></div></div>
+          <img class="layer glove" src="img/mascot-glove.webp" alt="" draggable="false">
+        </div>
+        <div class="sparkles" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Kaptan Ark'ın kayıtlı sesleri (?kayit ile açılan stüdyo doldurur) -->
   <script type="application/json" id="voice-recordings">{}</script>

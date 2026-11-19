@@ -162,11 +162,12 @@ export default {
 
     const provider = env.PROVIDER === 'openai' ? 'openai' : 'gemini';
     const key = provider === 'openai' ? env.OPENAI_API_KEY : env.GEMINI_API_KEY;
-    if (!key || !env.CLINIC_JSON_URL) return json(503, { error: 'not_configured' }, cors);
-
-
+    const configured = Boolean(key && env.CLINIC_JSON_URL);
     const body = await request.json().catch(() => null);
-    if (body?.probe === true) return json(200, { ok: true, provider }, cors);
+    if (body?.probe === true) return json(200, { ok: configured, provider }, cors);
+    if (!configured) return json(503, { error: 'not_configured' }, cors);
+
+
     const messages = cleanMessages(body?.messages);
     if (!messages) return json(400, { error: 'bad_request' }, cors);
 

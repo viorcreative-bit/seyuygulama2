@@ -10,7 +10,11 @@ const PRISTINE_HTML = `<!doctype html>\n${document.documentElement.outerHTML}`;
 
 const $ = (sel) => document.querySelector(sel);
 const params = new URLSearchParams(location.search);
-if (params.has('embed')) document.body.classList.add('embed');
+const embedded = params.has('embed');
+if (embedded) {
+  document.documentElement.classList.add('embed');
+  document.body.classList.add('embed');
+}
 
 const els = {
   mascot: $('#mascot'),
@@ -19,7 +23,9 @@ const els = {
   sparkles: $('#mascot .sparkles'),
   bubble: $('#bubble'),
   bubbleText: $('#bubbleText'),
-  bubbleSpeak: $('#bubbleSpeak'),
+  widget: $('#widget'),
+  panel: $('#chatPanel'),
+  close: $('#closeBtn'),
   messages: $('#messages'),
   chips: $('#chips'),
   form: $('#composer'),
@@ -862,36 +868,111 @@ els.form.addEventListener('submit', (e) => {
 
 els.sound.addEventListener('click', () => setSound(!soundOn));
 els.reset.addEventListener('click', resetChat);
-els.bubbleSpeak.addEventListener('click', (e) => {
-  e.stopPropagation();
-  greeted = true;
-  if (!soundOn) setSound(true);
-  if (lastSpoken) say(lastSpoken, { audio: lastAudio });
-});
-
-const pokeLines = ['poke1', 'poke2', 'poke3', 'poke4'];
-let pokeIndex = 0;
-els.mascot.addEventListener('click', () => {
-  greeted = true;
-  if (busy) return;
-  mascot.wave();
-  mascot.blink();
-  const id = pokeLines[pokeIndex++ % pokeLines.length];
-  say(phraseText(id, clinic), { audio: id });
-});
-
-// İlk dokunuşta karşılama mesajını sesli oku (tarayıcılar izinsiz ses çalmaya izin vermez).
+// ---------- Sohbeti açma / kapama ----------
 let greeted = false;
-window.addEventListener(
-  'pointerdown',
-  (e) => {
-    if (greeted) return;
+let isOpen = false;
+
+// Dar ekran düzeni. Gömülüyse çerçevenin değil, ziyaretçinin ekran genişliği esas alınır.
+function setCompact(on) {
+  els.widget.classList.toggle('compact', on);
+}
+if (embedded) {
+  window.addEventListener('message', (e) => {
+    if (e.source === window.parent && e.data?.type === 'kaptan-ark:host') setCompact(Boolean(e.data.compact));
+  });
+} else {
+  const narrow = matchMedia('(max-width: 640px)');
+  setCompact(narrow.matches);
+  narrow.addEventListener?.('change', (e) => setCompact(e.matches));
+}
+
+/** Başka bir siteye gömülüyse, çerçevenin boyutunu ayarlaması için üst sayfaya haber verir. */
+function notifyParent() {
+  if (!embedded || window.parent === window) return;
+  window.parent.postMessage({ type: 'kaptan-ark:layout', open: isOpen, bubble: els.bubble.classList.contains('show') }, '*');
+}
+
+let bubbleTimer = null;
+function showBubble(text, { audio = null, duration = 7000 } = {}) {
+  if (isOpen) return;
+  clearTimeout(bubbleTimer);
+  els.bubble.classList.add('show');
+  notifyParent();
+  say(text, { voice: false, audio });
+  bubbleTimer = setTimeout(hideBubble, duration);
+}
+function hideBubble() {
+  clearTimeout(bubbleTimer);
+  els.bubble.classList.remove('show');
+  notifyParent();
+}
+
+function openChat({ animate = true } = {}) {
+  if (isOpen) return;
+  isOpen = true;
+  hideBubble();
+  els.widget.dataset.open = 'true';
+  els.panel.setAttribute('aria-hidden', 'false');
+  els.mascot.setAttribute('aria-expanded', 'true');
+  els.mascot.setAttribute('aria-label', 'Sohbeti kapat');
+  storage.set('sessionStorage', 'ark-open', true);
+  notifyParent();
+  if (animate) {
+    mascot.celebrate();
+    mascot.wave();
+  }
+  if (!greeted) {
     greeted = true;
-    if (e.target.closest('#mascot, .chips, .composer button, .chat-head, .bubble-speak, .appt')) return;
-    if (soundOn) say(welcomeText(), { audio: 'welcome' });
-  },
-  { once: true, capture: true },
-);
+    if (!transcript.length) greet({ voice: true });
+  }
+  if (matchMedia('(pointer: fine)').matches) setTimeout(() => els.input.focus({ preventScroll: true }), 350);
+}
+
+function closeChat() {
+  if (!isOpen) return;
+  isOpen = false;
+  sayToken++;
+  stopSpeaking();
+  mascot.stopTalking();
+  els.widget.dataset.open = 'false';
+  els.panel.setAttribute('aria-hidden', 'true');
+  els.mascot.setAttribute('aria-expanded', 'false');
+  els.mascot.setAttribute('aria-label', 'Kaptan Ark ile sohbeti aç');
+  storage.set('sessionStorage', 'ark-open', false);
+  mascot.wave();
+  // Kapanma animasyonu bitince çerçeveyi küçült
+  setTimeout(notifyParent, 480);
+}
+
+els.mascot.addEventListener('click', () => (isOpen ? closeChat() : openChat()));
+els.mascot.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    isOpen ? closeChat() : openChat();
+  }
+});
+els.bubble.addEventListener('click', () => openChat());
+els.close.addEventListener('click', () => {
+  closeChat();
+  els.mascot.focus({ preventScroll: true });
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && isOpen && !document.querySelector('.rec-panel, .voice-panel')) closeChat();
+});
+
+// Sohbet kapalıyken arada bir el sallayıp dikkat çeker (en fazla 3 kez).
+const nudgeLines = ['poke3', 'poke1', 'poke4'];
+let nudges = 0;
+function scheduleNudge() {
+  setTimeout(() => {
+    if (greeted || nudges >= nudgeLines.length) return; // sohbet bir kez açıldıysa artık rahatsız etmez
+    if (isOpen || document.hidden) return scheduleNudge();
+    const id = nudgeLines[nudges++];
+    mascot.wave();
+    showBubble(phraseText(id, clinic), { audio: id, duration: 6000 });
+    scheduleNudge();
+  }, 30000);
+}
 
 // ---------- Mikrofonla yazma ----------
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1184,20 +1265,27 @@ async function init() {
   if (params.has('kayit')) recorderPanel();
 
   if (transcript.length) {
+    // Sayfa yenilendiyse önceki sohbet geri gelir; sohbet açıksa açık kalır.
+    greeted = true;
     for (const item of transcript) {
       if (item.role === 'summary') summaryCard(item.req, { save: false });
       else addMessage(item.role, item.text, { save: false });
     }
     const lastBot = [...transcript].reverse().find((t) => t.role === 'bot');
     lastSpoken = lastBot?.text ?? welcomeText();
-    els.bubbleText.textContent = lastSpoken;
     renderChips([CHIP_BOOK, ...(clinic.suggestions ?? []).filter((s) => !/randevu/i.test(s)).slice(0, 2)]);
-    mascot.wave();
-  } else {
-    // Ses için kullanıcı etkileşimi gerekir; şimdilik sessizce konuşur, ilk dokunuşta sesli okunur.
-    const canSpeak = navigator.userActivation?.hasBeenActive ?? false;
-    greet({ voice: canSpeak });
+    if (storage.get('sessionStorage', 'ark-open', false)) openChat({ animate: false });
   }
+  if (!isOpen) {
+    // Sohbet kapalı: maskot köşede el sallar ve kısa bir karşılama baloncuğu gösterir.
+    setTimeout(() => {
+      if (isOpen) return;
+      mascot.wave();
+      showBubble(clinic.launcherText ?? `${clinic.shortName ?? clinic.name}'e hoş geldiniz! 👋\nSohbet için bana dokunun.`, { duration: 9000 });
+    }, 900);
+    scheduleNudge();
+  }
+  notifyParent();
 }
 
 init();

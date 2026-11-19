@@ -1,68 +1,73 @@
 /*
- * ARK Dental asistanını herhangi bir web sitesine eklemek için:
+ * Kaptan Ark'ı herhangi bir web sitesine eklemek için:
  *   <script src="https://SITENIZ.com/kaptan-ark/embed.js" defer></script>
- * Sağ alt köşede maskot düğmesi çıkar, tıklanınca sohbet penceresi açılır.
+ * Sağ alt köşede animasyonlu maskot çıkar; tıklanınca sohbet penceresi açılır.
+ * Asistan şeffaf bir çerçevede çalışır; çerçeve, sohbet açılıp kapandıkça büyüyüp küçülür.
  */
 (() => {
-  if (window.__arkDentalWidget) return;
-  window.__arkDentalWidget = true;
+  if (window.__kaptanArk) return;
+  window.__kaptanArk = true;
 
   const script = document.currentScript;
-  const base = new URL('.', script ? script.src : location.href).href;
-  const greeting = script?.dataset.greeting ?? "ARK Dental'e hoş geldiniz! 👋";
+  const base = new URL('.', script ? script.src : location.href);
+  const page = script?.dataset.page ?? 'index.html';
 
-  const css = `
-  .arkdw-btn{position:fixed;right:20px;bottom:20px;z-index:2147483000;width:76px;height:76px;border-radius:50%;border:0;cursor:pointer;
-    background:#fff url(${base}img/mascot-avatar.webp) center/cover no-repeat;box-shadow:0 10px 30px -8px rgba(11,70,80,.55),0 0 0 4px #17a6a6;
-    animation:arkdw-bob 3s ease-in-out infinite;transition:transform .2s}
-  .arkdw-btn:hover{transform:scale(1.06)}
-  .arkdw-tip{position:fixed;right:108px;bottom:38px;z-index:2147483000;max-width:240px;padding:12px 16px;border-radius:18px 18px 4px 18px;
-    background:#fff;color:#1b2a35;font:600 15px/1.4 Nunito,system-ui,sans-serif;box-shadow:0 12px 30px -12px rgba(11,70,80,.45);
-    opacity:0;transform:translateY(8px);transition:.35s;cursor:pointer}
-  .arkdw-tip.show{opacity:1;transform:none}
-  .arkdw-frame{position:fixed;right:20px;bottom:108px;z-index:2147483000;width:min(400px,calc(100vw - 24px));height:min(680px,calc(100vh - 130px));
-    border:0;border-radius:22px;box-shadow:0 24px 60px -18px rgba(11,70,80,.55);background:#fff;opacity:0;transform:translateY(16px) scale(.98);
-    pointer-events:none;transition:opacity .25s,transform .25s}
-  .arkdw-frame.open{opacity:1;transform:none;pointer-events:auto}
-  @media (max-width:480px){.arkdw-frame{right:12px;left:12px;width:auto;bottom:100px;height:calc(100vh - 120px)}}
-  @keyframes arkdw-bob{0%,100%{translate:0 0}50%{translate:0 -4px}}
-  @media (prefers-reduced-motion:reduce){.arkdw-btn{animation:none}}`;
+  const frame = document.createElement('iframe');
+  frame.src = new URL(`${page}?embed=1`, base).href;
+  frame.title = 'Kaptan Ark – ARK Dental asistanı';
+  frame.allow = 'microphone; autoplay';
+  frame.setAttribute('allowtransparency', 'true');
+  Object.assign(frame.style, {
+    position: 'fixed',
+    right: '0',
+    bottom: '0',
+    width: '190px',
+    height: '180px',
+    border: '0',
+    background: 'transparent',
+    colorScheme: 'normal',
+    zIndex: '2147483000',
+  });
 
-  const style = document.createElement('style');
-  style.textContent = css;
-  document.head.append(style);
+  let state = { open: false, bubble: false };
 
-  const btn = document.createElement('button');
-  btn.className = 'arkdw-btn';
-  btn.type = 'button';
-  btn.setAttribute('aria-label', 'ARK Dental asistanı ile sohbet et');
+  const tellFrame = () =>
+    frame.contentWindow?.postMessage({ type: 'kaptan-ark:host', compact: window.innerWidth <= 640 }, '*');
 
-  const tip = document.createElement('div');
-  tip.className = 'arkdw-tip';
-  tip.textContent = greeting;
-
-  let frame = null;
-  let open = false;
-
-  function toggle() {
-    tip.classList.remove('show');
-    if (!frame) {
-      frame = document.createElement('iframe');
-      frame.className = 'arkdw-frame';
-      frame.title = 'ARK Dental asistanı';
-      frame.allow = 'microphone; autoplay';
-      frame.src = `${base}index.html?embed=1`;
-      document.body.append(frame);
-      void frame.offsetWidth;
+  function layout() {
+    const mobile = window.innerWidth <= 640;
+    let w;
+    let h;
+    if (state.open) {
+      // Açık: sohbet penceresi + maskot (mobilde tüm ekran)
+      w = mobile ? window.innerWidth : Math.min(window.innerWidth, 680);
+      h = window.innerHeight;
+    } else if (state.bubble) {
+      // Kapalı + karşılama baloncuğu
+      w = Math.min(window.innerWidth, mobile ? 380 : 470);
+      h = mobile ? 170 : 230;
+    } else {
+      // Sadece maskot
+      w = mobile ? 130 : 190;
+      h = mobile ? 120 : 175;
     }
-    open = !open;
-    frame.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', String(open));
+    frame.style.width = `${w}px`;
+    frame.style.height = `${h}px`;
   }
 
-  btn.addEventListener('click', toggle);
-  tip.addEventListener('click', toggle);
-  document.body.append(tip, btn);
-  setTimeout(() => !open && tip.classList.add('show'), 1800);
-  setTimeout(() => tip.classList.remove('show'), 12000);
+  window.addEventListener('message', (e) => {
+    if (e.source !== frame.contentWindow || e.data?.type !== 'kaptan-ark:layout') return;
+    state = { open: Boolean(e.data.open), bubble: Boolean(e.data.bubble) };
+    layout();
+    tellFrame();
+  });
+  window.addEventListener('resize', () => {
+    layout();
+    tellFrame();
+  });
+  frame.addEventListener('load', tellFrame);
+
+  const mount = () => document.body.append(frame);
+  if (document.body) mount();
+  else document.addEventListener('DOMContentLoaded', mount);
 })();

@@ -42,6 +42,14 @@ if ($method !== 'POST') {
 
 $provider = ($config['provider'] ?? 'gemini') === 'openai' ? 'openai' : 'gemini';
 $apiKey = (string) ($provider === 'openai' ? ($config['openai_api_key'] ?? '') : ($config['gemini_api_key'] ?? ''));
+
+$raw = file_get_contents('php://input', false, null, 0, 60000);
+$data = json_decode($raw === false ? '' : $raw, true);
+
+// Sayfanın "yapay zeka hazır mı?" kontrolü: yapay zekayı çağırmadan cevap verir.
+if (is_array($data) && ($data['probe'] ?? false) === true) {
+    respond(200, ['ok' => $apiKey !== '', 'provider' => $provider]);
+}
 if ($apiKey === '') {
     respond(503, ['error' => 'not_configured']);
 }
@@ -50,12 +58,6 @@ if (!function_exists('curl_init')) {
 }
 
 // --- Girdi kontrolü ---
-$raw = file_get_contents('php://input', false, null, 0, 60000);
-$data = json_decode($raw === false ? '' : $raw, true);
-// Sayfanın "yapay zeka hazır mı?" kontrolü: yapay zekayı çağırmadan cevap verir.
-if (is_array($data) && ($data['probe'] ?? false) === true) {
-    respond(200, ['ok' => true, 'provider' => $provider]);
-}
 $messages = is_array($data) ? ($data['messages'] ?? null) : null;
 if (!is_array($messages) || count($messages) === 0 || count($messages) > 30) {
     respond(400, ['error' => 'bad_request']);

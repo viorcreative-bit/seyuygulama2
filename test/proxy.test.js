@@ -89,7 +89,9 @@ describe('chat.php', { skip: !hasPhp && 'php yüklü değil' }, () => {
     assert.equal(status, 200);
     assert.equal(data.ok, true);
     assert.equal(mock.requests.length, before);
-    assert.equal((await post(noKey, { probe: true })).status, 503);
+    const off = await post(noKey, { probe: true });
+    assert.equal(off.status, 200);
+    assert.equal(off.data.ok, false);
     assert.equal((await post(gemini, { messages: [] })).status, 400);
   });
 
