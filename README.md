@@ -49,21 +49,41 @@ Tüm klinik bilgileri `config/clinic.json` dosyasındadır. Asistan **yalnızca*
 
 Değişiklikten sonra sunucuyu yeniden başlatın.
 
-## Mevcut web sitesine ekleme
+## Web sitenize ekleme (adım adım)
 
-Asistanı bir sunucuda yayına aldıktan sonra (ör. `https://asistan.arkdental.com`), kendi sitenizin HTML'inde `</body>` etiketinden önce şu satırı ekleyin:
+Yapay zeka API anahtarı gizli kalmalıdır; bu yüzden asistan doğrudan sitenizin içine dosya olarak konamaz, ayrı küçük bir sunucuda çalışır. Siteniz ise bu sunucuya tek satırlık bir kodla bağlanır.
+
+**1. Asistanı yayına alın.** En kolay yol [Render](https://render.com):
+
+1. Render'da hesap açın ve GitHub hesabınızı bağlayın.
+2. **New → Blueprint** deyip bu depoyu seçin. `render.yaml` dosyası her şeyi otomatik ayarlar.
+3. Sizden istenen iki değeri girin: `ANTHROPIC_API_KEY` (Claude API anahtarı) ve `ADMIN_PASSWORD` (panel şifresi).
+4. Kurulum bitince Render size `https://ark-dental-asistan.onrender.com` gibi bir adres verir. Bu adresi açıp maskotun çalıştığını kontrol edin.
+5. İsterseniz Render'da **Custom Domain** ile `asistan.arkdental.com` gibi kendi alt alan adınızı bağlayın.
+
+Not: `render.yaml` randevuların silinmemesi için kalıcı disk ister; bu nedenle ücretli "Starter" planı seçilidir. Docker destekleyen başka bir sunucu kullanacaksanız hazır `Dockerfile` da var (`/data` klasörünü kalıcı birim olarak bağlayın).
+
+**2. Sitenize kodu ekleyin.** Aşağıdaki satırdaki adresi kendi asistan adresinizle değiştirin:
 
 ```html
-<script src="https://asistan.arkdental.com/embed.js" defer></script>
+<script src="https://ASISTAN-ADRESINIZ/embed.js" defer></script>
 ```
+
+- **Kendi HTML siteniz:** Her sayfada `</body>` etiketinden hemen önce yapıştırın.
+- **WordPress:** "WPCode" (Insert Headers and Footers) eklentisini kurun → Code Snippets → Header & Footer → **Footer** kutusuna yapıştırıp kaydedin.
+- **Wix:** Ayarlar → Gelişmiş → **Özel Kod** → Kod Ekle → "Tüm sayfalar", konum **Body – end** (bu özellik genelde bağlı alan adı olan ücretli plan ister).
+- **Shopify:** Online Store → Themes → Edit code → `theme.liquid` dosyasında `</body>` öncesine yapıştırın.
+- **Squarespace / Webflow / Ticimax / İdeasoft vb.:** "Footer code", "Özel kod" veya "Body sonu kodu" alanına yapıştırın.
 
 Sağ alt köşede maskot düğmesi ve "ARK Dental'e hoş geldiniz! 👋" baloncuğu çıkar; tıklanınca sohbet açılır. Baloncuk metnini `data-greeting="..."` ile değiştirebilirsiniz.
 
-## Yayına alma
+Asistanı tam sayfa olarak da kullanabilirsiniz: sitenizdeki "Online Randevu" menüsünü doğrudan asistan adresine yönlendirmeniz yeterli.
+
+## Yayına alma (teknik ayrıntılar)
 
 Herhangi bir Node.js barındırma hizmetinde çalışır (Render, Railway, Fly.io, kendi VPS'iniz vb.):
 
-- Başlatma komutu: `npm start`
+- Kurulum: `npm ci --omit=dev`, başlatma: `npm start` (veya `node server.js`)
 - Ortam değişkenleri: `ANTHROPIC_API_KEY`, `ADMIN_PASSWORD` (gerekirse `PORT`)
 - Randevular `data/appointments.json` dosyasında saklanır. Sunucunun **kalıcı diski** olmalı ya da `DATA_FILE` ile kalıcı bir klasör gösterilmeli; düzenli yedek alın.
 - Mikrofonla konuşma için site **HTTPS** üzerinden yayınlanmalıdır.
