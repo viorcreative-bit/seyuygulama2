@@ -1,0 +1,60 @@
+{
+  "_not": "Bu dosyadaki bilgileri kendi kliniğinize göre düzenleyin. Asistan SADECE buradaki bilgileri kullanır; burada olmayan bir bilgiyi uydurmaz. Telefon ve adres şu an örnek değerlerdir.",
+
+  "name": "ARK Dental Clinic",
+  "shortName": "ARK Dental",
+  "assistantName": "Süper Diş",
+  "phone": "0 (212) 000 00 00",
+  "whatsapp": "",
+  "email": "",
+  "address": "Adres bilgisi henüz girilmedi",
+  "mapsUrl": "",
+  "website": "",
+  "languages": ["Türkçe", "English"],
+
+  "timezone": "Europe/Istanbul",
+  "workingHours": {
+    "monday":    ["09:00", "19:00"],
+    "tuesday":   ["09:00", "19:00"],
+    "wednesday": ["09:00", "19:00"],
+    "thursday":  ["09:00", "19:00"],
+    "friday":    ["09:00", "19:00"],
+    "saturday":  ["09:00", "15:00"],
+    "sunday":    null
+  },
+  "breaks": [["12:30", "13:30"]],
+  "closedDates": ["2026-12-31", "2027-01-01"],
+
+  "appointment": {
+    "slotMinutes": 30,
+    "capacityPerSlot": 1,
+    "maxDaysAhead": 60,
+    "minNoticeMinutes": 60
+  },
+
+  "services": [
+    { "name": "Muayene ve Kontrol", "description": "Ağız ve diş muayenesi, gerekirse röntgen ile tedavi planlaması." },
+    { "name": "Diş Taşı Temizliği", "description": "Diş taşı ve lekelerin temizlenmesi, cila." },
+    { "name": "Diş Beyazlatma", "description": "Klinik ortamında profesyonel beyazlatma." },
+    { "name": "İmplant Tedavisi", "description": "Eksik dişlerin yerine titanyum vida ile kalıcı diş." },
+    { "name": "Zirkonyum Kaplama", "description": "Doğal görünümlü, metal içermeyen kaplama." },
+    { "name": "Porselen Lamina / Gülüş Tasarımı", "description": "Ön dişlerde estetik görünüm için ince porselen yapraklar." },
+    { "name": "Kanal Tedavisi", "description": "İltihaplanmış veya ağrılı dişin kurtarılması." },
+    { "name": "Dolgu", "description": "Çürük dişlerin estetik (beyaz) dolgu ile onarılması." },
+    { "name": "Diş Çekimi / 20 Yaş Dişi", "description": "Gerekli durumlarda diş ve gömülü yirmi yaş dişi çekimi." },
+    { "name": "Ortodonti (Diş Teli / Şeffaf Plak)", "description": "Çapraşık dişlerin düzeltilmesi." },
+    { "name": "Çocuk Diş Hekimliği", "description": "Çocuklara özel muayene, koruyucu uygulamalar ve tedaviler." },
+    { "name": "Diş Eti Tedavisi", "description": "Diş eti kanaması, çekilmesi ve iltihabının tedavisi." }
+  ],
+
+  "doctors": [],
+
+  "prices": {
+    "_not": "Fiyat paylaşmak isterseniz buraya ekleyin, ör. \"Muayene\": \"Ücretsiz\". Boş kalırsa asistan fiyatın muayeneden sonra belirlendiğini söyler.",
+    "items": {}
+  },
+
+  "faq": [],
+
+  "extraInfo": ""
+}

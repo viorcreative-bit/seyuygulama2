@@ -1,0 +1,26 @@
+{
+  "name": "ark-dental-asistan",
+  "version": "1.0.0",
+  "description": "ARK Dental Clinic için yapay zeka destekli, konuşan maskot asistanı ve randevu sistemi",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --env-file-if-exists=.env --watch server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viorcreative-bit/seyuygulama2.git"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0",
+    "express": "^5.3.0",
+    "zod": "^4.6.7"
+  }
+}
