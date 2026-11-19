@@ -28,7 +28,7 @@ function stripPrivate(value) {
   if (!value || typeof value !== 'object') return value;
   const out = {};
   for (const [k, v] of Object.entries(value)) {
-    if (k.startsWith('_') || ['ai', 'suggestions', 'keywords'].includes(k)) continue;
+    if (k.startsWith('_') || ['ai', 'suggestions', 'keywords', 'speech'].includes(k)) continue;
     out[k] = stripPrivate(v);
   }
   return out;

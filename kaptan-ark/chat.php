@@ -146,7 +146,7 @@ function strip_private($value)
     }
     $out = [];
     foreach ($value as $k => $v) {
-        if (is_string($k) && ($k === '' || $k[0] === '_' || in_array($k, ['ai', 'suggestions', 'keywords'], true))) {
+        if (is_string($k) && ($k === '' || $k[0] === '_' || in_array($k, ['ai', 'suggestions', 'keywords', 'speech'], true))) {
             continue;
         }
         $out[$k] = strip_private($v);

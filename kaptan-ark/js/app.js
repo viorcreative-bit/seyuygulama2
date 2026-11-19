@@ -1,7 +1,7 @@
 // ARK Dental · Kaptan Ark asistanı — maskot animasyonu, sesli konuşma, sohbet ve randevu talebi.
 import { availableSlots, clinicNow, normalizePhone, openDays, validName, whatsappLink } from './booking.js';
 import { answer, detectService, normalize, priorityAnswer } from './faq.js';
-import { chunk, detectLang, speechText } from './speech.js';
+import { chunk, detectLang, pickVoice, speechText, voiceScore } from './speech.js';
 import { formatDateTr } from './time.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -149,21 +149,16 @@ if (synth) {
   synth.addEventListener?.('voiceschanged', load);
 }
 
-function pickVoice(lang) {
-  const list = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith(lang));
-  const preferred = /(natural|neural|online|google|yelda|emel|zira|aria|samantha)/i;
-  return list.find((v) => preferred.test(v.name)) ?? list[0] ?? null;
-}
-
 /** Metni seslendirir; seslendirme bitince (veya iptal edilince) çözülür. */
 function speak(text) {
   const token = ++speechToken;
   if (!synth || !soundOn) return Promise.resolve(false);
   synth.cancel();
-  const clean = speechText(text);
+  const settings = clinic.speech ?? {};
+  const clean = speechText(text, settings.pronunciations);
   if (!clean) return Promise.resolve(false);
   const lang = detectLang(clean);
-  const voice = pickVoice(lang);
+  const voice = pickVoice(voices, lang, lang === 'tr' ? settings.voice : '');
   const pieces = chunk(clean);
   return new Promise((resolve) => {
     let i = 0;
@@ -174,8 +169,9 @@ function speak(text) {
       const u = new SpeechSynthesisUtterance(pieces[i++]);
       u.lang = voice?.lang ?? (lang === 'tr' ? 'tr-TR' : 'en-US');
       if (voice) u.voice = voice;
-      u.rate = 1.04;
-      u.pitch = 1.25;
+      // Doğal konuşma için normal hız ve perde (yüksek perde sesi robotik yapıyor).
+      u.rate = Number(settings.rate) || 1;
+      u.pitch = Number(settings.pitch) || 1;
       u.onstart = () => {
         started = true;
         if (token === speechToken) mascot.startTalking();
@@ -836,6 +832,57 @@ if (Recognition) {
   });
 }
 
+// ---------- Ses deneme paneli (adresin sonuna ?sesler ekleyin) ----------
+function voicePanel() {
+  const panel = document.createElement('div');
+  panel.className = 'voice-panel';
+  const render = () => {
+    const list = voices
+      .filter((v) => voiceScore(v, 'tr') !== null)
+      .sort((a, b) => voiceScore(b, 'tr') - voiceScore(a, 'tr'));
+    const chosen = pickVoice(voices, 'tr', clinic.speech?.voice);
+    panel.replaceChildren();
+    const h = document.createElement('h3');
+    h.textContent = 'Bu cihazdaki Türkçe sesler';
+    const p = document.createElement('p');
+    p.textContent = list.length
+      ? 'Dinleyip en doğal bulduğunuz sesin adını ayarlardaki "speech.voice" alanına yazın (adın bir kısmı yeterli, ör. "Emel"). Ziyaretçiler kendi cihazlarındaki en doğal sesi otomatik duyar.'
+      : 'Bu tarayıcıda Türkçe ses bulunamadı. Microsoft Edge (Emel/Ahmet "Natural" sesleri) veya Google Chrome deneyin.';
+    panel.append(h, p);
+    for (const v of list) {
+      const row = document.createElement('div');
+      row.className = 'voice-row';
+      const name = document.createElement('span');
+      name.textContent = `${v === chosen ? '✅ ' : ''}${v.name} (${v.lang})${v.localService === false ? ' · bulut' : ''}`;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = '▶ Dinle';
+      b.addEventListener('click', () => {
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(speechText(welcomeText(), clinic.speech?.pronunciations));
+        u.voice = v;
+        u.lang = v.lang;
+        u.rate = Number(clinic.speech?.rate) || 1;
+        u.pitch = Number(clinic.speech?.pitch) || 1;
+        u.onstart = () => mascot.startTalking();
+        u.onend = () => mascot.stopTalking();
+        synth.speak(u);
+      });
+      row.append(name, b);
+      panel.append(row);
+    }
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'voice-close';
+    close.textContent = 'Kapat';
+    close.addEventListener('click', () => panel.remove());
+    panel.append(close);
+  };
+  render();
+  synth?.addEventListener?.('voiceschanged', render);
+  document.body.append(panel);
+}
+
 // ---------- Başlangıç ----------
 async function init() {
   setSound(soundOn);
@@ -857,6 +904,8 @@ async function init() {
   setAI(null);
   const endpoint = clinic.ai?.endpoint ? new URL(clinic.ai.endpoint, location.href).href : null;
   if (endpoint) probeAI(endpoint).then((ok) => ok && setAI(endpoint));
+
+  if (params.has('sesler') && synth) voicePanel();
 
   if (transcript.length) {
     for (const item of transcript) {

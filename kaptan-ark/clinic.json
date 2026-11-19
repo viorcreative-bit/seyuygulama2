@@ -71,6 +71,17 @@
     "İmplant tedavisi nasıl yapılır?"
   ],
 
+  "speech": {
+    "_not": "Sesli okuma ayarları. voice: tercih edilen sesin adından bir parça (ör. \"Emel\"); boşsa cihazdaki en doğal ses seçilir. Sesleri denemek için sayfa adresinin sonuna ?sesler ekleyin. pronunciations: yanlış okunan kelimeyi nasıl okunması gerektiğiyle eşleyin.",
+    "voice": "",
+    "rate": 1,
+    "pitch": 1,
+    "pronunciations": {
+      "ARK": "ark",
+      "Ark": "ark"
+    }
+  },
+
   "ai": {
     "endpoint": "chat.php",
     "_not": "Yapay zeka cevaplarının geleceği adres. PHP destekli hostingde chat.php olarak kalsın. Cloudflare Worker kullanıyorsanız Worker adresini yazın. Boş bırakılırsa Kaptan Ark sadece hazır cevaplarla çalışır."
