@@ -1,4 +1,4 @@
-// ARK Dental · Süper Diş asistanı — maskot animasyonu, sesli konuşma ve sohbet.
+// ARK Dental · Kaptan Ark asistanı — maskot animasyonu, sesli konuşma ve sohbet.
 
 const $ = (sel) => document.querySelector(sel);
 const params = new URLSearchParams(location.search);
@@ -525,7 +525,7 @@ const pokeLines = [
   'Merhaba! 👋 Size nasıl yardımcı olabilirim?',
   'Bugün dişlerinizi fırçaladınız mı? 😄',
   'Randevu almak için bana yazmanız yeterli!',
-  'Pelerinim hazır, sorularınızı bekliyorum!',
+  'Kaptan Ark göreve hazır! Sorularınızı bekliyorum 🦸',
 ];
 let pokeIndex = 0;
 els.mascot.addEventListener('click', () => {

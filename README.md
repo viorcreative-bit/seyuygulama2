@@ -1,4 +1,4 @@
-# ARK Dental · Süper Diş Asistan
+# ARK Dental · Kaptan Ark Asistan
 
 ARK Dental Clinic maskotunu canlandıran, yapay zeka destekli web asistanı.
 
@@ -36,7 +36,7 @@ Tüm klinik bilgileri `config/clinic.json` dosyasındadır. Asistan **yalnızca*
 | Alan | Açıklama |
 |---|---|
 | `phone`, `address`, `whatsapp`, `email`, `mapsUrl` | İletişim bilgileri (şu an örnek değerler var) |
-| `assistantName` | Maskotun adı (varsayılan "Süper Diş") |
+| `assistantName` | Maskotun adı (varsayılan "Kaptan Ark") |
 | `workingHours`, `breaks`, `closedDates` | Çalışma saatleri, öğle arası, tatil günleri |
 | `appointment.slotMinutes` | Bir randevunun süresi (dk) |
 | `appointment.capacityPerSlot` | Aynı saate kaç randevu verilebilir (hekim/koltuk sayısı) |
