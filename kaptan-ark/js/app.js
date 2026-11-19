@@ -1,8 +1,12 @@
 // ARK Dental · Kaptan Ark asistanı — maskot animasyonu, sesli konuşma, sohbet ve randevu talebi.
 import { availableSlots, clinicNow, normalizePhone, openDays, validName, whatsappLink } from './booking.js';
 import { answer, detectService, normalize, priorityAnswer } from './faq.js';
+import { embedRecordings, PHRASES, phraseText, welcomeOf } from './recordings.js';
 import { chunk, detectLang, pickVoice, speechText, voiceScore } from './speech.js';
 import { formatDateTr } from './time.js';
+
+// Sayfanın değiştirilmemiş hali: ses kayıt stüdyosu kayıtları buna gömüp yeni dosya üretir.
+const PRISTINE_HTML = `<!doctype html>\n${document.documentElement.outerHTML}`;
 
 const $ = (sel) => document.querySelector(sel);
 const params = new URLSearchParams(location.search);
@@ -90,9 +94,31 @@ const mascot = {
     this.blinkTimer = setTimeout(loop, 1400);
   },
 
-  startTalking() {
+  rafId: null,
+
+  /** analyser verilirse ağız gerçek sesin şiddetine göre açılır (kayıtlı sesler); yoksa rastgele. */
+  startTalking(analyser = null) {
     this.setState('talking');
-    if (this.talkTimer) return;
+    if (analyser) {
+      clearTimeout(this.talkTimer);
+      this.talkTimer = null;
+      cancelAnimationFrame(this.rafId);
+      const data = new Uint8Array(analyser.fftSize);
+      let level = 1;
+      const frame = () => {
+        analyser.getByteTimeDomainData(data);
+        let sum = 0;
+        for (const v of data) sum += ((v - 128) / 128) ** 2;
+        const target = 1 + Math.min(0.3, Math.sqrt(sum / data.length) * 3.4);
+        level += (target - level) * 0.45;
+        els.jaw.style.setProperty('--jaw', level.toFixed(3));
+        els.jaw.style.setProperty('--jaw-x', (1 + (level - 1) * 0.12).toFixed(3));
+        this.rafId = requestAnimationFrame(frame);
+      };
+      frame();
+      return;
+    }
+    if (this.talkTimer || this.rafId) return;
     const step = () => {
       const pause = Math.random() < 0.16;
       const open = pause ? 1 : 1.04 + Math.random() * 0.24;
@@ -106,6 +132,8 @@ const mascot = {
   stopTalking(next = 'idle') {
     clearTimeout(this.talkTimer);
     this.talkTimer = null;
+    cancelAnimationFrame(this.rafId);
+    this.rafId = null;
     els.jaw.style.setProperty('--jaw', '1');
     els.jaw.style.setProperty('--jaw-x', '1');
     if (this.state === 'talking') this.setState(next);
@@ -194,6 +222,65 @@ function speak(text) {
 function stopSpeaking() {
   speechToken++;
   synth?.cancel();
+  stopAudio();
+}
+
+// ---------- Kayıtlı sesler ----------
+let recordings = {};
+let currentAudio = null;
+let audioCtx = null;
+
+function stopAudio() {
+  const a = currentAudio;
+  currentAudio = null;
+  a?.pause();
+}
+
+/** Bu cümlenin güncel metniyle yapılmış ve bu cihazda çalınabilen kaydı. */
+function recordingFor(id) {
+  const rec = id && recordings[id];
+  if (!rec?.src) return null;
+  if (rec.text && rec.text.trim() !== (phraseText(id, clinic) ?? '').trim()) return null; // metin değişmiş
+  const type = rec.mime || rec.src.slice(5, rec.src.indexOf(';'));
+  return document.createElement('audio').canPlayType(type) ? rec : null;
+}
+
+/** Kaydı çalar; maskotun ağzı sesin şiddetine göre hareket eder. Çalamazsa false döner. */
+function playRecording(rec) {
+  const token = ++speechToken;
+  synth?.cancel();
+  stopAudio();
+  return new Promise((resolve) => {
+    const audio = new Audio(rec.src);
+    currentAudio = audio;
+    let analyser = null;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) {
+        audioCtx ??= new Ctx();
+        audioCtx.resume?.();
+        const source = audioCtx.createMediaElementSource(audio);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 1024;
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+      }
+    } catch {
+      analyser = null;
+    }
+    let finished = false;
+    const done = (ok) => {
+      if (finished) return;
+      finished = true;
+      if (currentAudio === audio) currentAudio = null;
+      resolve(ok);
+    };
+    audio.addEventListener('playing', () => token === speechToken && mascot.startTalking(analyser), { once: true });
+    audio.addEventListener('ended', () => done(true));
+    audio.addEventListener('pause', () => done(true));
+    audio.addEventListener('error', () => done(false));
+    audio.play().catch(() => done(false));
+  });
 }
 
 function setSound(on) {
@@ -212,6 +299,7 @@ function setSound(on) {
 // ---------- Konuşma balonu ----------
 let typeTimer = null;
 let lastSpoken = '';
+let lastAudio = null;
 let sayToken = 0;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -235,14 +323,21 @@ function typeInto(el, text, duration) {
 }
 
 /** Maskota bir cümle söyletir: balonda yazar, ağzını oynatır, ses açıksa seslendirir. */
-async function say(text, { voice = true } = {}) {
+async function say(text, { voice = true, audio = null } = {}) {
   const turn = ++sayToken;
   lastSpoken = text;
+  lastAudio = audio;
   els.bubble.dataset.state = 'text';
   const silentDuration = Math.min(9000, Math.max(1400, text.length * 42));
   typeInto(els.bubbleText, text, Math.min(silentDuration, 3800));
   mascot.startTalking();
-  const spoke = voice ? await speak(text) : false;
+  let spoke = false;
+  const rec = voice && soundOn ? recordingFor(audio) : null;
+  if (rec) {
+    spoke = await playRecording(rec);
+    if (turn !== sayToken) return;
+  }
+  if (!spoke && voice) spoke = await speak(text);
   if (turn !== sayToken) return; // bu arada yeni bir konuşma başladı
   if (!spoke) {
     await sleep(silentDuration);
@@ -335,10 +430,30 @@ function renderChips(list = []) {
 }
 
 /** Bot cevabını gösterir ve maskota söyletir. */
-function botSay(text, chips) {
+const INTENT_AUDIO = {
+  emergency: 'emergency',
+  cancel: 'cancel_info',
+  service: 'service_info',
+  hours: 'hours',
+  location: 'location',
+  contact: 'contact',
+  services: 'services',
+  pain: 'pain',
+  thanks: 'thanks',
+  bye: 'bye',
+  greeting: 'greeting',
+  unknown: 'unknown',
+};
+
+function audioFor(result) {
+  if (result.intent === 'price') return result.generic ? 'price' : null;
+  return INTENT_AUDIO[result.intent] ?? null;
+}
+
+function botSay(text, chips, audio = null) {
   addMessage('bot', text);
   renderChips(chips ?? [CHIP_BOOK]);
-  say(text);
+  say(text, { audio });
 }
 
 // ---------- Yapay zeka ----------
@@ -416,7 +531,7 @@ async function send(text) {
     return;
   }
   if (priority) {
-    botSay(priority.text, priority.chips);
+    botSay(priority.text, priority.chips, audioFor(priority));
     return;
   }
 
@@ -439,7 +554,7 @@ async function send(text) {
     botSay(clean, wantsBooking ? [{ ...CHIP_BOOK, service: service?.name }] : [CHIP_BOOK]);
   } else {
     const result = answer(clinic, text);
-    botSay(result.text, result.chips);
+    botSay(result.text, result.chips, audioFor(result));
   }
 }
 
@@ -479,7 +594,7 @@ function askService() {
   botSay('Tabii, hemen randevu talebi oluşturalım! Hangi hizmet için gelmek istersiniz? Emin değilseniz "Muayene ve Kontrol" seçebilirsiniz.', [
     ...chips,
     cancelChip,
-  ]);
+  ], 'booking_service');
 }
 
 function pickService(name) {
@@ -498,7 +613,7 @@ function askDay(text) {
     return;
   }
   flow.days = days;
-  botSay(text, [...days.map((d) => ({ label: d.label, onPick: () => pickDay(d) })), cancelChip]);
+  botSay(text, [...days.map((d) => ({ label: d.label, onPick: () => pickDay(d) })), cancelChip], 'booking_day');
 }
 
 function pickDay(day) {
@@ -515,7 +630,7 @@ function askTime() {
     ...slots.map((t) => ({ label: t, onPick: () => pickTime(t) })),
     { label: '← Başka gün', onPick: () => askDay('Hangi gün size uygun?') },
     cancelChip,
-  ]);
+  ], 'booking_time');
 }
 
 function pickTime(time) {
@@ -527,13 +642,13 @@ function pickTime(time) {
 function askName() {
   flow.step = 'name';
   setInputMode('name');
-  botSay('Son iki adım! Adınızı ve soyadınızı yazar mısınız?', [cancelChip]);
+  botSay('Son iki adım! Adınızı ve soyadınızı yazar mısınız?', [cancelChip], 'booking_name');
 }
 
 function askPhone() {
   flow.step = 'phone';
   setInputMode('phone');
-  botSay('Teşekkürler! Size ulaşabilmemiz için telefon numaranızı yazar mısınız?', [cancelChip]);
+  botSay('Teşekkürler! Size ulaşabilmemiz için telefon numaranızı yazar mısınız?', [cancelChip], 'booking_phone');
 }
 
 /** Sihirbaz açıkken yazılan metni işler. true dönerse metin sihirbaza aitti. */
@@ -623,7 +738,7 @@ function endFlow() {
 function cancelFlow({ echo = true } = {}) {
   if (echo) addMessage('user', 'Vazgeç');
   endFlow();
-  botSay('Tamam, randevu talebini iptal ettim. Başka bir konuda yardımcı olabilir miyim?', [CHIP_BOOK, ...(clinic.suggestions ?? []).slice(1, 3)]);
+  botSay('Tamam, randevu talebini iptal ettim. Başka bir konuda yardımcı olabilir miyim?', [CHIP_BOOK, ...(clinic.suggestions ?? []).slice(1, 3)], 'booking_cancel');
 }
 
 function contactChips() {
@@ -669,7 +784,7 @@ function summaryCard(req, { save = true } = {}) {
         mascot.celebrate();
         botSay('Harika! WhatsApp açıldı; mesajı göndermeniz yeterli. Ekibimiz en kısa sürede size dönüş yapacak. Sağlıklı gülüşler! 😁', [
           ...(clinic.suggestions ?? []).slice(1, 3),
-        ]);
+        ], 'booking_sent');
       }, 300);
     });
     actions.append(a);
@@ -700,7 +815,7 @@ function showSummary() {
   addMessage('bot', text);
   summaryCard(req);
   renderChips([{ label: '✏️ Düzenle', onPick: () => startBooking(req.service) }]);
-  say(text);
+  say(text, { audio: 'booking_summary' });
 }
 
 // ---------- Yeni sohbet ve karşılama ----------
@@ -716,10 +831,7 @@ function resetChat() {
 }
 
 function welcomeText() {
-  return (
-    clinic.welcome ??
-    `${clinic.shortName ?? clinic.name}'e hoş geldiniz! Ben ${clinic.assistantName}. Sorularınızı yanıtlayabilir, randevu talebinizi hemen oluşturabilirim. Size nasıl yardımcı olayım?`
-  );
+  return welcomeOf(clinic);
 }
 
 function greet({ voice }) {
@@ -727,7 +839,7 @@ function greet({ voice }) {
   addMessage('bot', text);
   renderChips([CHIP_BOOK, ...(clinic.suggestions ?? []).filter((s) => !/randevu/i.test(s))]);
   mascot.wave();
-  say(text, { voice });
+  say(text, { voice, audio: 'welcome' });
 }
 
 // ---------- Giriş alanı ----------
@@ -754,22 +866,18 @@ els.bubbleSpeak.addEventListener('click', (e) => {
   e.stopPropagation();
   greeted = true;
   if (!soundOn) setSound(true);
-  if (lastSpoken) say(lastSpoken);
+  if (lastSpoken) say(lastSpoken, { audio: lastAudio });
 });
 
-const pokeLines = [
-  'Merhaba! 👋 Size nasıl yardımcı olabilirim?',
-  'Bugün dişlerinizi fırçaladınız mı? 😄',
-  'Randevu almak için bana yazmanız yeterli!',
-  'Kaptan Ark göreve hazır! Sorularınızı bekliyorum 🦸',
-];
+const pokeLines = ['poke1', 'poke2', 'poke3', 'poke4'];
 let pokeIndex = 0;
 els.mascot.addEventListener('click', () => {
   greeted = true;
   if (busy) return;
   mascot.wave();
   mascot.blink();
-  say(pokeLines[pokeIndex++ % pokeLines.length]);
+  const id = pokeLines[pokeIndex++ % pokeLines.length];
+  say(phraseText(id, clinic), { audio: id });
 });
 
 // İlk dokunuşta karşılama mesajını sesli oku (tarayıcılar izinsiz ses çalmaya izin vermez).
@@ -780,7 +888,7 @@ window.addEventListener(
     if (greeted) return;
     greeted = true;
     if (e.target.closest('#mascot, .chips, .composer button, .chat-head, .bubble-speak, .appt')) return;
-    if (soundOn) say(welcomeText());
+    if (soundOn) say(welcomeText(), { audio: 'welcome' });
   },
   { once: true, capture: true },
 );
@@ -830,6 +938,168 @@ if (Recognition) {
     };
     rec.start();
   });
+}
+
+// ---------- Ses kayıt stüdyosu (adresin sonuna ?kayit ekleyin) ----------
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+
+function recorderMime() {
+  if (!window.MediaRecorder) return null;
+  const types = ['audio/mp4;codecs=mp4a.40.2', 'audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
+  return types.find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
+}
+
+function recorderPanel() {
+  const panel = document.createElement('div');
+  panel.className = 'rec-panel';
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', 'Ses kayıt stüdyosu');
+  let stream = null;
+  let active = null; // { id, recorder, timer }
+
+  const fileName = () => decodeURIComponent(location.pathname.split('/').pop() || '') || 'index.html';
+
+  async function start(id) {
+    if (active) return;
+    const mime = recorderMime();
+    if (mime === null || !navigator.mediaDevices?.getUserMedia) {
+      alert('Bu tarayıcı ses kaydını desteklemiyor. Güncel Chrome, Edge veya Safari kullanın.');
+      return;
+    }
+    try {
+      stream ??= await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+      });
+    } catch {
+      alert('Mikrofon izni verilmedi. Tarayıcının adres çubuğundaki mikrofon simgesinden izin verin.');
+      return;
+    }
+    stopSpeaking();
+    const chunks = [];
+    const recorder = new MediaRecorder(stream, { ...(mime && { mimeType: mime }), audioBitsPerSecond: 48000 });
+    recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+    recorder.onstop = async () => {
+      const blob = new Blob(chunks, { type: recorder.mimeType || mime || 'audio/webm' });
+      if (blob.size > 0) {
+        recordings[id] = { src: await blobToDataUrl(blob), mime: blob.type, text: phraseText(id, clinic), at: new Date().toISOString() };
+      }
+      active = null;
+      render();
+    };
+    recorder.start();
+    active = { id, recorder, timer: setTimeout(() => recorder.state === 'recording' && recorder.stop(), 30000) };
+    render();
+  }
+
+  function stop() {
+    if (!active) return;
+    clearTimeout(active.timer);
+    if (active.recorder.state === 'recording') active.recorder.stop();
+  }
+
+  function download() {
+    const html = embedRecordings(PRISTINE_HTML, recordings);
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: fileName() });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  function button(label, onClick, cls = '') {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    if (cls) b.className = cls;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function render() {
+    panel.replaceChildren();
+    const head = document.createElement('div');
+    head.className = 'rec-head';
+    const h = document.createElement('h3');
+    h.textContent = '🎙️ Kaptan Ark ses kayıt stüdyosu';
+    const done = PHRASES.filter((p) => recordingFor(p.id)).length;
+    const count = document.createElement('span');
+    count.className = 'rec-count';
+    count.textContent = `${done} / ${PHRASES.length} kayıtlı`;
+    head.append(h, count);
+
+    const help = document.createElement('ol');
+    help.className = 'rec-help';
+    for (const t of [
+      'Sessiz bir odada, mikrofona 20–30 cm uzaklıkta, gülümseyerek ve sohbet eder gibi okuyun.',
+      '"Kaydet"e basın, cümleyi okuyun, bitince "Durdur"a basın. Beğenmezseniz yeniden kaydedin.',
+      'İstediğiniz kadar cümleyi kaydedin; kaydı olmayan cümleleri cihaz sesi okur.',
+      `Bitince "Kayıtlı dosyayı indir"e basın. İnen ${fileName()} dosyası kayıtları içerir; eskisinin yerine onu kullanın.`,
+    ]) {
+      const li = document.createElement('li');
+      li.textContent = t;
+      help.append(li);
+    }
+    panel.append(head, help);
+
+    let group = '';
+    for (const p of PHRASES) {
+      if (p.group !== group) {
+        group = p.group;
+        const g = document.createElement('h4');
+        g.textContent = group;
+        panel.append(g);
+      }
+      const row = document.createElement('div');
+      row.className = 'rec-row';
+      const text = document.createElement('p');
+      text.textContent = p.text(clinic);
+      const status = document.createElement('span');
+      status.className = 'rec-status';
+      const hasRec = recordingFor(p.id);
+      const outdated = recordings[p.id] && !hasRec;
+      status.textContent = active?.id === p.id ? '● Kaydediliyor…' : hasRec ? '✅ Kayıtlı' : outdated ? '⚠️ Metin değişti, yeniden kaydedin' : 'Kayıt yok';
+      if (active?.id === p.id) status.classList.add('live');
+      const actions = document.createElement('div');
+      actions.className = 'rec-actions';
+      if (active?.id === p.id) {
+        actions.append(button('⏹ Durdur', stop, 'stop'));
+      } else {
+        actions.append(button(hasRec ? '🎙 Yeniden kaydet' : '🎙 Kaydet', () => start(p.id), 'rec'));
+        if (hasRec) {
+          actions.append(button('▶ Dinle', () => say(p.text(clinic), { audio: p.id })));
+          actions.append(button('🗑', () => {
+            delete recordings[p.id];
+            render();
+          }, 'del'));
+        }
+      }
+      if (active && active.id !== p.id) actions.querySelectorAll('button').forEach((b) => (b.disabled = true));
+      row.append(text, status, actions);
+      panel.append(row);
+    }
+
+    const foot = document.createElement('div');
+    foot.className = 'rec-foot';
+    const dl = button('💾 Kayıtlı dosyayı indir', download, 'primary');
+    dl.disabled = Boolean(active);
+    foot.append(dl, button('Kapat', () => {
+      stop();
+      stream?.getTracks().forEach((t) => t.stop());
+      panel.remove();
+    }));
+    panel.append(foot);
+  }
+
+  render();
+  document.body.append(panel);
 }
 
 // ---------- Ses deneme paneli (adresin sonuna ?sesler ekleyin) ----------
@@ -905,7 +1175,13 @@ async function init() {
   const endpoint = clinic.ai?.endpoint ? new URL(clinic.ai.endpoint, location.href).href : null;
   if (endpoint) probeAI(endpoint).then((ok) => ok && setAI(endpoint));
 
+  try {
+    recordings = JSON.parse(document.getElementById('voice-recordings')?.textContent || '{}') ?? {};
+  } catch {
+    recordings = {};
+  }
   if (params.has('sesler') && synth) voicePanel();
+  if (params.has('kayit')) recorderPanel();
 
   if (transcript.length) {
     for (const item of transcript) {

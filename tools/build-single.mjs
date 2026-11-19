@@ -31,13 +31,14 @@ function appModule(code) {
   return body;
 }
 
-const [html, css, time, booking, faq, speech, app, clinicRaw, body, glove, avatar] = await Promise.all([
+const [html, css, time, booking, faq, speech, recordingsJs, app, clinicRaw, body, glove, avatar] = await Promise.all([
   text('index.html'),
   text('styles.css'),
   text('js/time.js'),
   text('js/booking.js'),
   text('js/faq.js'),
   text('js/speech.js'),
+  text('js/recordings.js'),
   text('js/app.js'),
   text('clinic.json'),
   dataUri('img/mascot-body.webp', 'image/webp'),
@@ -57,6 +58,7 @@ const script = [
   wrapModule('booking', booking),
   wrapModule('faq', faq),
   wrapModule('speech', speech),
+  wrapModule('recordings', recordingsJs),
   appModule(app),
 ].join('\n');
 

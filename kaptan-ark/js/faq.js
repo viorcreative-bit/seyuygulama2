@@ -200,6 +200,7 @@ export function answer(clinic, text) {
     }
     return {
       intent: 'price',
+      generic: true,
       text: `${service ? `${service.name} ücreti` : 'Tedavi ücretleri'}, muayenede ağız yapınıza göre hazırlanan tedavi planından sonra netleşir. Böylece size özel ve doğru bir fiyat verebiliriz. Muayene için randevu talebi oluşturmamı ister misiniz?`,
       chips: [CHIP_BOOK, ...contactChips(clinic)],
     };

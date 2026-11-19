@@ -106,7 +106,21 @@ Sağ alt köşede Kaptan Ark düğmesi ve "ARK Dental'e hoş geldiniz! 👋" bal
 
 ## Sesler
 
-Sesli okuma, ziyaretçinin tarayıcısındaki hazır Türkçe sesle yapılır (Chrome, Edge, Safari). Tarayıcılar sayfa açılır açılmaz ses çalmaya izin vermediği için karşılama ilk dokunuşta sesli okunur. Mikrofon için site HTTPS üzerinden açılmalıdır.
+### Kaptan Ark'ı gerçek bir insan sesiyle konuşturun
+
+Karşılama, randevu adımları ve sık kullanılan cevaplar gibi **26 sabit cümle** bir kez kaydedilir. Kaptan Ark bu cümlelerde kaydı çalar, ağzı da sesin şiddetine göre hareket eder.
+
+1. Asistanı tarayıcıda açın ve adresin sonuna `?kayit` ekleyin (ör. `kaptan-ark.html?kayit` veya `https://siteniz.com/kaptan-ark/?kayit`).
+2. Açılan **ses kayıt stüdyosunda** her cümle için "Kaydet"e basın, cümleyi okuyun, "Durdur"a basın. "Dinle" ile kontrol edin, beğenmezseniz yeniden kaydedin.
+3. **"Kayıtlı dosyayı indir"** düğmesine basın. İnen dosya (tek dosyalık sürümde `kaptan-ark.html`, klasör sürümünde `index.html`) kayıtları içerir; eskisinin yerine onu kullanın.
+
+İpuçları: Sessiz bir odada, mikrofona 20–30 cm uzaklıkta, gülümseyerek ve sohbet eder gibi okuyun. Kaydı olmayan cümleler ve her soruya göre değişen cevaplar cihaz sesiyle okunur. Karşılama metnini (`welcome`) değiştirirseniz o cümleyi yeniden kaydetmeniz gerekir; stüdyo bunu "Metin değişti" diye gösterir. Bir cihaz kaydı çalamazsa cümleyi otomatik olarak cihaz sesi okur.
+
+### Cihaz sesi
+
+Kaydı olmayan cümleler ziyaretçinin tarayıcısındaki hazır Türkçe sesle okunur. Cihazdaki en doğal ses otomatik seçilir: Edge'de "Natural", iPhone'da "Gelişmiş", Chrome'da Google sesleri. Sesleri dinleyip seçmek için adresin sonuna `?sesler` ekleyin ve beğendiğiniz sesin adını `clinic.json` içindeki `speech.voice` alanına yazın. Yanlış okunan kelimeleri `speech.pronunciations` listesinden düzeltebilirsiniz (ör. `"ARK": "ark"`).
+
+Tarayıcılar sayfa açılır açılmaz ses çalmaya izin vermediği için karşılama ilk dokunuşta sesli okunur. Mikrofon için site HTTPS üzerinden açılmalıdır.
 
 ## Geliştirme ve test
 
