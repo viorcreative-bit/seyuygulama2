@@ -22,6 +22,14 @@ cloudflare-worker/     PHP desteklemeyen siteler için yapay zeka ara katmanı
 test/                  otomatik testler
 ```
 
+## Hızlı deneme: tek HTML dosyası
+
+`dist/kaptan-ark.html`, her şeyin (maskot, sohbet, randevu, ayarlar) içine gömüldüğü tek bir dosyadır. Çift tıklayıp tarayıcıda açabilir ya da hostinginize tek dosya olarak yükleyebilirsiniz.
+
+- Klinik ayarları dosyanın içindeki `<script id="clinic-config">` bölümündedir; telefon ve `whatsapp` numarasını oradan düzenleyin.
+- Bu sürüm hazır cevaplarla çalışır. Yapay zeka için ayarlardaki `ai.endpoint` alanına bir Cloudflare Worker adresi yazın (bkz. 3b).
+- `kaptan-ark/` klasöründe değişiklik yaptıktan sonra dosyayı yeniden üretmek için: `npm run build:single`
+
 ## 1. Klinik bilgilerini girin
 
 `kaptan-ark/clinic.json` dosyasını bir metin düzenleyiciyle açın. Kaptan Ark **yalnızca** bu dosyadaki bilgileri kullanır.

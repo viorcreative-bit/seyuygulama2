@@ -283,7 +283,7 @@ button { font: inherit; color: inherit; }
 .avatar {
   width: 44px; height: 44px; flex: none;
   border-radius: 50%;
-  background: #fff url("img/mascot-640.png") 51% 17% / 330% no-repeat;
+  background: #fff url("img/mascot-avatar.webp") center / cover no-repeat;
   border: 2px solid rgba(255, 255, 255, 0.85);
 }
 .who { display: flex; flex-direction: column; flex: 1; min-width: 0; }

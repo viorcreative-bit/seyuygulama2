@@ -13,7 +13,7 @@
 
   const css = `
   .arkdw-btn{position:fixed;right:20px;bottom:20px;z-index:2147483000;width:76px;height:76px;border-radius:50%;border:0;cursor:pointer;
-    background:#fff url(${base}img/mascot-640.png) 51% 17%/330% no-repeat;box-shadow:0 10px 30px -8px rgba(11,70,80,.55),0 0 0 4px #17a6a6;
+    background:#fff url(${base}img/mascot-avatar.webp) center/cover no-repeat;box-shadow:0 10px 30px -8px rgba(11,70,80,.55),0 0 0 4px #17a6a6;
     animation:arkdw-bob 3s ease-in-out infinite;transition:transform .2s}
   .arkdw-btn:hover{transform:scale(1.06)}
   .arkdw-tip{position:fixed;right:108px;bottom:38px;z-index:2147483000;max-width:240px;padding:12px 16px;border-radius:18px 18px 4px 18px;

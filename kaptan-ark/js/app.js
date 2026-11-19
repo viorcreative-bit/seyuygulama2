@@ -873,7 +873,9 @@ async function init() {
   setTimeout(() => mascot.state === 'intro' && mascot.setState('idle'), 2000);
 
   try {
-    clinic = await (await fetch('clinic.json', { cache: 'no-cache' })).json();
+    // Tek dosyalık sürümde ayarlar sayfanın içindeki <script id="clinic-config"> etiketindedir.
+    const inline = document.getElementById('clinic-config');
+    clinic = inline ? JSON.parse(inline.textContent) : await (await fetch('clinic.json', { cache: 'no-cache' })).json();
   } catch {
     clinic = { name: 'ARK Dental Clinic', shortName: 'ARK Dental', assistantName: 'Kaptan Ark', services: [], suggestions: [] };
   }

@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "php -S localhost:8080 -t kaptan-ark",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "build:single": "node tools/build-single.mjs"
   },
   "engines": {
     "node": ">=20"
