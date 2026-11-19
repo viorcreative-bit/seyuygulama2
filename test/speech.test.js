@@ -6,16 +6,20 @@ import { chunk, detectLang, pickVoice, speechText, voiceScore } from '../kaptan-
 const clinic = JSON.parse(await readFile(new URL('../kaptan-ark/clinic.json', import.meta.url), 'utf8'));
 const say = (text) => speechText(text, clinic.speech.pronunciations);
 
-test('"ARK Dental" ve "Kaptan Ark" arkeoloji diye okunmasın', () => {
+test('seslendirmede "Kaptan Ark" yerine "Kaptan" denir, arkeoloji okunmaz', () => {
   const spoken = say(clinic.welcome);
   assert.equal(
     spoken,
-    "ark Dental'e hoş geldiniz! Ben Kaptan ark! Sorularınızı yanıtlayabilir, randevu talebinizi hemen oluşturabilirim. Size nasıl yardımcı olayım?",
+    "ark Dental'e hoş geldiniz! Ben Kaptan. Sorularınızı yanıtlayabilir, randevu talebinizi hemen oluşturabilirim. Size nasıl yardımcı olayım?",
   );
   assert.doesNotMatch(spoken, /\bArk\b|\bARK\b/);
+  assert.doesNotMatch(spoken, /kaptan ark/i);
   assert.equal(say('ARK Dental Clinic'), 'ark Dental Clinic');
-  assert.equal(say('Merhaba! Ben Kaptan Ark.'), 'Merhaba! Ben Kaptan ark!');
-  assert.equal(say("Kaptan Ark'ın pelerini"), "Kaptan ark'ın pelerini");
+  assert.equal(say('Merhaba! Ben Kaptan Ark.'), 'Merhaba! Ben Kaptan.');
+  assert.equal(say('Kaptan Ark göreve hazır!'), 'Kaptan göreve hazır!');
+  assert.equal(say("Kaptan Ark'ın pelerini"), "Kaptan'ın pelerini");
+  // ayar dosyası olmasa da varsayılan kurallar geçerli
+  assert.equal(speechText('Ben Kaptan Ark.'), 'Ben Kaptan.');
 });
 
 test('benzer kelimeler bozulmaz', () => {

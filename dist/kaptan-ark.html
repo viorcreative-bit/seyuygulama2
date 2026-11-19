@@ -894,6 +894,7 @@ body.embed .chat { border-radius: 0; border: 0; box-shadow: none; max-height: no
     "rate": 1,
     "pitch": 1,
     "pronunciations": {
+      "Kaptan Ark": "Kaptan",
       "ARK": "ark",
       "Ark": "ark"
     }
@@ -1399,8 +1400,9 @@ const __speech = (() => {
 // Sesli okuma yardımcıları: metni konuşma motoruna hazırlar ve cihazdaki en doğal sesi seçer.
 
 // Türkçe ses motorları "Ark" kelimesini "arkeoloji" kısaltması sanıp yanlış okuyor.
-// Küçük harfli "ark" ise gerçek bir Türkçe kelime olduğu için doğru ("ark") okunuyor.
-const DEFAULT_PRONUNCIATIONS = { ARK: 'ark', Ark: 'ark' };
+// Seslendirmede maskot kendini sadece "Kaptan" diye tanıtır; "ARK Dental" küçük harfle okunur.
+// Uzun ifadeler önce uygulanır ("Kaptan Ark" → "Kaptan", sonra kalan "Ark" → "ark").
+const DEFAULT_PRONUNCIATIONS = { 'Kaptan Ark': 'Kaptan', ARK: 'ark', Ark: 'ark' };
 
 const NOT_WORD = '[^\\p{L}\\p{N}]';
 
@@ -1425,7 +1427,8 @@ function speechText(text, pronunciations = {}) {
     .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '')
     .replace(/[•*#_`>]/g, ' ');
   const dict = { ...DEFAULT_PRONUNCIATIONS, ...(pronunciations ?? {}) };
-  for (const [from, to] of Object.entries(dict)) {
+  const entries = Object.entries(dict).sort((a, b) => b[0].length - a[0].length);
+  for (const [from, to] of entries) {
     if (!from || from.startsWith('_') || typeof to !== 'string') continue;
     const re = new RegExp(`(^|${NOT_WORD})${escapeRegExp(from)}(?=${NOT_WORD}|$)`, 'gu');
     out = out.replace(re, (_, before) => `${before}${to}`);
