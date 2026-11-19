@@ -1,104 +1,104 @@
-# ARK Dental · Kaptan Ark Asistan
+# Kaptan Ark · ARK Dental asistanı
 
-ARK Dental Clinic maskotunu canlandıran, yapay zeka destekli web asistanı.
+ARK Dental Clinic'in maskotu **Kaptan Ark**'ı web sitenizde canlandıran sohbet asistanı. Sunucu kurmanız gerekmez; dosyaları sitenize yüklemeniz yeterlidir.
 
-- **Canlı maskot:** göz kırpar, el sallar, konuşurken ağzı hareket eder, düşünürken başını eğer, randevu oluşunca zıplayıp kutlama yapar.
-- **Sesli karşılama:** "ARK Dental'e hoş geldiniz!" der; cevapları tarayıcının Türkçe sesiyle okur (ses kapatılabilir). Mikrofonla soru sorulabilir.
-- **Yapay zeka (Claude):** hastaların sorularını klinik bilgilerine göre yanıtlar, fiyat/kampanya gibi bilinmeyen şeyleri uydurmaz, acil durumlarda 112'ye yönlendirir. Yabancı hastalara kendi dillerinde cevap verir.
-- **Randevu sistemi:** boş saatleri kontrol eder, bilgileri özetleyip onay alır, randevuyu kaydeder ve randevu kodu verir. İptal ve sorgulama da yapılabilir. Hasta "Takvime ekle" ile randevuyu telefonuna ekleyebilir.
-- **Yönetim paneli:** `/admin` adresinden tüm randevular görülür, aranır, iptal edilir.
-- **Web sitesine ekleme:** tek satırlık kodla mevcut sitenizin sağ alt köşesine maskotlu sohbet düğmesi eklenir.
+- **Canlı maskot:** göz kırpar, el sallar, konuşurken ağzı hareket eder, düşünürken başını eğer, randevu talebi hazır olunca zıplayıp kutlama yapar.
+- **Sesli karşılama:** "ARK Dental'e hoş geldiniz!" der, cevapları tarayıcının Türkçe sesiyle okur. Mikrofonla soru sorulabilir.
+- **Sohbet:** Google Gemini veya OpenAI ile serbest soruları yanıtlar. Yapay zeka anahtarı girilmemişse ya da kota dolduysa, hazır cevaplarla (çalışma saatleri, adres, hizmetler, fiyat, acil durum, SSS) çalışmaya devam eder.
+- **Randevu talebi:** Hasta hizmeti, günü ve saati butonlarla seçer, adını ve telefonunu yazar. Talep hazır bir mesaj olarak kliniğin **WhatsApp**'ına gider, onayı klinik verir.
+- **Siteye ekleme:** Tek satırlık kodla sitenizin sağ alt köşesine maskotlu sohbet düğmesi eklenir.
 
-## Hızlı başlangıç
+## Dosyalar
 
-Gereken: [Node.js 22.9+](https://nodejs.org) ve bir [Claude API anahtarı](https://console.anthropic.com).
-
-```bash
-npm install
+```
+kaptan-ark/            ← sitenize yükleyeceğiniz klasör
+  index.html           asistan sayfası
+  embed.js             sitenize eklenen widget kodu
+  clinic.json          klinik bilgileri (DÜZENLEYİN)
+  chat.php             yapay zeka ara dosyası (PHP'li hostingler için)
+  chat-config.php      yapay zeka anahtarı ve ayarları (DÜZENLEYİN)
+  js/, img/, styles.css
+cloudflare-worker/     PHP desteklemeyen siteler için yapay zeka ara katmanı
+test/                  otomatik testler
 ```
 
-```bash
-cp .env.example .env
-```
+## 1. Klinik bilgilerini girin
 
-`.env` dosyasını açıp `ANTHROPIC_API_KEY` ve `ADMIN_PASSWORD` değerlerini girin, sonra:
-
-```bash
-npm start
-```
-
-Tarayıcıda `http://localhost:3000` adresini açın. Randevu paneli: `http://localhost:3000/admin`.
-
-## Klinik bilgilerini düzenleme
-
-Tüm klinik bilgileri `config/clinic.json` dosyasındadır. Asistan **yalnızca** bu dosyadaki bilgileri kullanır. Yayına almadan önce mutlaka düzenleyin:
+`kaptan-ark/clinic.json` dosyasını bir metin düzenleyiciyle açın. Kaptan Ark **yalnızca** bu dosyadaki bilgileri kullanır.
 
 | Alan | Açıklama |
 |---|---|
-| `phone`, `address`, `whatsapp`, `email`, `mapsUrl` | İletişim bilgileri (şu an örnek değerler var) |
-| `assistantName` | Maskotun adı (varsayılan "Kaptan Ark") |
+| `whatsapp` | Randevu taleplerinin gideceği numara, ülke koduyla ve sadece rakam: `905321234567` (**zorunlu**; boşsa hasta aramaya yönlendirilir) |
+| `phone`, `address`, `email`, `mapsUrl` | İletişim bilgileri (şu an örnek değerler var) |
+| `welcome` | Karşılama cümlesi |
 | `workingHours`, `breaks`, `closedDates` | Çalışma saatleri, öğle arası, tatil günleri |
-| `appointment.slotMinutes` | Bir randevunun süresi (dk) |
-| `appointment.capacityPerSlot` | Aynı saate kaç randevu verilebilir (hekim/koltuk sayısı) |
-| `appointment.maxDaysAhead`, `minNoticeMinutes` | En ileri randevu günü, en az kaç dk önceden alınabileceği |
-| `services` | Hizmet listesi ve kısa açıklamaları |
+| `appointment` | Randevu aralığı (dk), kaç gün sonrasına kadar ve en az kaç dk önceden talep alınacağı |
+| `services` | Hizmetler; `keywords` hazır cevap motorunun o hizmeti tanıdığı kelimelerdir |
 | `doctors` | Hekimler, ör. `[{"name": "Dt. Ayşe Kaya", "title": "Ortodontist"}]` |
-| `prices.items` | Paylaşmak istediğiniz fiyatlar, ör. `{"Muayene": "Ücretsiz"}`. Boşsa asistan fiyatın muayeneden sonra belirlendiğini söyler. |
-| `faq` | Sık sorulan sorular, ör. `[{"q": "Kredi kartına taksit var mı?", "a": "Evet, 6 taksit yapılabiliyor."}]` |
-| `extraInfo` | Otopark, ulaşım, kampanya gibi serbest metin bilgiler |
+| `prices.items` | Paylaşmak istediğiniz fiyatlar, ör. `{"Muayene ve Kontrol": "Ücretsiz"}` |
+| `faq` | Sık sorulan sorular, ör. `[{"q": "Otopark var mı?", "a": "Evet, binanın önünde."}]`. Örnekler `_faq_ornek` alanında. |
+| `extraInfo` | Ulaşım, kampanya gibi serbest metin bilgiler |
+| `ai.endpoint` | Yapay zeka ara katmanının adresi (aşağıya bakın). Boş bırakılırsa sadece hazır cevaplar kullanılır. |
 
-Değişiklikten sonra sunucuyu yeniden başlatın.
+## 2. Yapay zeka anahtarı alın (isteğe bağlı)
 
-## Web sitenize ekleme (adım adım)
+**Google Gemini (önerilen, ücretsiz kotası var):** [aistudio.google.com/apikey](https://aistudio.google.com/apikey) adresinden Google hesabınızla anahtar oluşturun.
 
-Yapay zeka API anahtarı gizli kalmalıdır; bu yüzden asistan doğrudan sitenizin içine dosya olarak konamaz, ayrı küçük bir sunucuda çalışır. Siteniz ise bu sunucuya tek satırlık bir kodla bağlanır.
+**OpenAI (alternatif, ücretli):** [platform.openai.com/api-keys](https://platform.openai.com/api-keys) adresinden anahtar oluşturun ve ayarlarda `provider` değerini `openai` yapın.
 
-**1. Asistanı yayına alın.** En kolay yol [Render](https://render.com):
+Anahtar asla tarayıcıya gönderilmez. Sitenizdeki `chat.php` dosyası ya da bir Cloudflare Worker anahtarı saklar ve soruyu yapay zekaya iletir.
 
-1. Render'da hesap açın ve GitHub hesabınızı bağlayın.
-2. **New → Blueprint** deyip bu depoyu seçin. `render.yaml` dosyası her şeyi otomatik ayarlar.
-3. Sizden istenen iki değeri girin: `ANTHROPIC_API_KEY` (Claude API anahtarı) ve `ADMIN_PASSWORD` (panel şifresi).
-4. Kurulum bitince Render size `https://ark-dental-asistan.onrender.com` gibi bir adres verir. Bu adresi açıp maskotun çalıştığını kontrol edin.
-5. İsterseniz Render'da **Custom Domain** ile `asistan.arkdental.com` gibi kendi alt alan adınızı bağlayın.
+## 3a. Sitenizde PHP varsa (WordPress, cPanel, Plesk ve çoğu Türk hosting firması)
 
-Not: `render.yaml` randevuların silinmemesi için kalıcı disk ister; bu nedenle ücretli "Starter" planı seçilidir. Docker destekleyen başka bir sunucu kullanacaksanız hazır `Dockerfile` da var (`/data` klasörünü kalıcı birim olarak bağlayın).
+1. `kaptan-ark/chat-config.php` dosyasını açın ve `gemini_api_key` alanına anahtarınızı yapıştırın.
+2. `kaptan-ark` klasörünün tamamını FTP veya hosting panelinizdeki **Dosya Yöneticisi** ile sitenizin ana klasörüne (genellikle `public_html`) yükleyin.
+3. Tarayıcıda `https://siteniz.com/kaptan-ark/` adresini açın. Sohbet başlığında **"Yapay zeka asistanı · çevrimiçi"** yazıyorsa yapay zeka çalışıyordur. **"Dijital asistan"** yazıyorsa hazır cevaplarla çalışıyordur.
+4. Widget'ı sitenize ekleyin (adım 4).
 
-**2. Sitenize kodu ekleyin.** Aşağıdaki satırdaki adresi kendi asistan adresinizle değiştirin:
+## 3b. Sitenizde PHP yoksa (Wix, Ticimax, İdeasoft, Shopify vb.)
+
+Bu sitelere klasör yüklenemediği için asistan ücretsiz bir yerde barındırılır:
+
+1. `kaptan-ark` klasöründen **`chat.php` ve `chat-config.php` dosyalarını silin** (PHP olmayan yerde anahtar herkese görünür olur).
+2. Klasörü ücretsiz bir statik hostinge yükleyin. Örneğin [app.netlify.com/drop](https://app.netlify.com/drop) adresine klasörü sürükleyip bırakmanız yeterli. Size `https://xxxx.netlify.app` gibi bir adres verilir.
+3. Yapay zeka için Cloudflare'de ücretsiz hesap açın → **Workers & Pages → Create → Worker** → `cloudflare-worker/worker.js` dosyasının içeriğini yapıştırıp **Deploy** deyin.
+4. Worker'ın **Settings → Variables and Secrets** bölümüne şunları ekleyin:
+   - `GEMINI_API_KEY` (tür: Secret) → anahtarınız
+   - `CLINIC_JSON_URL` → `https://xxxx.netlify.app/clinic.json`
+   - `ALLOWED_ORIGINS` → `https://xxxx.netlify.app`
+5. `clinic.json` içindeki `ai.endpoint` değerine Worker adresinizi yazın (ör. `https://kaptan-ark.hesabiniz.workers.dev`) ve klasörü tekrar yükleyin.
+
+Yapay zeka istemiyorsanız 3. ve 4. adımları atlayın, `ai.endpoint` değerini boş bırakın.
+
+## 4. Widget'ı sitenize ekleyin
+
+Aşağıdaki satırdaki adresi kendi adresinizle değiştirin:
 
 ```html
-<script src="https://ASISTAN-ADRESINIZ/embed.js" defer></script>
+<script src="https://siteniz.com/kaptan-ark/embed.js" defer></script>
 ```
 
-- **Kendi HTML siteniz:** Her sayfada `</body>` etiketinden hemen önce yapıştırın.
-- **WordPress:** "WPCode" (Insert Headers and Footers) eklentisini kurun → Code Snippets → Header & Footer → **Footer** kutusuna yapıştırıp kaydedin.
-- **Wix:** Ayarlar → Gelişmiş → **Özel Kod** → Kod Ekle → "Tüm sayfalar", konum **Body – end** (bu özellik genelde bağlı alan adı olan ücretli plan ister).
-- **Shopify:** Online Store → Themes → Edit code → `theme.liquid` dosyasında `</body>` öncesine yapıştırın.
-- **Squarespace / Webflow / Ticimax / İdeasoft vb.:** "Footer code", "Özel kod" veya "Body sonu kodu" alanına yapıştırın.
+- **WordPress:** "WPCode" eklentisini kurun → Code Snippets → Header & Footer → **Footer** kutusuna yapıştırın.
+- **Wix:** Ayarlar → Gelişmiş → **Özel Kod** → "Tüm sayfalar", konum **Body – end** (genellikle bağlı alan adı olan ücretli plan ister).
+- **Shopify:** Online Store → Themes → Edit code → `theme.liquid` içinde `</body>` öncesine yapıştırın.
+- **Kendi HTML siteniz / diğerleri:** Her sayfada `</body>` öncesine ya da "Footer kodu / Özel kod" alanına yapıştırın.
 
-Sağ alt köşede maskot düğmesi ve "ARK Dental'e hoş geldiniz! 👋" baloncuğu çıkar; tıklanınca sohbet açılır. Baloncuk metnini `data-greeting="..."` ile değiştirebilirsiniz.
+Sağ alt köşede Kaptan Ark düğmesi ve "ARK Dental'e hoş geldiniz! 👋" baloncuğu çıkar. Baloncuk metnini `data-greeting="..."` ile değiştirebilirsiniz. İsterseniz sitenizdeki "Online Randevu" menüsünü doğrudan `https://siteniz.com/kaptan-ark/` adresine yönlendirebilirsiniz.
 
-Asistanı tam sayfa olarak da kullanabilirsiniz: sitenizdeki "Online Randevu" menüsünü doğrudan asistan adresine yönlendirmeniz yeterli.
+## Güvenlik ve maliyet
 
-## Yayına alma (teknik ayrıntılar)
+- `chat-config.php` içindeki `per_minute_limit` (aynı ziyaretçiden dakikada en fazla mesaj) ve `daily_limit` (günlük toplam mesaj) sınırları beklenmedik faturaya karşı korur. Sınır dolunca Kaptan Ark hazır cevaplarla devam eder.
+- Google Cloud'da anahtarınıza bütçe uyarısı koymanız önerilir.
+- `chat-config.php` dosyasını herkese açık bir GitHub deposuna anahtarla birlikte yüklemeyin.
 
-Herhangi bir Node.js barındırma hizmetinde çalışır (Render, Railway, Fly.io, kendi VPS'iniz vb.):
+## Gizlilik (KVKK)
 
-- Kurulum: `npm ci --omit=dev`, başlatma: `npm start` (veya `node server.js`)
-- Ortam değişkenleri: `ANTHROPIC_API_KEY`, `ADMIN_PASSWORD` (gerekirse `PORT`)
-- Randevular `data/appointments.json` dosyasında saklanır. Sunucunun **kalıcı diski** olmalı ya da `DATA_FILE` ile kalıcı bir klasör gösterilmeli; düzenli yedek alın.
-- Mikrofonla konuşma için site **HTTPS** üzerinden yayınlanmalıdır.
-- Yeni randevularda bildirim almak için `APPOINTMENT_WEBHOOK_URL` tanımlayın (Zapier, Make, n8n, Slack webhook'u vb.). Her yeni veya iptal edilen randevu JSON olarak bu adrese gönderilir.
+- Ad ve telefon yapay zekaya **gönderilmez**. Bu bilgiler sadece hastanın kendi WhatsApp'ından kliniğe giden mesajda yer alır.
+- Sohbetteki sorular cevap üretmek için Google'a (veya OpenAI'ye) iletilir. Google'ın koşullarına göre ücretsiz katmanda gönderilen içerikler ürün geliştirmede kullanılabilir; ücretli katmanda kullanılmaz. Güncel koşulları kontrol edin ve sitenizdeki aydınlatma metnine bu bilgiyi ekleyin.
 
-## Yapay zeka ayarları
+## Sesler
 
-- Varsayılan model `claude-opus-5-5`, hızlı cevap için düşük düşünme seviyesiyle (`AI_EFFORT=low`) çalışır.
-- Daha düşük maliyet için `.env` dosyasında `AI_MODEL=claude-sonnet-5-5` veya `AI_MODEL=claude-haiku-5-5` yapılabilir.
-- Bir istek güvenlik filtresine takılırsa Claude API'nin sunucu tarafı yedek model özelliği (`fallbacks: "default"`) devreye girer; ayrıca bir işlem gerekmez.
-- Asistanın davranış kuralları `src/prompt.js` dosyasındadır.
-
-## Sesler hakkında
-
-Sesli okuma, ziyaretçinin tarayıcısındaki hazır Türkçe sesle yapılır (Chrome, Edge, Safari'de var). Ses kalitesi cihaza göre değişir. Tarayıcılar sayfa açılır açılmaz ses çalmaya izin vermediği için karşılama mesajı ziyaretçinin ilk dokunuşunda sesli okunur.
+Sesli okuma, ziyaretçinin tarayıcısındaki hazır Türkçe sesle yapılır (Chrome, Edge, Safari). Tarayıcılar sayfa açılır açılmaz ses çalmaya izin vermediği için karşılama ilk dokunuşta sesli okunur. Mikrofon için site HTTPS üzerinden açılmalıdır.
 
 ## Geliştirme ve test
 
@@ -106,29 +106,10 @@ Sesli okuma, ziyaretçinin tarayıcısındaki hazır Türkçe sesle yapılır (C
 npm test
 ```
 
-API anahtarı olmadan arayüzü denemek için sahte (senaryolu) bir Claude sunucusu vardır. İki ayrı terminalde:
+Yerelde PHP ile çalıştırmak için:
 
 ```bash
-node test/mock-anthropic.js
+npm run dev
 ```
 
-```bash
-ANTHROPIC_API_KEY=demo ANTHROPIC_BASE_URL=http://localhost:4010 ADMIN_PASSWORD=demo npm start
-```
-
-## Dosya yapısı
-
-```
-server.js              Express sunucusu (sohbet, yönetim API'si, statik dosyalar)
-src/assistant.js       Claude bağlantısı ve randevu araçları
-src/prompt.js          Asistanın talimatları
-src/appointments.js    Boş saat hesaplama ve randevu kayıtları
-config/clinic.json     Klinik bilgileri (düzenleyin)
-public/                Maskotlu sohbet sayfası, yönetim paneli, embed.js
-public/img/            Maskot katmanları (gövde, el)
-assets/                Orijinal maskot görseli
-```
-
-## Gizlilik (KVKK)
-
-Asistan yalnızca randevu için ad soyad ve telefon ister; bunlar sizin sunucunuzdaki randevu dosyasında tutulur. Sohbet içerikleri cevap üretmek için Anthropic'e (Claude API) gönderilir. Sitenizdeki aydınlatma metnine bu bilgiyi eklemeniz önerilir.
+Gerçek anahtar olmadan yapay zekalı modu denemek için sahte bir API sunucusu vardır (`node test/mock-ai.js`). `chat-config.php` içinde `gemini_api_key` alanına herhangi bir değer, `gemini_base_url` alanına `http://127.0.0.1:4020` yazın.

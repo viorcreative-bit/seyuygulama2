@@ -1,6 +1,6 @@
 /*
  * ARK Dental asistanını herhangi bir web sitesine eklemek için:
- *   <script src="https://ASISTAN-ADRESINIZ/embed.js" defer></script>
+ *   <script src="https://SITENIZ.com/kaptan-ark/embed.js" defer></script>
  * Sağ alt köşede maskot düğmesi çıkar, tıklanınca sohbet penceresi açılır.
  */
 (() => {
@@ -51,7 +51,7 @@
       frame.className = 'arkdw-frame';
       frame.title = 'ARK Dental asistanı';
       frame.allow = 'microphone; autoplay';
-      frame.src = `${base}?embed=1`;
+      frame.src = `${base}index.html?embed=1`;
       document.body.append(frame);
       void frame.offsetWidth;
     }

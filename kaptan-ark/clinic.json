@@ -1,0 +1,78 @@
+{
+  "_not": "Bu dosyadaki bilgileri kendi kliniğinize göre düzenleyin. Kaptan Ark SADECE buradaki bilgileri kullanır. Telefon, WhatsApp ve adres şu an örnek değerlerdir.",
+
+  "name": "ARK Dental Clinic",
+  "shortName": "ARK Dental",
+  "assistantName": "Kaptan Ark",
+  "phone": "0 (212) 000 00 00",
+  "whatsapp": "",
+  "_whatsapp_not": "Randevu taleplerinin gideceği WhatsApp numarası; ülke koduyla, sadece rakam. Örnek: 905321234567",
+  "email": "",
+  "address": "Adres bilgisi henüz girilmedi",
+  "mapsUrl": "",
+  "website": "",
+  "languages": ["Türkçe", "English"],
+
+  "timezone": "Europe/Istanbul",
+  "workingHours": {
+    "monday":    ["09:00", "19:00"],
+    "tuesday":   ["09:00", "19:00"],
+    "wednesday": ["09:00", "19:00"],
+    "thursday":  ["09:00", "19:00"],
+    "friday":    ["09:00", "19:00"],
+    "saturday":  ["09:00", "15:00"],
+    "sunday":    null
+  },
+  "breaks": [["12:30", "13:30"]],
+  "closedDates": ["2026-12-31", "2027-01-01"],
+
+  "appointment": {
+    "slotMinutes": 30,
+    "maxDaysAhead": 30,
+    "minNoticeMinutes": 60
+  },
+
+  "services": [
+    { "name": "Muayene ve Kontrol", "keywords": ["muayene", "kontrol", "check"], "description": "Ağız ve diş muayenesi, gerekirse röntgen ile tedavi planlaması." },
+    { "name": "Diş Taşı Temizliği", "keywords": ["temizlik", "tartar", "dis tasi", "detertraj"], "description": "Diş taşı ve lekelerin temizlenmesi, cila." },
+    { "name": "Diş Beyazlatma", "keywords": ["beyazlatma", "beyaz", "bleaching", "whitening"], "description": "Klinik ortamında profesyonel beyazlatma." },
+    { "name": "İmplant Tedavisi", "keywords": ["implant", "vida", "eksik dis"], "description": "Eksik dişlerin yerine titanyum vida üzerine kalıcı diş." },
+    { "name": "Zirkonyum Kaplama", "keywords": ["zirkon", "kaplama", "kron", "crown"], "description": "Doğal görünümlü, metal içermeyen kaplama." },
+    { "name": "Porselen Lamina / Gülüş Tasarımı", "keywords": ["lamina", "gulus", "veneer", "hollywood"], "description": "Ön dişlerde estetik görünüm için ince porselen yapraklar." },
+    { "name": "Kanal Tedavisi", "keywords": ["kanal", "sinir", "root canal"], "description": "İltihaplanmış veya ağrılı dişin kurtarılması." },
+    { "name": "Dolgu", "keywords": ["dolgu", "curuk", "filling"], "description": "Çürük dişlerin estetik (beyaz) dolgu ile onarılması." },
+    { "name": "Diş Çekimi / 20 Yaş Dişi", "keywords": ["cekim", "cektirme", "20 yas", "yirmi yas", "gomulu"], "description": "Gerekli durumlarda diş ve gömülü yirmi yaş dişi çekimi." },
+    { "name": "Ortodonti (Diş Teli / Şeffaf Plak)", "keywords": ["ortodonti", "dis teli", "tel tak", "seffaf plak", "braket", "carpik", "invisalign"], "description": "Çapraşık dişlerin düzeltilmesi." },
+    { "name": "Çocuk Diş Hekimliği", "keywords": ["cocuk", "pedodonti", "sut disi", "bebek"], "description": "Çocuklara özel muayene, koruyucu uygulamalar ve tedaviler." },
+    { "name": "Diş Eti Tedavisi", "keywords": ["dis eti", "diseti", "periodont", "kanama"], "description": "Diş eti kanaması, çekilmesi ve iltihabının tedavisi." }
+  ],
+
+  "doctors": [],
+
+  "prices": {
+    "_not": "Fiyat paylaşmak isterseniz ekleyin, ör. \"Muayene ve Kontrol\": \"Ücretsiz\". Boş kalırsa fiyatın muayeneden sonra belirlendiği söylenir.",
+    "items": {}
+  },
+
+  "faq": [],
+  "_faq_ornek": [
+    { "q": "Kredi kartına taksit yapıyor musunuz?", "a": "Evet, anlaşmalı kartlara taksit imkânımız var." },
+    { "q": "Otopark var mı?", "a": "Klinik binamızın önünde ücretsiz otopark bulunuyor." }
+  ],
+
+  "extraInfo": "",
+
+  "welcome": "ARK Dental'e hoş geldiniz! Ben Kaptan Ark. Sorularınızı yanıtlayabilir, randevu talebinizi hemen oluşturabilirim. Size nasıl yardımcı olayım?",
+
+  "suggestions": [
+    "Randevu almak istiyorum",
+    "Hangi hizmetleri veriyorsunuz?",
+    "Çalışma saatleriniz nedir?",
+    "İmplant tedavisi nasıl yapılır?"
+  ],
+
+  "ai": {
+    "endpoint": "chat.php",
+    "_not": "Yapay zeka cevaplarının geleceği adres. PHP destekli hostingde chat.php olarak kalsın. Cloudflare Worker kullanıyorsanız Worker adresini yazın. Boş bırakılırsa Kaptan Ark sadece hazır cevaplarla çalışır."
+  }
+}

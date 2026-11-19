@@ -1,0 +1,6 @@
+# Ayar dosyasına doğrudan erişimi engelle (Apache / LiteSpeed)
+<IfModule mod_authz_core.c>
+  <Files "chat-config.php">
+    Require all denied
+  </Files>
+</IfModule>
