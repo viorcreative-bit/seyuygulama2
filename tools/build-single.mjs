@@ -31,12 +31,13 @@ function appModule(code) {
   return body;
 }
 
-const [html, css, time, booking, faq, app, clinicRaw, body, glove, avatar] = await Promise.all([
+const [html, css, time, booking, faq, speech, app, clinicRaw, body, glove, avatar] = await Promise.all([
   text('index.html'),
   text('styles.css'),
   text('js/time.js'),
   text('js/booking.js'),
   text('js/faq.js'),
+  text('js/speech.js'),
   text('js/app.js'),
   text('clinic.json'),
   dataUri('img/mascot-body.webp', 'image/webp'),
@@ -51,7 +52,13 @@ clinic.ai = {
 };
 const configJson = JSON.stringify(clinic, null, 2).replace(/<\//g, '<\\/');
 
-const script = [wrapModule('time', time), wrapModule('booking', booking), wrapModule('faq', faq), appModule(app)].join('\n');
+const script = [
+  wrapModule('time', time),
+  wrapModule('booking', booking),
+  wrapModule('faq', faq),
+  wrapModule('speech', speech),
+  appModule(app),
+].join('\n');
 
 const styles = css
   .replaceAll('url("img/mascot-body.webp")', `url("${body}")`)

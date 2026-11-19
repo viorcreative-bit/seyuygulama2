@@ -1,6 +1,7 @@
 // ARK Dental · Kaptan Ark asistanı — maskot animasyonu, sesli konuşma, sohbet ve randevu talebi.
 import { availableSlots, clinicNow, normalizePhone, openDays, validName, whatsappLink } from './booking.js';
 import { answer, detectService, normalize, priorityAnswer } from './faq.js';
+import { chunk, detectLang, speechText } from './speech.js';
 import { formatDateTr } from './time.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -148,41 +149,10 @@ if (synth) {
   synth.addEventListener?.('voiceschanged', load);
 }
 
-function detectLang(text) {
-  if (/[çğıöşüİ]/i.test(text)) return 'tr';
-  if (/\b(the|you|your|and|appointment|hello|thank)\b/i.test(text)) return 'en';
-  return 'tr';
-}
-
 function pickVoice(lang) {
   const list = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith(lang));
   const preferred = /(natural|neural|online|google|yelda|emel|zira|aria|samantha)/i;
   return list.find((v) => preferred.test(v.name)) ?? list[0] ?? null;
-}
-
-function speechText(text) {
-  return text
-    .replace(/https?:\/\/\S+/g, '')
-    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '')
-    .replace(/[•*#_`>]/g, ' ')
-    .replace(/\bARK-([A-Z0-9])/g, 'ARK $1')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function chunk(text) {
-  const parts = text.match(/[^.!?…\n]+[.!?…]*\s*/g) ?? [text];
-  const out = [];
-  let cur = '';
-  for (const p of parts) {
-    if ((cur + p).length > 180 && cur) {
-      out.push(cur.trim());
-      cur = '';
-    }
-    cur += p;
-  }
-  if (cur.trim()) out.push(cur.trim());
-  return out;
 }
 
 /** Metni seslendirir; seslendirme bitince (veya iptal edilince) çözülür. */
